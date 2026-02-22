@@ -5,9 +5,12 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import vn.edu.phenikaa.timetablex.entity.Lecturer;
+import vn.edu.phenikaa.timetablex.service.CurrentUserService;
 import vn.edu.phenikaa.timetablex.service.LecturerService;
 
 import java.io.ByteArrayInputStream;
@@ -21,32 +24,45 @@ public class LecturerController {
 
     @Autowired
     private LecturerService lecturerService;
+    @Autowired
+    private CurrentUserService currentUserService;
 
     @GetMapping
     public List<Lecturer> getAll(
             @RequestParam(required = false) Long facultyId,
             @RequestParam(required = false) Long semesterId,
             @RequestParam(required = false) Boolean forAssignment) {
-        if (Boolean.TRUE.equals(forAssignment) && semesterId != null && facultyId != null) {
-            return lecturerService.getForAssignment(semesterId, facultyId);
+        Long currentFacultyId = currentUserService.getCurrentFacultyId();
+        Long filterFacultyId = facultyId != null ? facultyId : currentFacultyId;
+        if (Boolean.TRUE.equals(forAssignment) && semesterId != null && filterFacultyId != null) {
+            return lecturerService.getForAssignment(semesterId, filterFacultyId);
         }
-        if (facultyId != null) return lecturerService.getByFaculty(facultyId);
+        if (filterFacultyId != null) return lecturerService.getByFaculty(filterFacultyId);
         return lecturerService.getAll();
     }
 
     @PostMapping
     public Lecturer create(@RequestBody Lecturer lecturer) {
+        Long fid = currentUserService.getCurrentFacultyId();
+        if (fid != null && (lecturer.getFaculty() == null || !lecturer.getFaculty().getId().equals(fid)))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Chỉ được tạo giảng viên thuộc khoa của bạn");
         return lecturerService.save(lecturer);
     }
 
     @PutMapping("/{id}")
     public Lecturer update(@PathVariable Long id, @RequestBody Lecturer lecturer) {
+        Long fid = currentUserService.getCurrentFacultyId();
+        if (fid != null && !lecturerService.belongsToFaculty(id, fid))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không được sửa giảng viên thuộc khoa khác");
         lecturer.setId(id);
         return lecturerService.save(lecturer);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
+        Long fid = currentUserService.getCurrentFacultyId();
+        if (fid != null && !lecturerService.belongsToFaculty(id, fid))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không được xóa giảng viên thuộc khoa khác");
         lecturerService.delete(id);
     }
 

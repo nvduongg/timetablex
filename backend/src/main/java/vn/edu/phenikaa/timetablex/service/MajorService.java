@@ -33,6 +33,11 @@ public class MajorService {
         return majorRepository.findAll();
     }
 
+    public List<Major> getAll(Long facultyId) {
+        if (facultyId == null) return majorRepository.findAll();
+        return majorRepository.findByFaculty_IdOrderByCode(facultyId);
+    }
+
     public Major save(Major major) {
         return majorRepository.save(major);
     }
@@ -48,6 +53,14 @@ public class MajorService {
 
     public void delete(Long id) {
         majorRepository.deleteById(id);
+    }
+
+    /** Kiểm tra ngành có thuộc khoa không (dùng cho phân quyền Khoa) */
+    public boolean belongsToFaculty(Long majorId, Long facultyId) {
+        if (facultyId == null) return true;
+        return majorRepository.findById(majorId)
+                .map(m -> m.getFaculty() != null && m.getFaculty().getId().equals(facultyId))
+                .orElse(false);
     }
 
     // Tạo Template Excel: Cần thêm cột "Mã Khoa" để người dùng nhập

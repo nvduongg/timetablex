@@ -1,40 +1,155 @@
-import React from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Layout, Menu, Dropdown } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const { Header, Content, Sider } = Layout;
 
-const ALL_ITEMS = [
-  { key: '/dashboard',           label: 'Tổng quan' },
-  { key: '/faculties',           label: 'Quản lý Khoa/Viện' },
-  { key: '/majors',              label: 'Quản lý Ngành' },
-  { key: '/classes',             label: 'Quản lý Lớp' },
-  { key: '/rooms',               label: 'Quản lý Phòng học' },
-  { key: '/timeslots',           label: 'Quản lý Ca học' },
-  { key: '/courses',             label: 'Quản lý Môn học' },
-  { key: '/curriculum',          label: 'Quản lý CTĐT' },
-  { key: '/lecturers',           label: 'Quản lý Giảng viên' },
-  { key: '/semesters',           label: 'Quản lý Học kỳ' },
-  { key: '/course-offerings',    label: 'Quản lý Kế hoạch mở lớp' },
-  { key: '/faculty-approval',    label: 'Duyệt kế hoạch (Khoa/Viện)' },
-  { key: '/class-sections',      label: 'Quản lý Lớp học phần' },
-  { key: '/teaching-assignments',label: 'Phân công giảng dạy' },
-  { key: '/support-requests',    label: 'Yêu cầu hỗ trợ GV' },
-  { key: '/timetable',           label: 'Xếp Thời khóa biểu' },
-  { key: '/users',               label: 'Quản lý Tài khoản' },
-];
+// Map path -> label (dùng cho tiêu đề header)
+const PATH_TO_LABEL = {
+  '/dashboard': 'Tổng quan',
+  '/faculties': 'Quản lý Khoa/Viện',
+  '/majors': 'Quản lý Ngành',
+  '/classes': 'Quản lý Lớp',
+  '/rooms': 'Quản lý Phòng học',
+  '/timeslots': 'Quản lý Ca học',
+  '/courses': 'Quản lý Môn học',
+  '/curriculum': 'Quản lý CTĐT',
+  '/lecturers': 'Quản lý Giảng viên',
+  '/semesters': 'Quản lý Học kỳ',
+  '/course-offerings': 'Kế hoạch mở lớp',
+  '/faculty-approval': 'Duyệt kế hoạch',
+  '/class-sections': 'Quản lý Lớp học phần',
+  '/teaching-assignments': 'Phân công giảng dạy',
+  '/support-requests': 'Yêu cầu hỗ trợ GV',
+  '/timetable': 'Xếp Thời khóa biểu',
+  '/users': 'Quản lý Tài khoản',
+};
 
-const FACULTY_KEYS = ['/faculty-approval', '/teaching-assignments'];
+/**
+ * Menu theo phân quyền: P.ĐT vs Khoa/Viện
+ * P.ĐT: Dữ liệu cơ sở (đầy đủ), Lập kế hoạch, Lớp học phần, Xếp TKB, Hệ thống
+ * Khoa: Dữ liệu cơ sở (Giảng viên, Môn học), Duyệt kế hoạch, Phân công giảng dạy
+ */
+const getMenuItems = (role) => {
+  const isFaculty = role === 'FACULTY';
+
+  const menuItems = [
+    { key: '/dashboard', label: 'Tổng quan' },
+  ];
+
+  if (!isFaculty) {
+    // P.ĐT: Dữ liệu cơ sở
+    menuItems.push({
+      key: 'data',
+      label: 'Dữ liệu cơ sở',
+      children: [
+        { key: '/faculties', label: 'Khoa/Viện' },
+        { key: '/majors', label: 'Ngành' },
+        { key: '/classes', label: 'Lớp' },
+        { key: '/rooms', label: 'Phòng học' },
+        { key: '/timeslots', label: 'Ca học' },
+        { key: '/courses', label: 'Môn học' },
+        { key: '/curriculum', label: 'CTĐT' },
+        { key: '/lecturers', label: 'Giảng viên' },
+        { key: '/semesters', label: 'Học kỳ' },
+      ],
+    });
+
+    // Lập kế hoạch & Dự kiến (P.ĐT: Kế hoạch mở lớp)
+    menuItems.push({
+      key: 'module1',
+      label: 'Lập kế hoạch & Dự kiến',
+      children: [
+        { key: '/course-offerings', label: 'Kế hoạch mở lớp' },
+      ],
+    });
+  } else {
+    // Khoa: Dữ liệu cơ sở (Giảng viên, Môn học, Ngành, Lớp, CTĐT)
+    menuItems.push({
+      key: 'data',
+      label: 'Dữ liệu cơ sở',
+      children: [
+        { key: '/lecturers', label: 'Giảng viên' },
+        { key: '/courses', label: 'Môn học' },
+        { key: '/majors', label: 'Ngành' },
+        { key: '/classes', label: 'Lớp' },
+        { key: '/curriculum', label: 'CTĐT' },
+      ],
+    });
+    menuItems.push({
+      key: 'module1',
+      label: 'Lập kế hoạch & Dự kiến',
+      children: [
+        { key: '/faculty-approval', label: 'Duyệt kế hoạch' },
+      ],
+    });
+  }
+
+  if (!isFaculty) {
+    menuItems.push({
+      key: 'module2',
+      label: 'Quản lý Lớp học phần',
+      children: [
+        { key: '/class-sections', label: 'Lớp học phần' },
+      ],
+    });
+  } else {
+    // Khoa: Phân công giảng dạy
+    menuItems.push({
+      key: 'module3',
+      label: 'Phân công giảng dạy',
+      children: [
+        { key: '/teaching-assignments', label: 'Phân công giảng dạy' },
+      ],
+    });
+  }
+
+  if (!isFaculty) {
+    menuItems.push({
+      key: 'module4',
+      label: 'Xếp Thời khóa biểu',
+      children: [
+        { key: '/timetable', label: 'Xếp TKB' },
+      ],
+    });
+
+    menuItems.push({
+      key: 'system',
+      label: 'Hệ thống',
+      children: [
+        { key: '/support-requests', label: 'Yêu cầu hỗ trợ GV' },
+        { key: '/users', label: 'Quản lý Tài khoản' },
+      ],
+    });
+  }
+
+  return menuItems;
+};
 
 const MainLayout = ({ children, auth, onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const visibleItems = auth?.role === 'FACULTY'
-    ? ALL_ITEMS.filter(i => FACULTY_KEYS.includes(i.key))
-    : ALL_ITEMS;
+  const menuItems = useMemo(() => getMenuItems(auth?.role), [auth?.role]);
 
-  const currentTitle = ALL_ITEMS.find(item => item.key === location.pathname)?.label || 'Tổng quan';
+  // Mở submenu tương ứng với path hiện tại
+  const pathBasedOpenKeys = useMemo(() => {
+    const path = location.pathname;
+    if (path.startsWith('/course-offerings') || path.startsWith('/faculty-approval')) return ['module1'];
+    if (path.startsWith('/class-sections')) return ['module2'];
+    if (path.startsWith('/teaching-assignments')) return ['module3'];
+    if (path.startsWith('/timetable')) return ['module4'];
+    if (path.startsWith('/support-requests') || path.startsWith('/users')) return ['system'];
+    if (['/faculties','/majors','/classes','/rooms','/timeslots','/courses','/curriculum','/lecturers','/semesters'].includes(path)) return ['data'];
+    return [];
+  }, [location.pathname]);
+
+  const [openKeys, setOpenKeys] = useState(pathBasedOpenKeys);
+  useEffect(() => {
+    setOpenKeys(prev => Array.from(new Set([...prev, ...pathBasedOpenKeys])));
+  }, [pathBasedOpenKeys]);
+
+  const currentTitle = PATH_TO_LABEL[location.pathname] || 'Tổng quan';
 
   // Chiều cao chuẩn cho cả Header và Logo Area để tạo sự thẳng hàng
   const HEADER_HEIGHT = 84;
@@ -104,11 +219,14 @@ const MainLayout = ({ children, auth, onLogout }) => {
           }}
         >
           <Menu
+            className="main-sidebar-menu"
             mode="inline"
             selectedKeys={[location.pathname]}
-            onClick={(e) => navigate(e.key)}
+            openKeys={openKeys}
+            onOpenChange={setOpenKeys}
+            onClick={(e) => { if (e.key.startsWith('/')) navigate(e.key); }}
             style={{ border: 'none', background: 'transparent', fontWeight: 500 }}
-            items={visibleItems}
+            items={menuItems}
           />
         </div>
 

@@ -115,6 +115,26 @@ button:focus, input:focus {
   background: #005a8d;
 }
 
+/* Dấu chấm submenu - thẳng hàng với menu chính (Ant Design inlineIndent), dùng pseudo-element */
+.main-sidebar-menu.ant-menu-inline .ant-menu-sub .ant-menu-item {
+  position: relative;
+  padding-inline-start: 40px !important; /* Chừa chỗ cho dấu chấm */
+}
+.main-sidebar-menu.ant-menu-inline .ant-menu-sub .ant-menu-item::before {
+  content: '';
+  position: absolute;
+  left: 24px; /* Cùng vị trí với menu chính (inlineIndent mặc định) */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45); /* Ant Design colorTextSecondary */
+}
+.main-sidebar-menu.ant-menu-inline .ant-menu-sub .ant-menu-item-selected::before {
+  background: #005a8d; /* colorPrimary */
+}
+
 /* =========================================
    3. ÉP FONT CHO TOÀN BỘ ANT DESIGN (QUAN TRỌNG)
    ========================================= */

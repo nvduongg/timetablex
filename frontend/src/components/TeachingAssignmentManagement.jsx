@@ -349,7 +349,7 @@ const TeachingAssignmentManagement = ({ auth }) => {
                     {/* Học kỳ */}
                     <Select
                         variant="filled"
-                        style={{ width: 180 }}
+                        style={{ width: 'auto' }}
                         value={currentSemesterId}
                         onChange={setCurrentSemesterId}
                         placeholder="Học kỳ"

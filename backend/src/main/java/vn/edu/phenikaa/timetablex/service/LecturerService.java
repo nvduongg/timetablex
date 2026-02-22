@@ -58,6 +58,13 @@ public class LecturerService {
     public Lecturer save(Lecturer lecturer) { return lecturerRepo.save(lecturer); }
     public void delete(Long id) { lecturerRepo.deleteById(id); }
 
+    public boolean belongsToFaculty(Long lecturerId, Long facultyId) {
+        if (facultyId == null) return true;
+        return lecturerRepo.findById(lecturerId)
+                .map(l -> l.getFaculty() != null && l.getFaculty().getId().equals(facultyId))
+                .orElse(false);
+    }
+
     // API cập nhật ma trận chuyên môn (Gán list môn cho GV)
     public Lecturer updateCompetency(Long lecturerId, List<Long> courseIds) {
         Lecturer lecturer = lecturerRepo.findById(lecturerId).orElseThrow();

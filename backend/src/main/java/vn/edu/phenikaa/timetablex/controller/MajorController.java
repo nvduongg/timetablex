@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vn.edu.phenikaa.timetablex.entity.Major;
+import org.springframework.web.server.ResponseStatusException;
+import vn.edu.phenikaa.timetablex.service.CurrentUserService;
 import vn.edu.phenikaa.timetablex.service.MajorService;
 
 import java.io.ByteArrayInputStream;
@@ -20,25 +22,37 @@ public class MajorController {
 
     @Autowired
     private MajorService majorService;
+    @Autowired
+    private CurrentUserService currentUserService;
 
     @GetMapping
     public List<Major> getAll() {
-        return majorService.getAll();
+        Long facultyId = currentUserService.getCurrentFacultyId();
+        return majorService.getAll(facultyId);
     }
 
     @PostMapping
     public Major create(@RequestBody Major major) {
+        Long fid = currentUserService.getCurrentFacultyId();
+        if (fid != null && (major.getFaculty() == null || !major.getFaculty().getId().equals(fid)))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Chỉ được tạo ngành thuộc khoa của bạn");
         return majorService.save(major);
     }
 
     @PutMapping("/{id}")
     public Major update(@PathVariable Long id, @RequestBody Major major) {
+        Long fid = currentUserService.getCurrentFacultyId();
+        if (fid != null && !majorService.belongsToFaculty(id, fid))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không được sửa ngành thuộc khoa khác");
         major.setId(id);
         return majorService.save(major);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
+        Long fid = currentUserService.getCurrentFacultyId();
+        if (fid != null && !majorService.belongsToFaculty(id, fid))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không được xóa ngành thuộc khoa khác");
         try {
             majorService.delete(id);
             return ResponseEntity.ok().build();

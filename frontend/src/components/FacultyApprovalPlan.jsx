@@ -12,12 +12,16 @@ const { TextArea } = Input;
 /**
  * Trang cho Khoa/Viện: Xem danh sách học phần dự kiến P.ĐT đã gửi, Xác nhận hoặc Từ chối (kèm ghi chú).
  * Ràng buộc: hoàn tất trong 03 ngày làm việc sau khi P.ĐT gửi.
+ * Khi đăng nhập Khoa: tự động chọn khoa của user, không cần dropdown.
  */
-const FacultyApprovalPlan = () => {
+const FacultyApprovalPlan = ({ auth }) => {
+    const isFacultyUser = auth?.role === 'FACULTY';
+    const userFacultyId = auth?.facultyId || null;
+
     const [semesters, setSemesters] = useState([]);
     const [faculties, setFaculties] = useState([]);
     const [currentSemesterId, setCurrentSemesterId] = useState(null);
-    const [currentFacultyId, setCurrentFacultyId] = useState(null);
+    const [currentFacultyId, setCurrentFacultyId] = useState(userFacultyId);
     const [offerings, setOfferings] = useState([]);
     const [loading, setLoading] = useState(false);
     const [rejectModal, setRejectModal] = useState({ open: false, offering: null });
@@ -142,18 +146,22 @@ const FacultyApprovalPlan = () => {
                             </Option>
                         ))}
                     </Select>
-                    <span style={{ fontWeight: 500, color: '#666', marginLeft: 8 }}>Khoa/Viện:</span>
-                    <Select
-                        variant="filled"
-                        style={{ width: 'auto' }}
-                        value={currentFacultyId}
-                        onChange={setCurrentFacultyId}
-                        placeholder="Chọn Khoa (danh sách gửi tôi duyệt)"
-                    >
-                        {faculties.map(f => (
-                            <Option key={f.id} value={f.id}>{f.name} ({f.code})</Option>
-                        ))}
-                    </Select>
+                    {!isFacultyUser && (
+                        <>
+                            <span style={{ fontWeight: 500, color: '#666', marginLeft: 8 }}>Khoa/Viện:</span>
+                            <Select
+                                variant="filled"
+                                style={{ width: 'auto' }}
+                                value={currentFacultyId}
+                                onChange={setCurrentFacultyId}
+                                placeholder="Chọn Khoa"
+                            >
+                                {faculties.map(f => (
+                                    <Option key={f.id} value={f.id}>{f.name} ({f.code})</Option>
+                                ))}
+                            </Select>
+                        </>
+                    )}
                 </Space>
             </div>
 
@@ -170,7 +178,7 @@ const FacultyApprovalPlan = () => {
                 rowKey="id"
                 loading={loading}
                 pagination={{ pageSize: 10, placement: 'bottomRight' }}
-                locale={{ emptyText: currentFacultyId ? 'Không có học phần nào chờ duyệt.' : 'Chọn Khoa để xem danh sách P.ĐT gửi duyệt.' }}
+                locale={{ emptyText: currentFacultyId ? 'Không có học phần nào chờ duyệt.' : (isFacultyUser ? 'Chọn học kỳ để xem danh sách.' : 'Chọn Khoa để xem danh sách P.ĐT gửi duyệt.') }}
             />
 
             <Modal

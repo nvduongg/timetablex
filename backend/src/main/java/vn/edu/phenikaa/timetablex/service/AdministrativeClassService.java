@@ -32,6 +32,11 @@ public class AdministrativeClassService {
         return classRepository.findAll();
     }
 
+    public List<AdministrativeClass> getAll(Long facultyId) {
+        if (facultyId == null) return classRepository.findAll();
+        return classRepository.findByMajor_Faculty_Id(facultyId);
+    }
+
     public AdministrativeClass save(AdministrativeClass adminClass) {
         return classRepository.save(adminClass);
     }
@@ -49,6 +54,14 @@ public class AdministrativeClassService {
 
     public void delete(Long id) {
         classRepository.deleteById(id);
+    }
+
+    public boolean belongsToFaculty(Long classId, Long facultyId) {
+        if (facultyId == null) return true;
+        return classRepository.findById(classId)
+                .map(c -> c.getMajor() != null && c.getMajor().getFaculty() != null
+                        && c.getMajor().getFaculty().getId().equals(facultyId))
+                .orElse(false);
     }
 
     public ByteArrayInputStream generateTemplate() throws IOException {

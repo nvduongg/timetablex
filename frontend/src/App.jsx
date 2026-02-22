@@ -26,6 +26,27 @@ const HOME_REDIRECT = {
   DEFAULT: '/dashboard',
 };
 
+// P.ĐT bị chặn khỏi các path này (chỉ Khoa)
+const FACULTY_ONLY_PATHS = ['/faculty-approval', '/teaching-assignments'];
+
+// Khoa bị chặn khỏi các path này. Khoa được: /lecturers, /courses, /majors, /classes, /curriculum
+const PDT_ONLY_PATHS = [
+  '/faculties', '/rooms', '/timeslots', '/semesters', '/course-offerings',
+  '/class-sections', '/support-requests', '/timetable', '/users',
+];
+
+const ProtectedRoute = ({ path, children, auth }) => {
+  if (!auth) return <Navigate to="/" replace />;
+  const isFaculty = auth.role === 'FACULTY';
+  if (isFaculty && PDT_ONLY_PATHS.includes(path)) {
+    return <Navigate to={HOME_REDIRECT.FACULTY} replace />;
+  }
+  if (!isFaculty && FACULTY_ONLY_PATHS.includes(path)) {
+    return <Navigate to={HOME_REDIRECT.DEFAULT} replace />;
+  }
+  return children;
+};
+
 function App() {
   const [auth, setAuth] = useState(() => {
     const raw = localStorage.getItem('auth_user');
@@ -125,25 +146,25 @@ function App() {
             <Route path="/" element={<Navigate to={homeRoute} replace />} />
 
             {/* Phòng Đào tạo */}
-            <Route path="/dashboard" element={<Dashboard auth={auth} />} />
-            <Route path="/faculties" element={<FacultyManagement />} />
-            <Route path="/majors" element={<MajorManagement />} />
-            <Route path="/classes" element={<ClassManagement />} />
-            <Route path="/rooms" element={<RoomManagement />} />
-            <Route path="/timeslots" element={<TimeManagement />} />
-            <Route path="/courses" element={<CourseManagement />} />
-            <Route path="/curriculum" element={<CurriculumManagement />} />
-            <Route path="/lecturers" element={<LecturerManagement />} />
-            <Route path="/semesters" element={<SemesterManagement />} />
-            <Route path="/course-offerings" element={<CourseOfferingManagement />} />
-            <Route path="/class-sections" element={<ClassSectionManagement />} />
-            <Route path="/support-requests" element={<SupportRequestManagement />} />
-            <Route path="/timetable" element={<TimetableManagement />} />
-            <Route path="/users" element={<UserManagement />} />
+            <Route path="/dashboard" element={<ProtectedRoute path="/dashboard" auth={auth}><Dashboard auth={auth} /></ProtectedRoute>} />
+            <Route path="/faculties" element={<ProtectedRoute path="/faculties" auth={auth}><FacultyManagement /></ProtectedRoute>} />
+            <Route path="/majors" element={<ProtectedRoute path="/majors" auth={auth}><MajorManagement /></ProtectedRoute>} />
+            <Route path="/classes" element={<ProtectedRoute path="/classes" auth={auth}><ClassManagement /></ProtectedRoute>} />
+            <Route path="/rooms" element={<ProtectedRoute path="/rooms" auth={auth}><RoomManagement /></ProtectedRoute>} />
+            <Route path="/timeslots" element={<ProtectedRoute path="/timeslots" auth={auth}><TimeManagement /></ProtectedRoute>} />
+            <Route path="/courses" element={<ProtectedRoute path="/courses" auth={auth}><CourseManagement /></ProtectedRoute>} />
+            <Route path="/curriculum" element={<ProtectedRoute path="/curriculum" auth={auth}><CurriculumManagement /></ProtectedRoute>} />
+            <Route path="/lecturers" element={<ProtectedRoute path="/lecturers" auth={auth}><LecturerManagement /></ProtectedRoute>} />
+            <Route path="/semesters" element={<ProtectedRoute path="/semesters" auth={auth}><SemesterManagement /></ProtectedRoute>} />
+            <Route path="/course-offerings" element={<ProtectedRoute path="/course-offerings" auth={auth}><CourseOfferingManagement /></ProtectedRoute>} />
+            <Route path="/class-sections" element={<ProtectedRoute path="/class-sections" auth={auth}><ClassSectionManagement /></ProtectedRoute>} />
+            <Route path="/support-requests" element={<ProtectedRoute path="/support-requests" auth={auth}><SupportRequestManagement /></ProtectedRoute>} />
+            <Route path="/timetable" element={<ProtectedRoute path="/timetable" auth={auth}><TimetableManagement /></ProtectedRoute>} />
+            <Route path="/users" element={<ProtectedRoute path="/users" auth={auth}><UserManagement /></ProtectedRoute>} />
 
-            {/* Khoa/Viện + chung */}
-            <Route path="/faculty-approval" element={<FacultyApprovalPlan />} />
-            <Route path="/teaching-assignments" element={<TeachingAssignmentManagement auth={auth} />} />
+            {/* Khoa/Viện + P.ĐT */}
+            <Route path="/faculty-approval" element={<ProtectedRoute path="/faculty-approval" auth={auth}><FacultyApprovalPlan auth={auth} /></ProtectedRoute>} />
+            <Route path="/teaching-assignments" element={<ProtectedRoute path="/teaching-assignments" auth={auth}><TeachingAssignmentManagement auth={auth} /></ProtectedRoute>} />
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to={homeRoute} replace />} />

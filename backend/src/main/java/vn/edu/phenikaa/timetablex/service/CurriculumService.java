@@ -27,12 +27,33 @@ public class CurriculumService {
         return curriculumRepo.findAllWithDetailsAndCourses();
     }
 
+    public List<Curriculum> getAll(Long facultyId) {
+        if (facultyId == null) return curriculumRepo.findAllWithDetailsAndCourses();
+        return curriculumRepo.findByMajor_Faculty_Id(facultyId);
+    }
+
     public Curriculum create(Curriculum curr) {
         return curriculumRepo.save(curr);
     }
 
     public void delete(Long id) {
         curriculumRepo.deleteById(id);
+    }
+
+    public boolean belongsToFaculty(Long curriculumId, Long facultyId) {
+        if (facultyId == null) return true;
+        return curriculumRepo.findById(curriculumId)
+                .map(c -> c.getMajor() != null && c.getMajor().getFaculty() != null
+                        && c.getMajor().getFaculty().getId().equals(facultyId))
+                .orElse(false);
+    }
+
+    /** Kiểm tra detail thuộc CTĐT của khoa (dùng cho removeDetail) */
+    public boolean detailBelongsToFaculty(Long detailId, Long facultyId) {
+        if (facultyId == null) return true;
+        return detailRepo.findById(detailId)
+                .map(d -> d.getCurriculum() != null && belongsToFaculty(d.getCurriculum().getId(), facultyId))
+                .orElse(false);
     }
 
     public void removeDetail(Long detailId) {

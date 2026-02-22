@@ -101,8 +101,9 @@ const TeachingLoadStatsModal = ({ open, onClose, teachingLoad, semesterName, fac
     const maxLoad = teachingLoad.length > 0 ? Math.max(...teachingLoad.map(d => d.sectionCount || 0)) : 0;
     const minLoad = teachingLoad.length > 0 ? Math.min(...teachingLoad.map(d => d.sectionCount || 0)) : 0;
 
-    // Bar màu sắc: đỏ nếu quá tải, xanh bình thường
-    const chartData = teachingLoad.map(d => ({
+    // Bar: đánh số 1,2,3... để tránh chồng chéo tên; dóng sang bảng
+    const chartData = teachingLoad.map((d, i) => ({
+        num: i + 1,
         name: d.lecturerName,
         soLop: d.sectionCount || 0,
     }));
@@ -163,18 +164,21 @@ const TeachingLoadStatsModal = ({ open, onClose, teachingLoad, semesterName, fac
                         <MetricChip icon={<SwapOutlined />} label="Độ lệch tải" value={maxLoad - minLoad} color={PURPLE} />
                     </div>
 
-                    {/* ── Chart + Table ── */}
-                    <div style={{ display: 'flex', gap: 14 }}>
+                    {/* ── Chart + Table (cùng chiều cao) ── */}
+                    <div style={{ display: 'flex', gap: 14, alignItems: 'stretch', minHeight: 360 }}>
 
                         {/* Bar chart */}
                         <div style={{
                             flex: '1 1 0',
+                            minWidth: 0,
                             background: '#fff',
                             borderRadius: 12,
                             border: `1px solid ${BORDER}`,
                             padding: '16px 16px 8px',
+                            display: 'flex',
+                            flexDirection: 'column',
                         }}>
-                            <div style={{ marginBottom: 12 }}>
+                            <div style={{ marginBottom: 12, flexShrink: 0 }}>
                                 <Text strong style={{ fontSize: 13, display: 'block' }}>
                                     Phân bố số lớp theo giảng viên
                                 </Text>
@@ -182,19 +186,18 @@ const TeachingLoadStatsModal = ({ open, onClose, teachingLoad, semesterName, fac
                                     Màu đỏ = vượt tải trung bình
                                 </Text>
                             </div>
-                            <ResponsiveContainer width="100%" height={248}>
+                            <div style={{ flex: 1, minHeight: 0 }}>
+                                <ResponsiveContainer width="100%" height="100%">
                                 <BarChart
                                     data={chartData}
-                                    margin={{ top: 4, right: 4, left: -24, bottom: 56 }}
+                                    margin={{ top: 4, right: 14, left: -14, bottom: 32 }}
                                     barCategoryGap="28%"
                                 >
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                                     <XAxis
-                                        dataKey="name"
-                                        angle={-40}
-                                        textAnchor="end"
+                                        dataKey="num"
                                         interval={0}
-                                        tick={{ fontSize: 10, fill: '#8c8c8c' }}
+                                        tick={{ fontSize: 11, fill: '#8c8c8c', fontWeight: 600 }}
                                         axisLine={false}
                                         tickLine={false}
                                     />
@@ -227,12 +230,13 @@ const TeachingLoadStatsModal = ({ open, onClose, teachingLoad, semesterName, fac
                                         ))}
                                     </Bar>
                                 </BarChart>
-                            </ResponsiveContainer>
+                                </ResponsiveContainer>
+                            </div>
                         </div>
 
-                        {/* Table */}
+                        {/* Bảng Ant Design */}
                         <div style={{
-                            width: 256,
+                            width: 280,
                             flexShrink: 0,
                             background: '#fff',
                             borderRadius: 12,
@@ -240,23 +244,38 @@ const TeachingLoadStatsModal = ({ open, onClose, teachingLoad, semesterName, fac
                             padding: '16px 14px 8px',
                             display: 'flex',
                             flexDirection: 'column',
+                            minHeight: 0,
                         }}>
-                            <div style={{ marginBottom: 12 }}>
+                            <div style={{ marginBottom: 12, flexShrink: 0 }}>
                                 <Text strong style={{ fontSize: 13, display: 'block' }}>
                                     Chi tiết
                                 </Text>
                                 <Text type="secondary" style={{ fontSize: 12 }}>
-                                    Số lớp / tỉ lệ đảm nhận
+                                    Số trong biểu đồ → dóng sang bảng
                                 </Text>
                             </div>
                             <Table
                                 size="small"
                                 dataSource={teachingLoad}
                                 rowKey="lecturerId"
-                                pagination={{ pageSize: 8, simple: true, size: 'small' }}
+                                pagination={{
+                                    pageSize: 8,
+                                    size: 'small',
+                                    showSizeChanger: false,
+                                    showTotal: (total) => `${total} GV`,
+                                }}
                                 showHeader={true}
                                 className="load-table"
                                 columns={[
+                                    {
+                                        title: '#',
+                                        key: 'num',
+                                        align: 'center',
+                                        width: 36,
+                                        render: (_, __, idx) => (
+                                            <Text strong style={{ fontSize: 12, color: '#005a8d' }}>{idx + 1}</Text>
+                                        ),
+                                    },
                                     {
                                         title: 'Họ và tên',
                                         dataIndex: 'lecturerName',
@@ -322,7 +341,39 @@ const TeachingLoadStatsModal = ({ open, onClose, teachingLoad, semesterName, fac
                     padding: 7px 8px !important;
                 }
                 .load-table .ant-table-tbody > tr:hover > td { background: ${GREY_BG} !important; }
-                .load-table .ant-pagination { margin: 8px 0 0 !important; }
+                .load-table .ant-pagination {
+                    margin: 10px 0 0 !important;
+                    display: flex;
+                    justify-content: center;
+                    gap: 4px;
+                }
+                .load-table .ant-pagination .ant-pagination-prev,
+                .load-table .ant-pagination .ant-pagination-next,
+                .load-table .ant-pagination .ant-pagination-item {
+                    min-width: 28px;
+                    height: 28px;
+                    line-height: 26px;
+                    border-radius: 8px;
+                    border: 1px solid ${BORDER};
+                    background: #fff;
+                }
+                .load-table .ant-pagination .ant-pagination-item a { color: #666; }
+                .load-table .ant-pagination .ant-pagination-item-active {
+                    background: ${PRIMARY}15;
+                    border-color: ${PRIMARY};
+                }
+                .load-table .ant-pagination .ant-pagination-item-active a { color: ${PRIMARY}; font-weight: 600; }
+                .load-table .ant-pagination .ant-pagination-prev .ant-pagination-item-link,
+                .load-table .ant-pagination .ant-pagination-next .ant-pagination-item-link {
+                    border-radius: 8px;
+                    border: 1px solid ${BORDER};
+                }
+                .load-table .ant-pagination .ant-pagination-disabled .ant-pagination-item-link { opacity: 0.5; }
+                .load-table .ant-pagination .ant-pagination-total-text {
+                    font-size: 12px;
+                    color: #8c8c8c;
+                    margin-right: 12px;
+                }
             `}</style>
         </Modal>
     );

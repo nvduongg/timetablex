@@ -4,11 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vn.edu.phenikaa.timetablex.entity.Course;
+import org.springframework.web.server.ResponseStatusException;
 import vn.edu.phenikaa.timetablex.service.CourseService;
+import vn.edu.phenikaa.timetablex.service.CurrentUserService;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -20,10 +23,13 @@ public class CourseController {
 
     @Autowired
     private CourseService courseService;
+    @Autowired
+    private CurrentUserService currentUserService;
 
     @GetMapping
     public List<Course> getAll() {
-        return courseService.getAll();
+        Long facultyId = currentUserService.getCurrentFacultyId();
+        return courseService.getAll(facultyId);
     }
 
     @PostMapping
@@ -38,6 +44,9 @@ public class CourseController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
+        Long fid = currentUserService.getCurrentFacultyId();
+        if (fid != null && !courseService.belongsToFaculty(id, fid))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không được xóa môn học thuộc khoa khác");
         try {
             courseService.delete(id);
             return ResponseEntity.noContent().build();

@@ -33,8 +33,20 @@ public class CourseService {
         return courseRepo.findAll();
     }
 
+    public List<Course> getAll(Long facultyId) {
+        if (facultyId == null) return courseRepo.findAll();
+        return courseRepo.findByFaculty_IdOrderByCode(facultyId);
+    }
+
     public Course save(Course course) {
         return courseRepo.save(course);
+    }
+
+    public boolean belongsToFaculty(Long courseId, Long facultyId) {
+        if (facultyId == null) return true;
+        return courseRepo.findById(courseId)
+                .map(c -> c.getFaculty() != null && c.getFaculty().getId().equals(facultyId))
+                .orElse(false);
     }
 
     public void delete(Long id) {
