@@ -1,0 +1,61 @@
+services:
+  # 1. Database PostgreSQL
+  database:
+    image: postgres:16-alpine
+    container_name: timetablex-db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: timetablex_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data # Giữ dữ liệu khi tắt container
+    networks:
+      - app-network
+
+  # 2. Backend (Java Spring Boot)
+  backend:
+    image: eclipse-temurin:17-jdk-alpine # Dùng image Java có sẵn
+    container_name: timetablex-backend
+    working_dir: /app
+    volumes:
+      - ./backend:/app # Ánh xạ code vào trong để Hot Reload
+      - ~/.m2:/root/.m2 # (Tùy chọn) Cache thư viện Maven để lần sau chạy nhanh hơn
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/timetablex_db
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    # Lệnh này sẽ chạy mỗi khi start: Cấp quyền thực thi và chạy Spring Boot
+    command: /bin/sh -c "chmod +x mvnw && ./mvnw spring-boot:run"
+    networks:
+      - app-network
+
+  # 3. Frontend (ReactJS + Antd)
+  frontend:
+    image: node:20-alpine # Dùng image Node có sẵn
+    container_name: timetablex-frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app # Ánh xạ code vào để Hot Reload
+      - /app/node_modules # Giữ node_modules trong container, không map ngược ra ngoài gây lỗi
+    ports:
+      - "5173:5173" # Port mặc định của Vite
+    environment:
+      - CHOKIDAR_USEPOLLING=true # Bắt buộc để Hot Reload hoạt động tốt trên Docker Windows
+    # Lệnh chạy: Cài package nếu chưa có -> Chạy dev server
+    command: /bin/sh -c "npm install && npm install antd && npm run dev -- --host"
+    networks:
+      - app-network
+
+volumes:
+  db_data:
+
+networks:
+  app-network:
+    driver: bridge

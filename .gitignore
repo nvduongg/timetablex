@@ -1,0 +1,59 @@
+# ─── Dependencies ──────────────────────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# ─── Build outputs ─────────────────────────────────────────────────────────
+dist/
+frontend/dist/
+build/
+*.jar
+*.war
+*.ear
+*.class
+
+# ─── Environment & secrets ─────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.env
+application-local.properties
+application-local.yml
+application-local.yaml
+
+# ─── IDE ───────────────────────────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+.project
+.classpath
+.settings/
+
+# ─── OS ────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.log
+
+# ─── Logs & temp ───────────────────────────────────────────────────────────
+logs/
+*.log
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.cache
+
+# ─── Testing ───────────────────────────────────────────────────────────────
+coverage/
+*.lcov
+.nyc_output/
+
+# ─── Misc ──────────────────────────────────────────────────────────────────
+*.pid
+*.seed
+.npm
+.eslintcache

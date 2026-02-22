@@ -1,0 +1,171 @@
+/* src/index.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===========================
+   1. KHAI BÁO FULL BỘ FONT FZ POPPINS
+   =========================== */
+
+/* 100 - Thin */
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-Thin.ttf'); font-weight: 100; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-ThinItalic.ttf'); font-weight: 100; font-style: italic; font-display: swap; }
+
+/* 200 - ExtraLight */
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-ExtraLight.ttf'); font-weight: 200; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-ExtraLightItalic.ttf'); font-weight: 200; font-style: italic; font-display: swap; }
+
+/* 300 - Light */
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-Light.ttf'); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-LightItalic.ttf'); font-weight: 300; font-style: italic; font-display: swap; }
+
+/* 400 - Regular */
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-Regular.ttf'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-Italic.ttf'); font-weight: 400; font-style: italic; font-display: swap; }
+
+/* 500 - Medium (Dùng cho Menu, Button, Tiêu đề bảng) */
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-Medium.ttf'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-MediumItalic.ttf'); font-weight: 500; font-style: italic; font-display: swap; }
+
+/* 600 - SemiBold (Dùng cho tiêu đề quan trọng) */
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-SemiBold.ttf'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-SemiBoldItalic.ttf'); font-weight: 600; font-style: italic; font-display: swap; }
+
+/* 700 - Bold */
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-Bold.ttf'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-BoldItalic.ttf'); font-weight: 700; font-style: italic; font-display: swap; }
+
+/* 800 - ExtraBold */
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-ExtraBold.ttf'); font-weight: 800; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-ExtraBoldItalic.ttf'); font-weight: 800; font-style: italic; font-display: swap; }
+
+/* 900 - Black */
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-Black.ttf'); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/FZ Poppins-BlackItalic.ttf'); font-weight: 900; font-style: italic; font-display: swap; }
+
+
+/* ===========================
+   2. GLOBAL STYLE (APP SHELL)
+   =========================== */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #ffffff;
+  color: #1f1f1f;
+  -webkit-font-smoothing: antialiased;
+  
+  /* Khóa cuộn body để Layout React tự xử lý vùng cuộn riêng */
+  overflow: hidden; 
+  height: 100vh;
+}
+
+/* Xóa outline khi focus để giao diện sạch hơn */
+button:focus, input:focus {
+    outline: none;
+}
+
+/* Ant Design Override Global */
+.ant-btn {
+    font-weight: 500 !important; /* Button luôn là Medium */
+}
+
+/* Scrollbar Tinh Tế (Siêu mảnh, bo tròn) */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+::-webkit-scrollbar-thumb {
+  background: #e0e0e0; /* Màu xám rất nhạt */
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c0c0c0;
+}
+
+/* Sidebar - đảm bảo layout flex cho children (Ant Design Sider wrapper) */
+.ant-layout-sider .ant-layout-sider-children {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Sidebar Menu - Scrollbar riêng, luôn hiển thị khi cần cuộn */
+.sidebar-menu-scroll {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
+}
+.sidebar-menu-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-menu-scroll::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 3px;
+}
+.sidebar-menu-scroll::-webkit-scrollbar-thumb {
+  background: #c5ced6;
+  border-radius: 3px;
+}
+.sidebar-menu-scroll::-webkit-scrollbar-thumb:hover {
+  background: #005a8d;
+}
+
+/* =========================================
+   3. ÉP FONT CHO TOÀN BỘ ANT DESIGN (QUAN TRỌNG)
+   ========================================= */
+
+/* Ép font cho body lần nữa để chắc chắn */
+body, #root {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+/* Ép font cho các thành phần "bay" (Portal) nằm ngoài root */
+.ant-modal-root,             /* Modal chính & Lớp phủ */
+.ant-modal-confirm,          /* Modal xác nhận (Sửa/Xóa) */
+.ant-modal-confirm-title,    /* Tiêu đề Modal xác nhận */
+.ant-modal-confirm-content,  /* Nội dung Modal xác nhận */
+.ant-message,                /* Thông báo nhỏ (Toast) */
+.ant-notification,           /* Thông báo lớn góc màn hình */
+.ant-tooltip,                /* Chú thích khi hover */
+.ant-popover,                /* Popover */
+.ant-dropdown,               /* Menu thả xuống */
+.ant-select-dropdown,        /* Danh sách chọn Select */
+.ant-picker-dropdown,        /* Lịch chọn ngày */
+.ant-typography,
+.ant-btn,
+.ant-input,
+.ant-form-item-label > label {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+/* Tinh chỉnh riêng cho Modal Confirm (Xóa) để đẹp hơn */
+.ant-modal-confirm .ant-modal-confirm-title {
+    font-weight: 600 !important;
+    color: #1f1f1f !important;
+}
+
+.ant-modal-confirm .ant-modal-confirm-content {
+    color: #666 !important;
+    font-weight: 400 !important;
+}
+
+/* Tinh chỉnh Message (Thông báo xanh/đỏ) */
+.ant-message-notice-content {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500 !important;
+    border-radius: 8px !important; /* Bo tròn message cho mềm */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important; /* Bóng nhẹ */
+}
+
+/* Highlight dòng được chọn */
+.ant-table-row-selected {
+    background-color: #e6f7ff !important;
+}
+.ant-table-row-selected:hover > td {
+    background-color: #e6f7ff !important;
+}
