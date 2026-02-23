@@ -61,16 +61,16 @@ public class ClassSection {
     @Builder.Default
     private Boolean skipAssignment = false;
 
-    /** Yêu cầu hỗ trợ GV từ khoa khác - Khoa không có GV dạy được môn này */
+    /** Yêu cầu hỗ trợ GV từ khoa khác — Khoa A thiếu GV, chuyển Khoa B (quản lý chuyên môn) phân công */
     @Builder.Default
     private Boolean needsSupport = false;
 
-    /** Sĩ số dự kiến — tính tự động từ lớp biên chế hoặc nhập thủ công */
-    private Integer expectedStudentCount;
-
-    /** Ghi chú khi yêu cầu hỗ trợ GV */
+    /** Ghi chú khi gửi yêu cầu hỗ trợ (lý do, bối cảnh) */
     @Column(length = 500)
     private String supportRequestComment;
+
+    /** Sĩ số dự kiến — tính tự động từ lớp biên chế hoặc nhập thủ công */
+    private Integer expectedStudentCount;
 
     public enum SectionType {
         LT, // Lý thuyết

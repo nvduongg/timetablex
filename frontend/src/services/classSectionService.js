@@ -26,6 +26,3 @@ export const requestSupport = (sectionId, comment) =>
 
 export const getSupportRequests = (semesterId) =>
   axios.get('/class-sections/support-requests', { params: { semesterId } });
-
-export const resolveSupportRequest = (sectionId, lecturerId) =>
-  axios.put(`/class-sections/${sectionId}/resolve-support`, { lecturerId });

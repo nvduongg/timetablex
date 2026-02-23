@@ -1,7 +1,7 @@
 import axios from '../utils/axiosConfig';
 
 export const generateTimetable = (semesterId) =>
-  axios.post('/timetable/generate', { semesterId }, { timeout: 120000 });
+  axios.post('/timetable/generate', { semesterId }, { timeout: 600000 }); // 10 phút
 
 export const getTimetable = (semesterId, sectionId = null) =>
   axios.get('/timetable', { params: { semesterId, ...(sectionId && { sectionId }) } });
@@ -13,7 +13,7 @@ export const updateTimetableEntry = (entryId, { roomId, shiftId, dayOfWeek }) =>
   axios.put(`/timetable/${entryId}`, { roomId, shiftId, dayOfWeek });
 
 export const confirmTimetable = (semesterId) =>
-  axios.post('/timetable/confirm', { semesterId });
+  axios.post('/timetable/confirm', { semesterId: Number(semesterId) });
 
 export const deleteTimetableEntry = (entryId) =>
   axios.delete(`/timetable/${entryId}`);

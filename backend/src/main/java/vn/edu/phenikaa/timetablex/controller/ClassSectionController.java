@@ -64,6 +64,21 @@ public class ClassSectionController {
         return sectionService.getTeachingLoad(semesterId, facultyId);
     }
 
+    /** Khoa A gửi yêu cầu hỗ trợ GV — chuyển tới Khoa quản lý chuyên môn (course.faculty) */
+    @PutMapping("/{id}/request-support")
+    public ResponseEntity<Map<String, Object>> requestSupport(
+            @PathVariable Long id, @RequestBody Map<String, Object> payload) {
+        String comment = payload.get("comment") != null ? payload.get("comment").toString() : null;
+        ClassSection section = sectionService.requestSupport(id, comment);
+        return ResponseEntity.ok(Map.of("message", "Đã gửi yêu cầu hỗ trợ GV tới Khoa quản lý chuyên môn", "section", section));
+    }
+
+    /** P.ĐT xem danh sách yêu cầu hỗ trợ chưa xử lý */
+    @GetMapping("/support-requests")
+    public List<ClassSection> getSupportRequests(@RequestParam Long semesterId) {
+        return sectionService.getSupportRequests(semesterId);
+    }
+
     @PostMapping("/generate")
     public ResponseEntity<Map<String, Object>> generateFromApproved(@RequestBody Map<String, Object> payload) {
         Object semObj = payload.get("semesterId");
@@ -80,36 +95,4 @@ public class ClassSectionController {
         ));
     }
 
-    /** Khoa yêu cầu hỗ trợ GV từ khoa khác */
-    @PutMapping("/{id}/request-support")
-    public ResponseEntity<Map<String, Object>> requestSupport(
-            @PathVariable Long id,
-            @RequestBody Map<String, Object> payload) {
-        String comment = payload.get("comment") != null ? payload.get("comment").toString() : null;
-        ClassSection section = sectionService.requestSupport(id, comment);
-        return ResponseEntity.ok(Map.of(
-                "message", "Đã gửi yêu cầu hỗ trợ GV đến P.ĐT",
-                "section", section
-        ));
-    }
-
-    /** P.ĐT xem danh sách các lớp cần hỗ trợ GV */
-    @GetMapping("/support-requests")
-    public List<ClassSection> getSupportRequests(@RequestParam Long semesterId) {
-        return sectionService.getSupportRequests(semesterId);
-    }
-
-    /** P.ĐT giải quyết yêu cầu hỗ trợ: phân công GV từ khoa khác */
-    @PutMapping("/{id}/resolve-support")
-    public ResponseEntity<Map<String, Object>> resolveSupportRequest(
-            @PathVariable Long id,
-            @RequestBody Map<String, Object> payload) {
-        Long lecturerId = payload.get("lecturerId") != null
-                ? ((Number) payload.get("lecturerId")).longValue() : null;
-        ClassSection section = sectionService.resolveSupportRequest(id, lecturerId);
-        return ResponseEntity.ok(Map.of(
-                "message", "Đã phân công GV và giải quyết yêu cầu hỗ trợ",
-                "section", section
-        ));
-    }
 }

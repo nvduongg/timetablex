@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.phenikaa.timetablex.algorithm.GeneticTimetableScheduler;
+import vn.edu.phenikaa.timetablex.algorithm.SimulatedAnnealingTimetableScheduler;
 import vn.edu.phenikaa.timetablex.entity.*;
 import vn.edu.phenikaa.timetablex.repository.*;
 
@@ -44,7 +45,7 @@ public class TimetableService {
         private SemesterRepository semesterRepo;
 
         /**
-         * Thuật toán xếp TKB tự động cho một học kỳ sử dụng Genetic Algorithm.
+         * Thuật toán xếp TKB tự động cho một học kỳ sử dụng Simulated Annealing.
          * Ca học (Shift) là tiền đề bắt buộc: mỗi buổi học chiếm trọn một ca trong
          * ngày.
          * Không xếp môn học trực tiếp (OFFLINE/HYBRID) vào ca tối.
@@ -152,7 +153,7 @@ public class TimetableService {
                 Set<String> blockedRoomShifts = new HashSet<>();
                 Set<String> blockedLecturerShifts = new HashSet<>();
 
-                GeneticTimetableScheduler scheduler = new GeneticTimetableScheduler(
+                SimulatedAnnealingTimetableScheduler scheduler = new SimulatedAnnealingTimetableScheduler(
                                 sections, rooms, shifts, timeSlots, blockedRoomShifts, blockedLecturerShifts);
 
                 scheduler.setProgressCallback((generation, maxGenerations, bestFitness, conflicts) -> {
@@ -318,12 +319,12 @@ public class TimetableService {
                 response.put("assignedCount", entries.size());
                 response.put("conflictCount", conflictCount);
                 response.put("unscheduledSections", conflictCountBySection.size());
-                response.put("gaConflicts", gaConflicts);
+                response.put("algorithmConflicts", gaConflicts);
                 response.put("overloadWarnings", overloadWarnings);
                 response.put("conflicts", conflicts);
                 response.put("fitness", result.bestFitness);
                 response.put("message", String.format(
-                                "Đã xếp %d buổi học. Không thể xếp: %d buổi (%d lớp bị ảnh hưởng). GA fitness: %.0f",
+                                "Đã xếp %d buổi học. Không thể xếp: %d buổi (%d lớp bị ảnh hưởng). SA fitness: %.0f",
                                 entries.size(), conflictCount, conflictCountBySection.size(), result.bestFitness));
                 return response;
         }
@@ -339,14 +340,8 @@ public class TimetableService {
                 if (section.getSectionType() == ClassSection.SectionType.TH) {
                         String preferred = (course.getRequiredRoomType() != null && VALID_TH_ROOM_TYPES.contains(course.getRequiredRoomType()))
                                         ? course.getRequiredRoomType() : "PM";
-                        List<Room> preferredRooms = rooms.stream().filter(r -> preferred.equals(r.getType())).toList();
-                        List<Room> otherThRooms = rooms.stream()
-                                        .filter(r -> VALID_TH_ROOM_TYPES.contains(r.getType()) && !preferred.equals(r.getType()))
-                                        .toList();
-                        suitableRooms = new ArrayList<>(preferredRooms);
-                        suitableRooms.addAll(otherThRooms);
-                        if (suitableRooms.isEmpty())
-                                suitableRooms = new ArrayList<>(rooms);
+                        // CHỈ dùng đúng loại: PM=phòng máy (lập trình), TN=thí nghiệm Hóa/Lý — không trộn
+                        suitableRooms = rooms.stream().filter(r -> preferred.equals(r.getType())).collect(Collectors.toList());
                 } else {
                         boolean isOnlineOnly = course.getLearningMethod() == Course.LearningMethod.ONLINE_ELEARNING;
                         String requiredRoomType = (isOnlineOnly && "ONLINE".equals(course.getRequiredRoomType())) ? "ONLINE" : "LT";
@@ -362,11 +357,8 @@ public class TimetableService {
                 if (allowedShifts.isEmpty())
                         allowedShifts = new ArrayList<>(shifts);
 
-                // Shuffle thứ tự tìm để phân bố đều; ưu tiên T2-T6, T7 fallback cuối
-                List<Integer> days = new ArrayList<>(Arrays.asList(2, 3, 4, 5, 6, 7));
-                Collections.shuffle(days);
-                Collections.shuffle(allowedShifts);
-                Collections.shuffle(suitableRooms);
+                // Ưu tiên T2-T6, T7 cuối; tìm có hệ thống để tăng cơ hội tìm được slot
+                List<Integer> days = Arrays.asList(2, 3, 4, 5, 6, 7);
 
                 Long lecturerId = section.getLecturer() != null ? section.getLecturer().getId() : null;
 

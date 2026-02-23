@@ -11,9 +11,8 @@ public interface ClassSectionRepository extends JpaRepository<ClassSection, Long
     List<ClassSection> findByCourseOffering_Semester_Id(Long semesterId);
 
     // Lấy các lớp học phần theo học kỳ + Khoa:
-    // - Các lớp do Khoa đó phụ trách kế hoạch (o.faculty.id = facultyId)
-    // - Cộng thêm các lớp cần hỗ trợ (needsSupport = true) của các Khoa khác
-    // nhưng học phần thuộc Khoa này quản lý chuyên môn (c.faculty.id = facultyId)
+    // - Khoa phụ trách kế hoạch (o.faculty.id = facultyId)
+    // - HOẶC Khoa quản lý chuyên môn nhận yêu cầu hỗ trợ (c.faculty.id = facultyId AND needsSupport)
     @Query("""
             SELECT DISTINCT s
             FROM ClassSection s
@@ -24,10 +23,7 @@ public interface ClassSectionRepository extends JpaRepository<ClassSection, Long
             LEFT JOIN FETCH s.lecturer
             LEFT JOIN FETCH s.administrativeClasses
             WHERE o.semester.id = :semesterId
-              AND (
-                  o.faculty.id = :facultyId
-                  OR (c.faculty.id = :facultyId AND s.needsSupport = true)
-              )
+              AND (o.faculty.id = :facultyId OR (c.faculty.id = :facultyId AND s.needsSupport = true))
             """)
     List<ClassSection> findBySemesterAndFaculty(Long semesterId, Long facultyId);
 

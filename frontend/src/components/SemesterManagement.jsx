@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, DatePicker, Switch, message, Space, Tag, Tooltip, Upload } from 'antd';
+import { Table, Button, Modal, Form, Input, DatePicker, Switch, message, Space, Tag, Tooltip } from 'antd';
 import { 
     PlusOutlined, 
     EditOutlined, 
     DeleteOutlined, 
     CalendarOutlined, 
     CheckCircleOutlined,
-    StopOutlined,
-    DownloadOutlined,
-    UploadOutlined
+    StopOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import * as SemesterService from '../services/semesterService';
@@ -172,36 +170,6 @@ const SemesterManagement = () => {
                     onChange={e => setSearchText(e.target.value)}
                 />
                 <Space>
-                    <Button icon={<DownloadOutlined />} onClick={async () => {
-                        try {
-                            const res = await SemesterService.downloadTemplate();
-                            const url = window.URL.createObjectURL(new Blob([res.data]));
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = 'semester_template.xlsx';
-                            a.click();
-                            window.URL.revokeObjectURL(url);
-                            message.success('Đã tải mẫu');
-                        } catch { message.error('Lỗi tải mẫu'); }
-                    }}>
-                        Mẫu Excel
-                    </Button>
-                    <Upload
-                        customRequest={async ({ file, onSuccess, onError }) => {
-                            try {
-                                await SemesterService.importSemester(file);
-                                message.success('Import thành công');
-                                fetchSemesters();
-                                onSuccess();
-                            } catch (e) {
-                                message.error('Import thất bại');
-                                onError(e);
-                            }
-                        }}
-                        showUploadList={false}
-                    >
-                        <Button icon={<UploadOutlined />}>Import</Button>
-                    </Upload>
                     <Button type="primary" icon={<PlusOutlined />} onClick={handleAddNew}>
                         Tạo Học kỳ mới
                     </Button>

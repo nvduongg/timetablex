@@ -12,16 +12,11 @@ import java.util.stream.Collectors;
  * Gene: Một assignment (sectionId, roomId, shiftId, dayOfWeek).
  * Đơn vị thời gian là CA HỌC (Shift) — mỗi gene chiếm trọn một ca trong ngày.
  *
- * CẢI TIẾN v3:
- * - Hỗ trợ Thứ 7 (day=7) với soft penalty nhỏ, ưu tiên Thứ 2–6 trước.
- * - Cache O(1): sectionMap, shiftMap thay cho stream scan O(n) mỗi lần.
- * - Fitness nâng cao: penalty GV >2 buổi/ngày, Saturday soft penalty,
- * bonus phân bố ngày đồng đều, penalty thiếu buổi, penalty ca tối OFFLINE.
- * - GA parameters lớn hơn: Pop 300, Gen 800, Elitism 12%, Greedy seed 50%.
- * - Tournament size 8, tournament chọn theo Pareto (fitness + conflicts).
- * - Mutation: priority conflict-directed + segment swap (hoán đổi (day, shift)
- * giữa 2 gene bất kỳ trong chromosome).
- * - Greedy: dùng WEEKDAYS (2–6) trước, chỉ fallback sang Thứ 7 khi đã đầy.
+ * CẢI TIẾN v4:
+ * - Smart swap mutation: chỉ swap (day, shift) khi slot mới không gây conflict.
+ * - Conflict-aware crossover: chọn genes từ parent sao cho ít conflict với child đang xây.
+ * - Room load balancing: penalty khi phòng bị dùng quá nhiều so với trung bình.
+ * - Local search: hill climbing trên elite để tinh chỉnh phòng/thời gian.
  */
 public class GeneticTimetableScheduler {
 
@@ -51,9 +46,10 @@ public class GeneticTimetableScheduler {
     // GA hyperparameters
     // ─────────────────────────────────────────────────────────────────────────
 
-    private static final int POPULATION_SIZE = 400;
-    private static final int MAX_GENERATIONS = 1200;
-    private static final int STAGNANT_LIMIT = 120; // Dừng sớm nếu không cải thiện
+    private static final int POPULATION_SIZE = 220;
+    private static final int MAX_GENERATIONS = 500;
+    private static final int STAGNANT_LIMIT = 50; // Dừng sớm nếu không cải thiện
+    private static final long MAX_RUNTIME_MS = 4 * 60 * 1000; // 4 phút - tránh timeout
     private static final double CROSSOVER_RATE = 0.88;
     private static final double BASE_MUTATION_RATE = 0.15;
     private static final double MAX_MUTATION_RATE = 0.55;
@@ -72,6 +68,7 @@ public class GeneticTimetableScheduler {
     private static final int OVERLOAD_PENALTY = 300;
     private static final int MISSING_SESSION_PENALTY = 800; // thiếu buổi so với yêu cầu
     private static final int DISTRIBUTION_BONUS = 15; // phân bố đều ngày trong tuần
+    private static final int ROOM_IMBALANCE_PENALTY = 8; // phòng dùng quá nhiều so với trung bình
 
     // ─────────────────────────────────────────────────────────────────────────
     // Day lists
@@ -122,9 +119,9 @@ public class GeneticTimetableScheduler {
     // ─────────────────────────────────────────────────────────────────────────
 
     public static class Chromosome {
-        private List<Gene> genes;
-        private double fitness;
-        private int conflicts;
+        List<Gene> genes;  // package-private để SA có thể truy cập
+        double fitness;
+        int conflicts;
 
         public Chromosome() {
             this.genes = new ArrayList<>();
@@ -202,6 +199,7 @@ public class GeneticTimetableScheduler {
     // ─────────────────────────────────────────────────────────────────────────
 
     public GeneticResult run() {
+        long startTime = System.currentTimeMillis();
         List<Chromosome> population = initializePopulation();
 
         Chromosome bestChromosome = null;
@@ -210,6 +208,10 @@ public class GeneticTimetableScheduler {
         int totalRequired = getTotalRequiredSessions();
 
         for (int gen = 0; gen < MAX_GENERATIONS; gen++) {
+            // Giới hạn thời gian cứng — tránh timeout HTTP
+            if (System.currentTimeMillis() - startTime > MAX_RUNTIME_MS) {
+                break;
+            }
             boolean improved = false;
             for (Chromosome chr : population) {
                 evaluateFitness(chr);
@@ -256,6 +258,17 @@ public class GeneticTimetableScheduler {
                     BASE_MUTATION_RATE + (stagnantGenerations / 80.0) * 0.05);
 
             population = evolve(population, adaptiveMutation);
+
+            // Mỗi 120 thế hệ: local search (giảm tần suất để chạy nhanh hơn)
+            if ((gen + 1) % 120 == 0 && bestChromosome != null) {
+                Chromosome bestInPop = population.stream()
+                        .max((a, b) -> Double.compare(a.fitness, b.fitness))
+                        .orElse(null);
+                if (bestInPop != null) {
+                    localSearchImprove(bestInPop, new Random());
+                    evaluateFitness(bestInPop);
+                }
+            }
         }
 
         if (progressCallback != null && bestChromosome != null) {
@@ -264,11 +277,11 @@ public class GeneticTimetableScheduler {
         }
         if (bestChromosome != null) {
             evaluateFitness(bestChromosome);
-            // Chạy repair cuối cùng để giảm conflict trước khi trả về
             Random rnd = new Random();
             for (int rep = 0; rep < 3 && bestChromosome.conflicts > 0; rep++)
                 repairConflicts(bestChromosome, rnd);
             evaluateFitness(bestChromosome);
+            localSearchImprove(bestChromosome, rnd);
         }
 
         return new GeneticResult(bestChromosome, bestFitness);
@@ -622,6 +635,20 @@ public class GeneticTimetableScheduler {
                 distributionScore += days.size();
         }
 
+        // ── Room load imbalance ───────────────────────────────────────────────
+        Map<Long, Integer> roomUsageCount = new HashMap<>();
+        for (Gene g : chromosome.genes) {
+            roomUsageCount.merge(g.roomId, 1, (a, b) -> a + b);
+        }
+        int roomImbalance = 0;
+        if (!roomUsageCount.isEmpty()) {
+            double avg = (double) chromosome.genes.size() / roomUsageCount.size();
+            for (int cnt : roomUsageCount.values()) {
+                if (cnt > avg + 1.5)
+                    roomImbalance += (int) (cnt - avg);
+            }
+        }
+
         chromosome.conflicts = conflictCount;
         chromosome.fitness = (double) distributionScore * DISTRIBUTION_BONUS
                 - (double) conflictCount * CONFLICT_PENALTY
@@ -629,7 +656,8 @@ public class GeneticTimetableScheduler {
                 - (double) saturdayCount * SATURDAY_SOFT_PENALTY
                 - (double) dailyClusterPenalty
                 - (double) overloadPenalty
-                - (double) missingPenalty;
+                - (double) missingPenalty
+                - (double) roomImbalance * ROOM_IMBALANCE_PENALTY;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -665,10 +693,14 @@ public class GeneticTimetableScheduler {
             if (rnd.nextDouble() < 0.18)
                 swapMutate(offspring[1], rnd);
 
-            // 8% chance: repair conflicts trên offspring (ưu tiên elite)
-            if (rnd.nextDouble() < 0.08 && offspring[0].conflicts > 0)
+            // Đánh giá fitness để biết conflicts
+            evaluateFitness(offspring[0]);
+            evaluateFitness(offspring[1]);
+
+            // Repair: chắc chắn khi conflict >= 3, hoặc 18% chance khi có conflict
+            if (offspring[0].conflicts > 0 && (offspring[0].conflicts >= 3 || rnd.nextDouble() < 0.18))
                 repairConflicts(offspring[0], rnd);
-            if (rnd.nextDouble() < 0.08 && offspring[1].conflicts > 0)
+            if (offspring[1].conflicts > 0 && (offspring[1].conflicts >= 3 || rnd.nextDouble() < 0.18))
                 repairConflicts(offspring[1], rnd);
 
             next.add(offspring[0]);
@@ -699,8 +731,8 @@ public class GeneticTimetableScheduler {
     }
 
     /**
-     * Crossover: với mỗi section, lấy genes từ parent tốt hơn (70% bias).
-     * Nếu parent có conflicts bằng nhau, chọn theo fitness.
+     * Conflict-aware crossover: với mỗi section, chọn genes từ parent có ít conflict
+     * hơn với child đang xây. Bias 70% cho parent tốt hơn khi số conflict ngang nhau.
      */
     private Chromosome[] crossover(Chromosome p1, Chromosome p2, Random rnd) {
         if (rnd.nextDouble() > CROSSOVER_RATE) {
@@ -710,8 +742,9 @@ public class GeneticTimetableScheduler {
         Map<Long, List<Gene>> g1 = p1.genes.stream().collect(Collectors.groupingBy(Gene::getSectionId));
         Map<Long, List<Gene>> g2 = p2.genes.stream().collect(Collectors.groupingBy(Gene::getSectionId));
 
-        Set<Long> allIds = new HashSet<>(g1.keySet());
-        allIds.addAll(g2.keySet());
+        List<Long> allIds = new ArrayList<>(g1.keySet());
+        for (Long id : g2.keySet())
+            if (!allIds.contains(id)) allIds.add(id);
 
         Chromosome c1 = new Chromosome();
         Chromosome c2 = new Chromosome();
@@ -723,15 +756,21 @@ public class GeneticTimetableScheduler {
             List<Gene> genes1 = g1.getOrDefault(sid, Collections.emptyList());
             List<Gene> genes2 = g2.getOrDefault(sid, Collections.emptyList());
 
-            List<Gene> chosen1, chosen2;
-            if (rnd.nextDouble() < 0.70) {
+            int conflicts1WithC1 = countConflictsWithChild(genes1, c1.genes);
+            int conflicts2WithC1 = countConflictsWithChild(genes2, c1.genes);
+            int conflicts1WithC2 = countConflictsWithChild(genes1, c2.genes);
+            int conflicts2WithC2 = countConflictsWithChild(genes2, c2.genes);
+
+            List<Gene> chosen1 = conflicts1WithC1 <= conflicts2WithC1 ? genes1 : genes2;
+            if (conflicts1WithC1 == conflicts2WithC1 && rnd.nextDouble() < 0.70)
                 chosen1 = p1Better ? genes1 : genes2;
-            } else {
-                chosen1 = p1Better ? genes2 : genes1;
-            }
-            chosen2 = (chosen1 == genes1 || genes1.isEmpty()) ? genes2 : genes1;
-            if (chosen2.isEmpty())
-                chosen2 = chosen1;
+
+            List<Gene> chosen2 = conflicts2WithC2 <= conflicts1WithC2 ? genes2 : genes1;
+            if (conflicts1WithC2 == conflicts2WithC2 && rnd.nextDouble() < 0.70)
+                chosen2 = p1Better ? genes1 : genes2;
+
+            if (chosen1.isEmpty()) chosen1 = genes2.isEmpty() ? genes1 : genes2;
+            if (chosen2.isEmpty()) chosen2 = genes1.isEmpty() ? genes2 : genes1;
 
             for (Gene g : chosen1)
                 c1.genes.add(g.copy());
@@ -740,6 +779,30 @@ public class GeneticTimetableScheduler {
         }
 
         return new Chromosome[] { c1, c2 };
+    }
+
+    /** Đếm số conflict khi thêm genes mới vào child (so với các gene đã có). */
+    private int countConflictsWithChild(List<Gene> newGenes, List<Gene> existingGenes) {
+        Set<String> roomSlots = existingGenes.stream()
+                .map(g -> g.roomId + "-" + g.dayOfWeek + "-" + g.shiftId)
+                .collect(Collectors.toSet());
+        Set<String> lecturerSlots = new HashSet<>();
+        for (Gene g : existingGenes) {
+            ClassSection sec = sectionMap.get(g.sectionId);
+            if (sec != null && sec.getLecturer() != null)
+                lecturerSlots.add(sec.getLecturer().getId() + "-" + g.dayOfWeek + "-" + g.shiftId);
+        }
+        int conflicts = 0;
+        for (Gene g : newGenes) {
+            String rk = g.roomId + "-" + g.dayOfWeek + "-" + g.shiftId;
+            if (blockedRoomShifts.contains(rk) || roomSlots.contains(rk)) conflicts++;
+            ClassSection sec = sectionMap.get(g.sectionId);
+            if (sec != null && sec.getLecturer() != null) {
+                String lk = sec.getLecturer().getId() + "-" + g.dayOfWeek + "-" + g.shiftId;
+                if (blockedLecturerShifts.contains(lk) || lecturerSlots.contains(lk)) conflicts++;
+            }
+        }
+        return conflicts;
     }
 
     /**
@@ -967,24 +1030,177 @@ public class GeneticTimetableScheduler {
     }
 
     /**
-     * Swap mutation: hoán đổi (dayOfWeek, shiftId) giữa 2 gene ngẫu nhiên
-     * trong chromosome — tăng đa dạng mà không phá cấu trúc phòng-section.
+     * Local search (hill climbing): thử di chuyển gene sang slot khác; nếu fitness
+     * tốt hơn thì giữ. Giới hạn nhẹ để tránh chạy quá lâu.
+     */
+    private void localSearchImprove(Chromosome chromosome, Random rnd) {
+        if (chromosome.genes.isEmpty())
+            return;
+
+        List<Integer> days = new ArrayList<>(ALL_DAYS);
+        int maxAttempts = Math.min(40, chromosome.genes.size() * 3);
+        int improved = 0;
+
+        for (int attempt = 0; attempt < maxAttempts && improved < 8; attempt++) {
+            int idx = rnd.nextInt(chromosome.genes.size());
+            Gene gene = chromosome.genes.get(idx);
+            ClassSection section = sectionMap.get(gene.sectionId);
+            if (section == null)
+                continue;
+
+            Course course = section.getCourseOffering().getCourse();
+            Lecturer lec = section.getLecturer();
+            List<Room> rooms = getSuitableRooms(determineRequiredRoomType(section, course));
+            List<Shift> shifts = getAllowedShifts(course);
+            if (rooms.isEmpty() || shifts.isEmpty())
+                continue;
+
+            // Build current usage excluding this gene
+            Set<String> usedRoom = new HashSet<>();
+            Set<String> usedLec = new HashSet<>();
+            Set<String> usedDS = new HashSet<>();
+            for (int k = 0; k < chromosome.genes.size(); k++) {
+                if (k == idx) continue;
+                Gene g = chromosome.genes.get(k);
+                usedRoom.add(g.roomId + "-" + g.dayOfWeek + "-" + g.shiftId);
+                usedDS.add(g.sectionId + "-" + g.dayOfWeek + "-" + g.shiftId);
+                ClassSection s = sectionMap.get(g.sectionId);
+                if (s != null && s.getLecturer() != null)
+                    usedLec.add(s.getLecturer().getId() + "-" + g.dayOfWeek + "-" + g.shiftId);
+            }
+
+            Collections.shuffle(days, rnd);
+            List<Shift> shufShifts = new ArrayList<>(shifts);
+            Collections.shuffle(shufShifts, rnd);
+            List<Room> shufRooms = new ArrayList<>(rooms);
+            Collections.shuffle(shufRooms, rnd);
+
+            long oldRoom = gene.roomId;
+            int oldDay = gene.dayOfWeek;
+            long oldShift = gene.shiftId;
+            double beforeFitness = chromosome.fitness;
+            boolean foundBetter = false;
+
+            for (Integer d : days) {
+                for (Shift sh : shufShifts) {
+                    String dsKey = gene.sectionId + "-" + d + "-" + sh.getId();
+                    if (usedDS.contains(dsKey)) continue;
+                    String lk = lec != null ? lec.getId() + "-" + d + "-" + sh.getId() : null;
+                    if (lk != null && (blockedLecturerShifts.contains(lk) || usedLec.contains(lk))) continue;
+
+                    for (Room room : shufRooms) {
+                        String rk = room.getId() + "-" + d + "-" + sh.getId();
+                        if (blockedRoomShifts.contains(rk) || usedRoom.contains(rk)) continue;
+
+                        gene.roomId = room.getId();
+                        gene.dayOfWeek = d;
+                        gene.shiftId = sh.getId();
+                        evaluateFitness(chromosome);
+
+                        if (chromosome.fitness > beforeFitness) {
+                            improved++;
+                            foundBetter = true;
+                            break;
+                        }
+                        gene.roomId = oldRoom;
+                        gene.dayOfWeek = oldDay;
+                        gene.shiftId = oldShift;
+                    }
+                    if (foundBetter) break;
+                }
+                if (foundBetter) break;
+            }
+            if (!foundBetter) {
+                gene.roomId = oldRoom;
+                gene.dayOfWeek = oldDay;
+                gene.shiftId = oldShift;
+                evaluateFitness(chromosome);
+            }
+        }
+    }
+
+    /**
+     * Smart swap mutation: hoán đổi (dayOfWeek, shiftId) giữa 2 gene CHỈ KHI
+     * slot mới không gây conflict (room/lecturer trùng). Tăng đa dạng mà không phá TKB.
      */
     private void swapMutate(Chromosome chromosome, Random rnd) {
         if (chromosome.genes.size() < 2)
             return;
-        int i = rnd.nextInt(chromosome.genes.size());
-        int j = rnd.nextInt(chromosome.genes.size());
-        if (i == j)
-            return;
-        Gene gi = chromosome.genes.get(i);
-        Gene gj = chromosome.genes.get(j);
-        Long tmpShift = gi.shiftId;
-        gi.shiftId = gj.shiftId;
-        gj.shiftId = tmpShift;
-        Integer tmpDay = gi.dayOfWeek;
-        gi.dayOfWeek = gj.dayOfWeek;
-        gj.dayOfWeek = tmpDay;
+
+        // Build used slots EXCLUDING candidate genes (we'll try multiple pairs)
+        Set<String> usedRoomSlots = new HashSet<>();
+        Set<String> usedLecturerSlots = new HashSet<>();
+        Set<String> usedSectionDayShift = new HashSet<>();
+        for (int k = 0; k < chromosome.genes.size(); k++) {
+            Gene g = chromosome.genes.get(k);
+            usedRoomSlots.add(g.roomId + "-" + g.dayOfWeek + "-" + g.shiftId);
+            usedSectionDayShift.add(g.sectionId + "-" + g.dayOfWeek + "-" + g.shiftId);
+            ClassSection sec = sectionMap.get(g.sectionId);
+            if (sec != null && sec.getLecturer() != null)
+                usedLecturerSlots.add(sec.getLecturer().getId() + "-" + g.dayOfWeek + "-" + g.shiftId);
+        }
+
+        // Thử tối đa 15 cặp để tìm swap hợp lệ
+        for (int attempt = 0; attempt < 15; attempt++) {
+            int i = rnd.nextInt(chromosome.genes.size());
+            int j = rnd.nextInt(chromosome.genes.size());
+            if (i == j)
+                continue;
+
+            Gene gi = chromosome.genes.get(i);
+            Gene gj = chromosome.genes.get(j);
+            ClassSection secI = sectionMap.get(gi.sectionId);
+            ClassSection secJ = sectionMap.get(gj.sectionId);
+            if (secI == null || secJ == null)
+                continue;
+
+            Lecturer lecI = secI.getLecturer();
+            Lecturer lecJ = secJ.getLecturer();
+
+            // Slot mới cho gene i: (room_i, day_j, shift_j)
+            String newRi = gi.roomId + "-" + gj.dayOfWeek + "-" + gj.shiftId;
+            String newLi = lecI != null ? lecI.getId() + "-" + gj.dayOfWeek + "-" + gj.shiftId : null;
+            String newSi = gi.sectionId + "-" + gj.dayOfWeek + "-" + gj.shiftId;
+
+            // Slot mới cho gene j: (room_j, day_i, shift_i)
+            String newRj = gj.roomId + "-" + gi.dayOfWeek + "-" + gi.shiftId;
+            String newLj = lecJ != null ? lecJ.getId() + "-" + gi.dayOfWeek + "-" + gi.shiftId : null;
+            String newSj = gj.sectionId + "-" + gi.dayOfWeek + "-" + gi.shiftId;
+
+            // Bỏ slot cũ của i và j khỏi "used" (giả lập trước khi swap)
+            usedRoomSlots.remove(gi.roomId + "-" + gi.dayOfWeek + "-" + gi.shiftId);
+            usedRoomSlots.remove(gj.roomId + "-" + gj.dayOfWeek + "-" + gj.shiftId);
+            usedLecturerSlots.remove(lecI != null ? lecI.getId() + "-" + gi.dayOfWeek + "-" + gi.shiftId : null);
+            usedLecturerSlots.remove(lecJ != null ? lecJ.getId() + "-" + gj.dayOfWeek + "-" + gj.shiftId : null);
+            usedSectionDayShift.remove(gi.sectionId + "-" + gi.dayOfWeek + "-" + gi.shiftId);
+            usedSectionDayShift.remove(gj.sectionId + "-" + gj.dayOfWeek + "-" + gj.shiftId);
+
+            boolean valid = true;
+            if (blockedRoomShifts.contains(newRi) || usedRoomSlots.contains(newRi)) valid = false;
+            if (newLi != null && (blockedLecturerShifts.contains(newLi) || usedLecturerSlots.contains(newLi))) valid = false;
+            if (usedSectionDayShift.contains(newSi)) valid = false;
+            if (blockedRoomShifts.contains(newRj) || usedRoomSlots.contains(newRj)) valid = false;
+            if (newLj != null && (blockedLecturerShifts.contains(newLj) || usedLecturerSlots.contains(newLj))) valid = false;
+            if (usedSectionDayShift.contains(newSj)) valid = false;
+
+            if (valid) {
+                Long oldShiftI = gi.shiftId;
+                Integer oldDayI = gi.dayOfWeek;
+                gi.shiftId = gj.shiftId;
+                gi.dayOfWeek = gj.dayOfWeek;
+                gj.shiftId = oldShiftI;
+                gj.dayOfWeek = oldDayI;
+                return;
+            }
+
+            // Khôi phục used sets để thử cặp khác
+            usedRoomSlots.add(gi.roomId + "-" + gi.dayOfWeek + "-" + gi.shiftId);
+            usedRoomSlots.add(gj.roomId + "-" + gj.dayOfWeek + "-" + gj.shiftId);
+            if (lecI != null) usedLecturerSlots.add(lecI.getId() + "-" + gi.dayOfWeek + "-" + gi.shiftId);
+            if (lecJ != null) usedLecturerSlots.add(lecJ.getId() + "-" + gj.dayOfWeek + "-" + gj.shiftId);
+            usedSectionDayShift.add(gi.sectionId + "-" + gi.dayOfWeek + "-" + gi.shiftId);
+            usedSectionDayShift.add(gj.sectionId + "-" + gj.dayOfWeek + "-" + gj.shiftId);
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -1039,19 +1255,11 @@ public class GeneticTimetableScheduler {
     }
 
     /**
-     * Phòng phù hợp: LT dùng LT/ONLINE; TH dùng tất cả loại TH (PM, TN, SB, XT, BV, DN)
-     * để tăng cơ hội tìm slot khi phòng PM khan hiếm.
+     * Phòng phù hợp: CHỈ đúng loại yêu cầu. PM≠TN (TN=thí nghiệm Hóa/Lý, không dùng cho lập trình).
      */
     private List<Room> getSuitableRooms(String requiredType) {
         if (VALID_TH_ROOM_TYPES.contains(requiredType)) {
-            // TH: ưu tiên loại yêu cầu, rồi các loại TH khác
-            List<Room> preferred = rooms.stream().filter(r -> requiredType.equals(r.getType())).toList();
-            List<Room> otherTh = rooms.stream()
-                    .filter(r -> VALID_TH_ROOM_TYPES.contains(r.getType()) && !requiredType.equals(r.getType()))
-                    .toList();
-            List<Room> result = new ArrayList<>(preferred);
-            result.addAll(otherTh);
-            return result.isEmpty() ? new ArrayList<>(rooms) : result;
+            return new ArrayList<>(rooms.stream().filter(r -> requiredType.equals(r.getType())).toList());
         }
         List<Room> filtered = rooms.stream()
                 .filter(r -> requiredType.equals(r.getType()))

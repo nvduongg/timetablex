@@ -16,6 +16,7 @@ const ClassSectionManagement = () => {
     const [currentSemesterId, setCurrentSemesterId] = useState(null);
     const [loading, setLoading] = useState(false);
     const [typeFilter, setTypeFilter] = useState('ALL');
+    const [assignStatusFilter, setAssignStatusFilter] = useState('ALL');
 
     // Lớp biên chế
     const [adminClasses, setAdminClasses] = useState([]);
@@ -110,8 +111,19 @@ const ClassSectionManagement = () => {
 
     // ── Helpers ────────────────────────────────────────────────────────────────
     const filteredSections = sections.filter(s => {
-        if (typeFilter === 'ALL') return true;
-        return (s.sectionType || '').toUpperCase() === typeFilter;
+        if (typeFilter !== 'ALL' && (s.sectionType || '').toUpperCase() !== typeFilter) return false;
+        switch (assignStatusFilter) {
+            case 'ASSIGNED':
+                return !!s.lecturer;
+            case 'UNASSIGNED':
+                return !s.lecturer && !s.skipAssignment && !s.needsSupport;
+            case 'SKIPPED':
+                return !!s.skipAssignment;
+            case 'NEED_SUPPORT':
+                return !!s.needsSupport && !s.lecturer;
+            default:
+                return true;
+        }
     });
 
     const adminClassTransferData = adminClasses.map(ac => ({
@@ -159,7 +171,7 @@ const ClassSectionManagement = () => {
         {
             title: (
                 <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <TeamOutlined /> Lớp biên chế
+                    Lớp biên chế
                 </span>
             ),
             key: 'adminClasses',
@@ -210,6 +222,17 @@ const ClassSectionManagement = () => {
                 );
             },
         },
+        {
+            title: 'Trạng thái',
+            key: 'assignStatus',
+            width: 160,
+            render: (_, r) => {
+                if (r.skipAssignment) return <Tag color="orange">Bỏ qua</Tag>;
+                if (r.lecturer) return <Tag color="green">Đã phân công</Tag>;
+                if (r.needsSupport) return <Tag color="gold">Đã yêu cầu hỗ trợ</Tag>;
+                return <Tag>Chưa phân công</Tag>;
+            },
+        },
     ];
 
     // ── Render ─────────────────────────────────────────────────────────────────
@@ -247,6 +270,17 @@ const ClassSectionManagement = () => {
                         <Option value="LT">Lý thuyết</Option>
                         <Option value="TH">Thực hành</Option>
                     </Select>
+                    <Select
+                        variant="filled" style={{ minWidth: 180 }}
+                        value={assignStatusFilter} onChange={setAssignStatusFilter}
+                        placeholder="Trạng thái phân công"
+                    >
+                        <Option value="ALL">Tất cả trạng thái</Option>
+                        <Option value="ASSIGNED">Đã phân công</Option>
+                        <Option value="UNASSIGNED">Chưa phân công</Option>
+                        <Option value="SKIPPED">Bỏ qua</Option>
+                        <Option value="NEED_SUPPORT">Đã yêu cầu hỗ trợ</Option>
+                    </Select>
                 </Space>
 
                 <Tooltip title="Sinh các lớp học phần từ danh sách học phần đã được Khoa/Viện xác nhận (Module 1). Lớp biên chế được gán tự động theo quy tắc chia đều. Nếu đã có lớp, sẽ hỏi xác nhận xóa hết và sinh lại.">
@@ -264,7 +298,7 @@ const ClassSectionManagement = () => {
 
             <Alert
                 title="Module 2: Quản lý Lớp học phần"
-                description="Hệ thống sinh tự động các Lớp học phần từ danh sách học phần dự kiến đã được Khoa/Viện xác nhận. Lớp biên chế được chia đều cho tất cả lớp (LT + TH) — mỗi lớp nhận 1–2 lớp BC vừa đủ sức chứa phòng học. Bấm nút tại cột Lớp biên chế để chỉnh sửa thủ công nếu cần."
+                description="Hệ thống sinh tự động các Lớp học phần từ danh sách học phần đã được Khoa/Viện xác nhận. Lớp biên chế được chia theo quy mô: LT 40–80 SV/lớp, TH 20–45 SV/lớp. Các lớp TH/LT quá nhỏ sẽ được gộp tự động để đủ quy mô tối thiểu. Bấm nút tại cột Lớp biên chế để chỉnh sửa thủ công nếu cần."
                 type="info" showIcon
                 style={{ marginBottom: 20, border: 'none', background: '#e6f7ff' }}
             />
@@ -283,7 +317,6 @@ const ClassSectionManagement = () => {
             <Modal
                 title={
                     <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <TeamOutlined style={{ color: '#1890ff' }} />
                         Chỉnh sửa lớp biên chế — {assigningSection?.code}
                     </span>
                 }

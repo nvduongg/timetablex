@@ -53,8 +53,11 @@ public class CourseOfferingService {
     public void generateAutomatedPlan(AutoGenerateRequest req) {
         Semester semester = semesterRepo.findById(req.getSemesterId()).orElseThrow();
 
+        // Lọc theo cohort nhưng tránh NPE nếu lớp chưa có khóa hoặc request thiếu cohort
+        final String targetCohort = req.getCohort() != null ? req.getCohort().trim() : null;
         List<AdministrativeClass> classes = adminClassRepo.findAll().stream()
-                .filter(c -> c.getCohort().equalsIgnoreCase(req.getCohort()))
+                .filter(c -> c.getCohort() != null && targetCohort != null
+                        && c.getCohort().trim().equalsIgnoreCase(targetCohort))
                 .toList();
 
         if (classes.isEmpty()) return;
@@ -71,10 +74,11 @@ public class CourseOfferingService {
             Long majorId = entry.getKey();
             Integer studentCount = entry.getValue();
 
-            Optional<Curriculum> currOpt = curriculumRepo.findByMajorIdAndCohort(majorId, req.getCohort());
+            // Có thể tồn tại nhiều CTĐT cho cùng (majorId, cohort) → gộp tất cả
+            List<Curriculum> currList = curriculumRepo.findByMajorIdAndCohort(majorId, targetCohort);
 
-            if (currOpt.isPresent()) {
-                List<CurriculumDetail> details = currOpt.get().getDetails().stream()
+            for (Curriculum curr : currList) {
+                List<CurriculumDetail> details = curr.getDetails().stream()
                         .filter(d -> {
                             if (d.getSemesterIndex() == null) return false;
                             String[] semesters = d.getSemesterIndex().split(",");

@@ -26,7 +26,11 @@ public class TimetableController {
 
     private static Long asLong(Map<String, Object> payload, String key) {
         Object v = payload.get(key);
-        return v instanceof Number ? ((Number) v).longValue() : null;
+        if (v instanceof Number) return ((Number) v).longValue();
+        if (v instanceof String s && !s.isBlank()) {
+            try { return Long.parseLong(s.trim()); } catch (NumberFormatException ignored) {}
+        }
+        return null;
     }
 
     private static Integer asInt(Map<String, Object> payload, String key) {
@@ -104,8 +108,15 @@ public class TimetableController {
         if (semesterId == null) {
             return badRequest("semesterId không được để trống");
         }
-        timetableService.confirmTimetable(semesterId);
-        return ResponseEntity.ok(Map.of("message", "Đã xác nhận TKB thành công"));
+        try {
+            timetableService.confirmTimetable(semesterId);
+            return ResponseEntity.ok(Map.of("message", "Đã xác nhận TKB thành công"));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return badRequest(e.getMessage());
+        } catch (Exception e) {
+            String msg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            return ResponseEntity.internalServerError().body(Map.of("message", "Lỗi xác nhận TKB: " + msg));
+        }
     }
 
     /**

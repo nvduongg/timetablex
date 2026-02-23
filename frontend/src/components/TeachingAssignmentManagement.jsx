@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { App, Table, Select, Tag, Space, Alert, Tooltip, Button, Modal, Input, Flex, Typography } from 'antd';
-import { UserOutlined, FilterOutlined, ThunderboltOutlined, BarChartOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { App, Table, Select, Tag, Space, Alert, Tooltip, Button, Flex, Typography, Modal, Input } from 'antd';
+import { UserOutlined, ThunderboltOutlined, BarChartOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import * as SemesterService from '../services/semesterService';
 import * as FacultyService from '../services/facultyService';
 import * as ClassSectionService from '../services/classSectionService';
@@ -55,7 +55,7 @@ const TeachingAssignmentManagement = ({ auth }) => {
             const res = await ClassSectionService.getClassSectionsBySemester(currentSemesterId, currentFacultyId);
             const data = res.data || [];
             setSections(data);
-            setSelectedRowKeys([]); // reset lựa chọn khi reload danh sách
+            setSelectedRowKeys([]);
         } catch {
             message.error('Lỗi tải danh sách lớp học phần');
         } finally {
@@ -147,7 +147,7 @@ const TeachingAssignmentManagement = ({ auth }) => {
         try {
             const ids = selectedSectionForSupport._bulkIds || [selectedSectionForSupport.id];
             await Promise.all(ids.map(id => ClassSectionService.requestSupport(id, supportComment)));
-            message.success(`Đã gửi yêu cầu hỗ trợ GV cho ${ids.length} lớp tới P.ĐT`);
+            message.success(`Đã gửi yêu cầu hỗ trợ GV cho ${ids.length} lớp tới Khoa quản lý chuyên môn`);
             setSupportModalOpen(false);
             setSelectedSectionForSupport(null);
             setSupportComment('');
@@ -158,44 +158,28 @@ const TeachingAssignmentManagement = ({ auth }) => {
         }
     };
 
-    // Gửi yêu cầu hỗ trợ hàng loạt cho các lớp đang chọn và chưa được phân công GV
-    const handleBulkRequestSupport = async () => {
-        const target = sections.filter(
-            s =>
-                selectedRowKeys.includes(s.id) &&
-                !s.lecturer &&
-                !s.skipAssignment &&
-                !s.needsSupport
+    const handleBulkRequestSupport = () => {
+        const target = sections.filter(s =>
+            selectedRowKeys.includes(s.id) && !s.lecturer && !s.skipAssignment && !s.needsSupport
         );
         if (target.length === 0) {
-            message.info('Không có lớp nào chưa phân công để gửi yêu cầu hỗ trợ');
+            message.info('Chọn các lớp chưa phân công để gửi yêu cầu hỗ trợ');
             return;
         }
         setSupportComment('');
-        // Lưu tạm một bản ghi đại diện (hiển thị trong modal), phần gửi sẽ áp dụng cho tất cả
-        setSelectedSectionForSupport({
-            ...target[0],
-            _bulkIds: target.map(t => t.id),
-        });
+        setSelectedSectionForSupport({ ...target[0], _bulkIds: target.map(t => t.id) });
         setSupportModalOpen(true);
-    };
-
-    const rowSelection = {
-        selectedRowKeys,
-        onChange: (keys) => setSelectedRowKeys(keys),
     };
 
     const filteredSections = sections.filter(s => {
         switch (statusFilter) {
             case 'UNASSIGNED':
-                // Chưa phân công: không có GV và không skip (bao gồm cả các lớp cần hỗ trợ)
                 return !s.lecturer && !s.skipAssignment;
             case 'ASSIGNED':
                 return !!s.lecturer;
             case 'SKIPPED':
                 return !!s.skipAssignment;
             case 'NEED_SUPPORT':
-                // Các lớp đã yêu cầu hỗ trợ nhưng chưa được phân công
                 return !!s.needsSupport && !s.lecturer;
             default:
                 return true;
@@ -221,23 +205,15 @@ const TeachingAssignmentManagement = ({ auth }) => {
             title: 'Giảng viên phân công', key: 'lecturer', width: 380,
             render: (_, r) => {
                 const courseId = r.courseOffering?.course?.id;
-                const courseOfferingFacultyId = r.courseOffering?.faculty?.id; // Khoa yêu cầu
-                const courseManagingFacultyId = r.courseOffering?.course?.faculty?.id; // Khoa quản lý chuyên môn
-                const currentUserFacultyId = currentFacultyId; // Khoa hiện tại đang đăng nhập
+                const courseOfferingFacultyId = r.courseOffering?.faculty?.id;
+                const courseManagingFacultyId = r.courseOffering?.course?.faculty?.id;
+                const isFromOtherFaculty = r.needsSupport && courseOfferingFacultyId !== currentFacultyId;
+                const referenceFacultyId = r.needsSupport ? courseManagingFacultyId : courseOfferingFacultyId;
 
-                // Kiểm tra xem lớp này có phải từ khoa khác yêu cầu hỗ trợ không
-                const isFromOtherFaculty = r.needsSupport && courseOfferingFacultyId !== currentUserFacultyId;
-
-                // Lọc GV có chuyên môn dạy môn này
                 const qualifiedLecturers = lecturers.filter(l =>
                     l.courses && l.courses.some(c => c.id === courseId)
                 );
-
-                // Phân loại: Khoa quản lý chuyên môn (khoa hiện tại) vs Khoa khác
-                // Đối với lớp cần hỗ trợ, dùng course.faculty (khoa quản lý chuyên môn)
-                // Đối với lớp bình thường, dùng courseOffering.faculty (khoa phụ trách kế hoạch)
-                const referenceFacultyId = r.needsSupport ? courseManagingFacultyId : courseOfferingFacultyId;
-                const isOwnFaculty = (l) => l.faculty?.id === referenceFacultyId || l.faculty?.id === currentUserFacultyId;
+                const isOwnFaculty = (l) => l.faculty?.id === referenceFacultyId || l.faculty?.id === currentFacultyId;
                 const ownFacultyLecturers = qualifiedLecturers.filter(isOwnFaculty);
                 const otherFacultyLecturers = qualifiedLecturers.filter(l => !isOwnFaculty(l));
 
@@ -245,7 +221,7 @@ const TeachingAssignmentManagement = ({ auth }) => {
                     <Space direction="vertical" size={4} style={{ width: '100%' }}>
                         {isFromOtherFaculty && (
                             <div style={{ marginBottom: 4 }}>
-                                <Tag color="red" icon={<QuestionCircleOutlined />} style={{ fontSize: 11 }}>
+                                <Tag color="orange" icon={<QuestionCircleOutlined />} style={{ fontSize: 11 }}>
                                     Yêu cầu hỗ trợ từ {r.courseOffering?.faculty?.name}
                                 </Tag>
                                 {r.supportRequestComment && (
@@ -262,7 +238,7 @@ const TeachingAssignmentManagement = ({ auth }) => {
                             allowClear
                             showSearch
                             optionFilterProp="label"
-                            optionLabelProp="label" // Fix: Hiển thị tên (label) thay vì ID
+                            optionLabelProp="label" // Hiển thị tên (label) thay vì ID
                             value={r.skipAssignment ? '__SKIP__' : (r.lecturer?.id ?? null)}
                             onChange={(val) => {
                                 if (val === '__SKIP__') handleAssign(r.id, null, true);
@@ -284,7 +260,7 @@ const TeachingAssignmentManagement = ({ auth }) => {
                             <Option value={null}>— Chưa phân công —</Option>
                             {ownFacultyLecturers.length > 0 && (
                                 <Option disabled style={{ fontWeight: 600, color: '#333', fontSize: 11, padding: '4px 0' }}>
-                                    ── {r.needsSupport ? (r.courseOffering?.course?.faculty?.name || 'Khoa quản lý chuyên môn') : (r.courseOffering?.faculty?.name || 'Khoa chủ quản')} ──
+                                    —— {r.needsSupport ? (r.courseOffering?.course?.faculty?.name || 'Khoa quản lý chuyên môn') : (r.courseOffering?.faculty?.name || 'Khoa chủ quản')} ——
                                 </Option>
                             )}
                             {ownFacultyLecturers.map(l => (
@@ -299,7 +275,7 @@ const TeachingAssignmentManagement = ({ auth }) => {
                             ))}
                             {otherFacultyLecturers.length > 0 && (
                                 <Option disabled style={{ fontWeight: 600, color: '#666', fontSize: 11, padding: '4px 0', marginTop: 4 }}>
-                                    ── Khoa khác (dùng chung) ──
+                                    —— Khoa khác (dùng chung) ——
                                 </Option>
                             )}
                             {otherFacultyLecturers.map(l => (
@@ -437,9 +413,8 @@ const TeachingAssignmentManagement = ({ auth }) => {
                         onClick={handleBulkRequestSupport}
                         disabled={selectedRowKeys.length === 0}
                     >
-                        Hỗ trợ ({selectedRowKeys.length})
+                        Yêu cầu hỗ trợ ({selectedRowKeys.length})
                     </Button>
-
                     <Button
                         icon={<BarChartOutlined />}
                         onClick={handleOpenStats}
@@ -465,94 +440,42 @@ const TeachingAssignmentManagement = ({ auth }) => {
                 title="Yêu cầu hỗ trợ Giảng viên"
                 open={supportModalOpen}
                 onOk={handleSubmitSupportRequest}
-                onCancel={() => {
-                    setSupportModalOpen(false);
-                    setSelectedSectionForSupport(null);
-                    setSupportComment('');
-                }}
+                onCancel={() => { setSupportModalOpen(false); setSelectedSectionForSupport(null); setSupportComment(''); }}
                 okText="Gửi yêu cầu"
                 cancelText="Hủy"
-                width={720}
-                styles={{
-                    body: { padding: '18px 24px', background: '#fafbff' }
-                }}
+                width={640}
             >
                 {selectedSectionForSupport && (
-                    <Space direction="vertical" size={18} style={{ width: '100%' }}>
-                        <div
-                            style={{
-                                display: 'flex',
-                                gap: 16,
-                                padding: 14,
-                                borderRadius: 10,
-                                background: '#ffffff',
-                                border: '1px solid #f0f0f0',
-                            }}
-                        >
-                            <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: 12, fontWeight: 600, color: '#666', marginBottom: 4 }}>
-                                    Thông tin lớp học phần
-                                </div>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, fontSize: 13 }}>
-                                    <Tag color="blue" style={{ border: 'none', marginRight: 0 }}>
-                                        {selectedSectionForSupport.code}
-                                    </Tag>
-                                    <span>
-                                        {selectedSectionForSupport.courseOffering?.course?.code} -{' '}
-                                        {selectedSectionForSupport.courseOffering?.course?.name}
-                                    </span>
-                                </div>
-                                {selectedSectionForSupport._bulkIds && selectedSectionForSupport._bulkIds.length > 1 && (
-                                    <div style={{ marginTop: 6, fontSize: 12, color: '#8c8c8c' }}>
-                                        Áp dụng cho{' '}
-                                        <strong>{selectedSectionForSupport._bulkIds.length}</strong> lớp học phần đang được chọn.
-                                    </div>
-                                )}
+                    <Space direction="vertical" size={16} style={{ width: '100%' }}>
+                        <div>
+                            <div style={{ fontSize: 12, fontWeight: 600, color: '#666', marginBottom: 8 }}>Lớp học phần</div>
+                            <div>
+                                <Tag color="blue">{selectedSectionForSupport.code}</Tag>
+                                {selectedSectionForSupport.courseOffering?.course?.code} - {selectedSectionForSupport.courseOffering?.course?.name}
                             </div>
-                            <div
-                                style={{
-                                    flexBasis: 220,
-                                    padding: 10,
-                                    borderRadius: 8,
-                                    background: '#fff7e6',
-                                    border: '1px dashed #ffd591',
-                                    fontSize: 12,
-                                    color: '#8c6b39',
-                                }}
-                            >
-                                <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                                    Lưu ý luồng xử lý
+                            {selectedSectionForSupport._bulkIds?.length > 1 && (
+                                <div style={{ marginTop: 6, fontSize: 12, color: '#888' }}>
+                                    Áp dụng cho {selectedSectionForSupport._bulkIds.length} lớp đang chọn
                                 </div>
-                                <div>
-                                    Yêu cầu sẽ được gửi đến <strong>P.ĐT</strong>, sau đó chuyển tiếp cho{' '}
-                                    <strong>Khoa quản lý chuyên môn</strong> để phân công giảng viên phù hợp.
-                                </div>
-                            </div>
+                            )}
                         </div>
-
-                        <div
-                            style={{
-                                padding: 14,
-                                borderRadius: 10,
-                                background: '#ffffff',
-                                border: '1px solid #f0f0f0',
-                            }}
-                        >
-                            <div style={{ marginBottom: 6, fontWeight: 500, fontSize: 13 }}>
-                                Ghi chú cho P.ĐT / Khoa chuyên môn <span style={{ fontWeight: 400, color: '#999' }}>(tùy chọn)</span>
-                            </div>
-                            <div style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>
-                                Ví dụ: “Khoa không có giảng viên có chuyên môn về học phần này”, “Đề xuất mượn giảng viên từ Khoa CNTT”…
-                            </div>
+                        <div>
+                            <div style={{ marginBottom: 6, fontWeight: 500 }}>Ghi chú (tùy chọn)</div>
                             <Input.TextArea
                                 rows={4}
-                                placeholder="Mô tả ngắn gọn lý do và bối cảnh cần hỗ trợ giảng viên..."
+                                placeholder="Ví dụ: Khoa không có GV chuyên môn, đề xuất mượn GV từ Khoa khác..."
                                 value={supportComment}
                                 onChange={(e) => setSupportComment(e.target.value)}
                                 maxLength={500}
                                 showCount
                             />
                         </div>
+                        <Alert
+                            message="Quy trình"
+                            description="Yêu cầu sẽ được chuyển tới Khoa quản lý chuyên môn của môn học. Chỉ Khoa đó mới có quyền phân công GV vào lớp này."
+                            type="info"
+                            showIcon
+                        />
                     </Space>
                 )}
             </Modal>
@@ -566,7 +489,7 @@ const TeachingAssignmentManagement = ({ auth }) => {
                     rowKey="id"
                     loading={loading}
                     size="middle"
-                    rowSelection={rowSelection}
+                    rowSelection={{ selectedRowKeys, onChange: (keys) => setSelectedRowKeys(keys) }}
                     pagination={{ pageSize: 10, placement: 'bottomRight', showTotal: (t) => `Tổng ${t} lớp` }}
                 />
             )}

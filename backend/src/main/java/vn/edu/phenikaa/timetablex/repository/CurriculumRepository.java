@@ -7,11 +7,11 @@ import org.springframework.stereotype.Repository;
 import vn.edu.phenikaa.timetablex.entity.Curriculum;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface CurriculumRepository extends JpaRepository<Curriculum, Long> {
-    Optional<Curriculum> findByMajorIdAndCohort(Long majorId, String cohort);
+    // Có thể tồn tại nhiều CTĐT cho cùng (major, cohort) → trả List để service tự xử lý
+    List<Curriculum> findByMajorIdAndCohort(Long majorId, String cohort);
 
     @EntityGraph(attributePaths = {"details", "details.course", "major"})
     @Query("SELECT c FROM Curriculum c")

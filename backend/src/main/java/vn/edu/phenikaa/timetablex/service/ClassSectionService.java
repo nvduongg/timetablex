@@ -61,13 +61,20 @@ public class ClassSectionService {
     /** Sĩ số tối đa mỗi lớp TH (phòng thực hành nhỏ: 20–45 SV) */
     private static final int MAX_TH_STUDENTS = 45;
 
+    /** Sĩ số tối thiểu mỗi lớp TH — dưới ngưỡng này lớp không đủ quy mô (gộp với lớp khác) */
+    private static final int MIN_TH_STUDENTS = 20;
+
+    /** Sĩ số tối thiểu mỗi lớp LT — tương tự, tránh lớp quá nhỏ */
+    private static final int MIN_LT_STUDENTS = 40;
+
     /**
      * Sinh tự động các Lớp học phần từ danh sách CourseOffering đã APPROVED.
      *
      * Quy tắc gán lớp biên chế (LT-led splitting):
-     * - LT: mỗi lớp nhận nhóm BC ≤ {@value MAX_LT_STUDENTS} SV (phòng học lớn)
+     * - LT: mỗi lớp nhận nhóm BC ≤ {@value MAX_LT_STUDENTS} SV, ≥ {@value MIN_LT_STUDENTS} SV (phòng học lớn)
      * - TH: bám theo LT — mỗi nhóm BC của LT được chia tiếp thành các lớp TH
-     *       (mỗi lớp ≤ {@value MAX_TH_STUDENTS} SV). 1 lớp LT có thể tương ứng 1–2 lớp TH.
+     *       (mỗi lớp {@value MIN_TH_STUDENTS}–{@value MAX_TH_STUDENTS} SV). Lớp TH < {@value MIN_TH_STUDENTS} SV
+     *       sẽ được gộp với lớp khác để đủ quy mô.
      * - Dùng thuật toán Greedy Load-Balancing để cân bằng sĩ số.
      */
     /**
@@ -129,6 +136,7 @@ public class ClassSectionService {
             List<SliceWithCount> ltSlices = lt > 0 && !facultyAdminClasses.isEmpty()
                     ? splitAdminClassesWithMax(facultyAdminClasses, MAX_LT_STUDENTS)
                     : List.of();
+            ltSlices = mergeSmallSlices(ltSlices, MIN_LT_STUDENTS, MAX_LT_STUDENTS);
             int ltCount = Math.max(lt, ltSlices.size());
             // Khi không có BC: vẫn tạo đủ số lớp theo P.ĐT (để gán thủ công sau)
             if (lt > 0 && ltSlices.isEmpty() && ltCount > 0) {
@@ -157,6 +165,8 @@ public class ClassSectionService {
                     } else {
                         thSlices = splitAdminClassesWithMax(facultyAdminClasses, MAX_TH_STUDENTS);
                     }
+                    // Gộp các lớp TH quá nhỏ (< MIN_TH) để đủ quy mô
+                    thSlices = mergeSmallSlices(thSlices, MIN_TH_STUDENTS, MAX_TH_STUDENTS);
                 } else {
                     for (int i = 0; i < th; i++)
                         thSlices.add(new SliceWithCount(new HashSet<>(), 0));
@@ -208,19 +218,16 @@ public class ClassSectionService {
         if (Boolean.TRUE.equals(skipAssignment)) {
             section.setLecturer(null);
             section.setSkipAssignment(true);
-            // Giữ nguyên needsSupport khi skip
         } else {
             section.setSkipAssignment(false);
             if (lecturerId != null) {
                 Lecturer lecturer = lecturerRepo.findById(lecturerId)
                         .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy giảng viên ID: " + lecturerId));
                 section.setLecturer(lecturer);
-                // Khi đã phân công GV, tự động reset needsSupport và xóa comment
                 section.setNeedsSupport(false);
                 section.setSupportRequestComment(null);
             } else {
                 section.setLecturer(null);
-                // Khi bỏ phân công, giữ nguyên needsSupport
             }
         }
         return sectionRepo.save(section);
@@ -332,17 +339,19 @@ public class ClassSectionService {
                 .collect(Collectors.toList());
     }
 
-    /** Khoa yêu cầu hỗ trợ GV từ khoa khác */
+    /**
+     * Khoa A gửi yêu cầu hỗ trợ GV — lớp thuộc kế hoạch của Khoa A nhưng thiếu GV.
+     * Thông báo tự động gửi tới Khoa quản lý chuyên môn (course.faculty) để phân công.
+     */
     @Transactional
     public ClassSection requestSupport(Long sectionId, String comment) {
         ClassSection section = sectionRepo.findById(sectionId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy lớp học phần ID: " + sectionId));
         section.setNeedsSupport(true);
         section.setSupportRequestComment(comment);
-        section.setSkipAssignment(false); // Reset skip nếu đã set
+        section.setSkipAssignment(false);
         ClassSection saved = sectionRepo.save(section);
 
-        // Gửi thông báo tới Khoa quản lý chuyên môn của học phần
         if (saved.getCourseOffering() != null && saved.getCourseOffering().getCourse() != null
                 && saved.getCourseOffering().getCourse().getFaculty() != null
                 && saved.getCourseOffering().getSemester() != null) {
@@ -350,38 +359,21 @@ public class ClassSectionService {
             Long semesterId = saved.getCourseOffering().getSemester().getId();
             String courseCode = saved.getCourseOffering().getCourse().getCode();
             String courseName = saved.getCourseOffering().getCourse().getName();
-            String title = "Yêu cầu hỗ trợ giảng viên cho học phần " + courseCode;
-            String msg = "Có lớp học phần cần hỗ trợ giảng viên: "
-                    + saved.getCode() + " - " + courseCode + " - " + courseName
+            String reqFaculty = saved.getCourseOffering().getFaculty() != null ? saved.getCourseOffering().getFaculty().getName() : "Khoa yêu cầu";
+            String title = "Yêu cầu hỗ trợ GV cho học phần " + courseCode;
+            String msg = reqFaculty + " cần hỗ trợ: " + saved.getCode() + " - " + courseCode + " - " + courseName
                     + (comment != null && !comment.isBlank() ? (". Ghi chú: " + comment) : "");
             notificationService.create(managerFacultyId, title, msg, semesterId);
         }
-
         return saved;
     }
 
-    /** P.ĐT xem danh sách các lớp cần hỗ trợ GV */
+    /** P.ĐT xem tất cả yêu cầu hỗ trợ (chưa phân công) */
     public List<ClassSection> getSupportRequests(Long semesterId) {
         List<ClassSection> all = sectionRepo.findByCourseOffering_Semester_Id(semesterId);
         return all.stream()
-                .filter(s -> Boolean.TRUE.equals(s.getNeedsSupport()))
-                .filter(s -> s.getLecturer() == null) // Chưa được phân công
+                .filter(s -> Boolean.TRUE.equals(s.getNeedsSupport()) && s.getLecturer() == null)
                 .collect(Collectors.toList());
-    }
-
-    /** P.ĐT giải quyết yêu cầu hỗ trợ: phân công GV từ khoa khác */
-    @Transactional
-    public ClassSection resolveSupportRequest(Long sectionId, Long lecturerId) {
-        ClassSection section = sectionRepo.findById(sectionId)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy lớp học phần ID: " + sectionId));
-        if (lecturerId != null) {
-            Lecturer lecturer = lecturerRepo.findById(lecturerId)
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy giảng viên ID: " + lecturerId));
-            section.setLecturer(lecturer);
-            section.setNeedsSupport(false); // Đã giải quyết
-            section.setSupportRequestComment(null);
-        }
-        return sectionRepo.save(section);
     }
 
     /**
@@ -405,6 +397,60 @@ public class ClassSectionService {
 
     /** Kết quả chia: tập BC + sĩ số dự kiến (khi BC tách nhiều lớp thì sum(BC) sai, dùng expectedCount) */
     private record SliceWithCount(Set<AdministrativeClass> adminClasses, int expectedCount) {}
+
+    /**
+     * Gộp các slice có sĩ số < minThreshold vào slice khác để đủ quy mô lớp.
+     * Ưu tiên gộp slice nhỏ nhất với slice nhỏ nhất có thể (sao cho tổng ≤ maxPerBin).
+     */
+    private List<SliceWithCount> mergeSmallSlices(List<SliceWithCount> slices, int minThreshold, int maxPerBin) {
+        if (slices == null || slices.isEmpty() || minThreshold <= 0)
+            return slices;
+        List<SliceWithCount> result = new ArrayList<>(slices);
+        boolean changed = true;
+        while (changed) {
+            changed = false;
+            // Lấy slice nhỏ nhất dưới ngưỡng (bỏ qua slice rỗng)
+            SliceWithCount smallest = null;
+            int smallestIdx = -1;
+            for (int i = 0; i < result.size(); i++) {
+                SliceWithCount s = result.get(i);
+                if (s.expectedCount() > 0 && s.expectedCount() < minThreshold) {
+                    if (smallest == null || s.expectedCount() < smallest.expectedCount()) {
+                        smallest = s;
+                        smallestIdx = i;
+                    }
+                }
+            }
+            if (smallest == null)
+                break;
+            // Tìm slice khác để gộp: ưu tiên slice sao cho tổng ≤ maxPerBin và gần maxPerBin nhất
+            int bestIdx = -1;
+            int bestCombined = -1;
+            for (int i = 0; i < result.size(); i++) {
+                if (i == smallestIdx) continue;
+                SliceWithCount other = result.get(i);
+                int combined = smallest.expectedCount() + other.expectedCount();
+                if (combined <= maxPerBin && combined > bestCombined) {
+                    bestCombined = combined;
+                    bestIdx = i;
+                }
+            }
+            if (bestIdx < 0)
+                break;
+            // Gộp smallest vào result[bestIdx]
+            SliceWithCount other = result.get(bestIdx);
+            Set<AdministrativeClass> merged = new HashSet<>(smallest.adminClasses());
+            merged.addAll(other.adminClasses());
+            int mergedCount = smallest.expectedCount() + other.expectedCount();
+            SliceWithCount mergedSlice = new SliceWithCount(merged, mergedCount);
+            // Xóa cả hai, thêm slice đã gộp (xóa index lớn trước để không lệch)
+            result.remove(Math.max(smallestIdx, bestIdx));
+            result.remove(Math.min(smallestIdx, bestIdx));
+            result.add(mergedSlice);
+            changed = true;
+        }
+        return result;
+    }
 
     /**
      * Chia lớp biên chế thành các nhóm sao cho mỗi nhóm ≤ maxPerBin SV.

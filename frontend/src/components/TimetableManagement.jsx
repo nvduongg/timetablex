@@ -13,11 +13,11 @@ const { Text } = Typography;
 const DAY_NAMES = { 2: 'Thứ 2', 3: 'Thứ 3', 4: 'Thứ 4', 5: 'Thứ 5', 6: 'Thứ 6', 7: 'Thứ 7' };
 const DAY_COLORS = { 2: 'blue', 3: 'cyan', 4: 'geekblue', 5: 'purple', 6: 'magenta', 7: 'orange' };
 const GENERATION_STATUSES = [
-    'Đang khởi tạo quần thể...',
+    'Đang khởi tạo giải pháp greedy...',
     'Đang đánh giá fitness...',
-    'Đang chọn lọc chromosome tốt nhất...',
-    'Đang lai tạo thế hệ mới...',
-    'Đang đột biến gene...',
+    'Đang tìm láng giềng (move/swap)...',
+    'Đang áp dụng hàm chấp nhận...',
+    'Đang làm nguội (cooling)...',
     'Đang tối ưu hóa giải pháp...',
 ];
 
@@ -619,7 +619,7 @@ const TimetableManagement = () => {
                             marginBottom: 16,
                         }}>
                             <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: '#0050b3' }}>
-                                Hệ thống sẽ sử dụng <strong>Genetic Algorithm</strong> để xếp TKB tối ưu cho tất cả các lớp đã phân công giảng viên.
+                                Hệ thống sẽ sử dụng <strong>Simulated Annealing</strong> để xếp TKB tối ưu cho tất cả các lớp đã phân công giảng viên.
                             </p>
                         </div>
                         <ul style={{ margin: 0, paddingLeft: 20, color: '#595959', fontSize: 14, lineHeight: 2 }}>
@@ -646,7 +646,7 @@ const TimetableManagement = () => {
                                     {generationStatus || 'Đang xử lý...'}
                                 </div>
                                 <div style={{ fontSize: 12, color: '#8c8c8c' }}>
-                                    Genetic Algorithm đang tối ưu hóa thời khóa biểu
+                                    Simulated Annealing đang tối ưu hóa thời khóa biểu
                                 </div>
                             </div>
                         </div>
