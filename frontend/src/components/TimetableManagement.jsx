@@ -34,6 +34,25 @@ const STYLES = {
 
 const getApiError = (e, fallback) => e?.response?.data?.message || fallback;
 
+const SA_EVALUATION_STORAGE_KEY = 'timetablex_sa_evaluation';
+
+function loadSaEvaluationFromStorage() {
+    try {
+        const raw = localStorage.getItem(SA_EVALUATION_STORAGE_KEY);
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        if (data && typeof data.semesterName === 'string') return data;
+    } catch (_) { /* ignore */ }
+    return null;
+}
+
+function saveSaEvaluationToStorage(data) {
+    try {
+        if (data) localStorage.setItem(SA_EVALUATION_STORAGE_KEY, JSON.stringify(data));
+        else localStorage.removeItem(SA_EVALUATION_STORAGE_KEY);
+    } catch (_) { /* ignore */ }
+}
+
 /**
  * Module 4: Xếp Thời khóa biểu (Core Engine)
  * P.ĐT kích hoạt thuật toán xếp TKB tự động hoặc chỉnh sửa thủ công.
@@ -57,6 +76,8 @@ const TimetableManagement = () => {
     const [suggestions, setSuggestions] = useState([]);
     const [generateModalOpen, setGenerateModalOpen] = useState(false);
     const [exporting, setExporting] = useState(false);
+    const [evaluationModalOpen, setEvaluationModalOpen] = useState(false);
+    const [saEvaluation, setSaEvaluation] = useState(() => loadSaEvaluationFromStorage());
     const progressIntervalRef = useRef(null);
 
     // Lọc theo lớp biên chế (chỉ dùng để xem TKB)
@@ -113,6 +134,7 @@ const TimetableManagement = () => {
     };
 
     const handleStartGenerate = async () => {
+        const startTime = Date.now();
         setGenerating(true);
         setGenerationProgress(0);
         setGenerationStatus('Đang khởi tạo thuật toán...');
@@ -139,6 +161,24 @@ const TimetableManagement = () => {
             const data = res.data || {};
             const assigned = data.assignedCount || 0;
             const conflicts = data.conflictCount || 0;
+
+            const semesterName = semesters.find(s => s.id === currentSemesterId)?.name || `Học kỳ ${currentSemesterId}`;
+            const runtimeMs = Date.now() - startTime;
+
+            const evaluation = {
+                semesterId: currentSemesterId,
+                semesterName,
+                assignedCount: assigned,
+                conflictCount: conflicts,
+                unscheduledSections: data.unscheduledSections ?? 0,
+                algorithmConflicts: typeof data.algorithmConflicts === 'number' ? data.algorithmConflicts : null,
+                fitness: data.fitness,
+                overloadWarnings: data.overloadWarnings || [],
+                conflicts: data.conflicts || [],
+                runtimeMs,
+            };
+            setSaEvaluation(evaluation);
+            saveSaEvaluationToStorage(evaluation);
 
             await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -353,7 +393,6 @@ const TimetableManagement = () => {
         {
             title: (
                 <Space size={4}>
-                    <TeamOutlined style={{ color: '#08979c' }} />
                     <span>Lớp biên chế</span>
                 </Space>
             ),
@@ -547,6 +586,12 @@ const TimetableManagement = () => {
                     >
                         Xuất Excel
                     </Button>
+                    <Button
+                        size="middle"
+                        onClick={() => setEvaluationModalOpen(true)}
+                    >
+                        Xem đánh giá SA vs GA
+                    </Button>
                 </Space>
             </div>
 
@@ -584,6 +629,150 @@ const TimetableManagement = () => {
                     scroll={{ x: 1200 }}
                 />
             )}
+
+            {/* Modal Đánh giá thuật toán SA vs GA */}
+            <Modal
+                title="Đánh giá và so sánh thuật toán SA và GA"
+                open={evaluationModalOpen}
+                onCancel={() => setEvaluationModalOpen(false)}
+                footer={null}
+                centered
+                width={820}
+            >
+                <div style={{ maxHeight: 520, overflowY: 'auto', paddingRight: 4 }}>
+                    <Alert
+                        type="info"
+                        showIcon
+                        style={{ marginBottom: 16 }}
+                        message="Mục tiêu đánh giá"
+                        description={(
+                            <div style={{ fontSize: 13 }}>
+                                So sánh hai thuật toán tối ưu <strong>Simulated Annealing (SA)</strong> và <strong>Genetic Algorithm (GA)</strong>
+                                cho bài toán xếp thời khóa biểu. Hiện tại hệ thống đang triển khai SA, nên các số liệu dưới đây được lấy từ lần chạy SA gần nhất trong phiên làm việc này.
+                            </div>
+                        )}
+                    />
+
+                    {saEvaluation ? (
+                        <div style={{
+                            marginBottom: 16,
+                            padding: 12,
+                            borderRadius: 8,
+                            border: '1px solid #e6f4ff',
+                            background: '#f5f9ff',
+                        }}>
+                            <div style={{ fontWeight: 600, marginBottom: 4, fontSize: 13 }}>
+                                Thống kê lần chạy SA gần nhất — {saEvaluation.semesterName}
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, fontSize: 13 }}>
+                                <div>• Buổi đã xếp: <strong>{saEvaluation.assignedCount}</strong></div>
+                                <div>• Xung đột khi lưu TKB: <strong>{saEvaluation.conflictCount}</strong></div>
+                                <div>• Số lớp bị ảnh hưởng: <strong>{saEvaluation.unscheduledSections}</strong></div>
+                                {typeof saEvaluation.algorithmConflicts === 'number' && (
+                                    <div>• Xung đột trong thuật toán SA: <strong>{saEvaluation.algorithmConflicts}</strong></div>
+                                )}
+                                {typeof saEvaluation.fitness === 'number' && (
+                                    <div>• Fitness SA: <strong>{Math.round(saEvaluation.fitness)}</strong></div>
+                                )}
+                                <div>
+                                    • Thời gian chạy (xấp xỉ): <strong>{(saEvaluation.runtimeMs / 1000).toFixed(1)}s</strong>
+                                </div>
+                            </div>
+                            {saEvaluation.overloadWarnings?.length > 0 && (
+                                <div style={{ marginTop: 10 }}>
+                                    <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 4, color: '#595959' }}>
+                                        Cảnh báo quá tải / thiếu phòng:
+                                    </div>
+                                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: '#8c8c8c', lineHeight: 1.7 }}>
+                                        {saEvaluation.overloadWarnings.map((w, idx) => (
+                                            <li key={idx}>{w}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <Alert
+                            type="warning"
+                            showIcon
+                            style={{ marginBottom: 16 }}
+                            message="Chưa có dữ liệu SA"
+                            description="Bạn chưa chạy chức năng 'Xếp TKB tự động' trong phiên làm việc hiện tại, nên chưa có số liệu thực nghiệm để hiển thị."
+                        />
+                    )}
+
+                    <div style={{ marginBottom: 16 }}>
+                        <div style={{ fontWeight: 600, marginBottom: 6 }}>Các chỉ số đánh giá chính</div>
+                        <ul style={{ paddingLeft: 20, fontSize: 13, lineHeight: 1.8, margin: 0 }}>
+                            <li><strong>Fitness cuối cùng</strong>: giá trị hàm fitness của nghiệm tốt nhất (cao hơn là tốt hơn).</li>
+                            <li><strong>Số xung đột cứng</strong>: trùng phòng, trùng giảng viên, dùng slot bị chặn (càng thấp càng tốt, lý tưởng là 0).</li>
+                            <li><strong>Số buổi đã xếp được</strong>: tổng số buổi hợp lệ được gán vào TKB.</li>
+                            <li><strong>Số buổi / lớp không xếp được</strong>: số buổi không tìm được slot hợp lệ sau cùng.</li>
+                            <li><strong>Thời gian chạy</strong>: thời gian thuật toán khởi chạy đến khi dừng.</li>
+                        </ul>
+                    </div>
+
+                    <div style={{ marginBottom: 16 }}>
+                        <div style={{ fontWeight: 600, marginBottom: 6 }}>Gợi ý thiết kế thí nghiệm</div>
+                        <ul style={{ paddingLeft: 20, fontSize: 13, lineHeight: 1.8, margin: 0 }}>
+                            <li>Chọn 1–3 học kỳ đại diện (ít, vừa, nhiều lớp học phần).</li>
+                            <li>Mỗi thuật toán chạy lặp lại nhiều lần (ví dụ 10–30 lần) với seed ngẫu nhiên khác nhau.</li>
+                            <li>Dùng cùng điều kiện so sánh:
+                                <ul style={{ paddingLeft: 20, marginTop: 4 }}>
+                                    <li><strong>Cùng giới hạn thời gian</strong> (ví dụ 4 phút / lần chạy), hoặc</li>
+                                    <li><strong>Cùng ngân sách tính toán</strong> (cùng số lần đánh giá fitness).</li>
+                                </ul>
+                            </li>
+                            <li>Ghi nhận fitness, số xung đột, số buổi đã xếp, thời gian chạy cho mỗi lần.</li>
+                        </ul>
+                    </div>
+
+                    <div style={{ marginBottom: 16 }}>
+                        <div style={{ fontWeight: 600, marginBottom: 6 }}>Mẫu bảng kết quả (điền số liệu sau khi chạy thí nghiệm)</div>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                                <thead>
+                                    <tr style={{ background: '#fafafa' }}>
+                                        <th style={{ border: '1px solid #f0f0f0', padding: 6 }}>Instance</th>
+                                        <th style={{ border: '1px solid #f00f0f0', padding: 6 }}>Thuật toán</th>
+                                        <th style={{ border: '1px solid #f0f0f0', padding: 6 }}>Fitness trung bình</th>
+                                        <th style={{ border: '1px solid #f0f0f0', padding: 6 }}>Xung đột trung bình</th>
+                                        <th style={{ border: '1px solid #f0f0f0', padding: 6 }}>Buổi đã xếp TB</th>
+                                        <th style={{ border: '1px solid #f0f0f0', padding: 6 }}>Buổi không xếp được TB</th>
+                                        <th style={{ border: '1px solid #f0f0f0', padding: 6 }}>Thời gian chạy TB (s)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style={{ border: '1px solid #f0f0f0', padding: 6 }}>HK1 2024–2025</td>
+                                        <td style={{ border: '1px solid #f0f0f0', padding: 6 }}>SA</td>
+                                        <td style={{ border: '1px solid #f0f0f0', padding: 6 }}>[ghi số]</td>
+                                        <td style={{ border: '1px solid #f0f0f0', padding: 6 }}>[ghi số]</td>
+                                        <td style={{ border: '1px solid #f0f0f0', padding: 6 }}>[ghi số]</td>
+                                        <td style={{ border: '1px solid #f0f0f0', padding: 6 }}>[ghi số]</td>
+                                        <td style={{ border: '1px solid #f0f0f0', padding: 6 }}>[ghi số]</td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ border: '1px solid #f0f0f0', padding: 6 }}>HK1 2024–2025</td>
+                                        <td style={{ border: '1px solid #f0f0f0', padding: 6 }}>GA</td>
+                                        <td style={{ border: '1px solid #f0f0f0', padding: 6 }}>[ghi số]</td>
+                                        <td style={{ border: '1px solid #f0f0f0', padding: 6 }}>[ghi số]</td>
+                                        <td style={{ border: '1px solid #f0f0f0', padding: 6 }}>[ghi số]</td>
+                                        <td style={{ border: '1px solid #f0f0f0', padding: 6 }}>[ghi số]</td>
+                                        <td style={{ border: '1px solid #f0f0f0', padding: 6 }}>[ghi số]</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style={{ fontSize: 13, color: '#595959' }}>
+                        Sau khi điền bảng cho các học kỳ khác nhau, có thể kết luận: thuật toán nào cho
+                        <strong> ít xung đột hơn</strong>, <strong>fitness cao hơn</strong> trong cùng điều kiện thời gian,
+                        và độ ổn định giữa các lần chạy tốt hơn sẽ là lựa chọn ưu tiên triển khai trong thực tế.
+                    </div>
+                </div>
+            </Modal>
 
             {/* Modal Xếp TKB tự động */}
             <Modal
