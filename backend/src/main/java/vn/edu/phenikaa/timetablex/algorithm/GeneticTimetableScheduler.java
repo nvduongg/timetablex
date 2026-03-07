@@ -28,6 +28,9 @@ public class GeneticTimetableScheduler {
     private final List<Room> rooms;
     private final List<Shift> shifts;
     private final List<TimeSlot> timeSlots;
+    private final int eveningShiftStartPeriodFrom;
+    private final long maxRuntimeMs;
+    private final int maxGenerations;
 
     /** Slot đã bị chiếm bởi TKB CONFIRMED */
     private final Set<String> blockedRoomShifts;
@@ -47,9 +50,7 @@ public class GeneticTimetableScheduler {
     // ─────────────────────────────────────────────────────────────────────────
 
     private static final int POPULATION_SIZE = 220;
-    private static final int MAX_GENERATIONS = 500;
     private static final int STAGNANT_LIMIT = 50; // Dừng sớm nếu không cải thiện
-    private static final long MAX_RUNTIME_MS = 4 * 60 * 1000; // 4 phút - tránh timeout
     private static final double CROSSOVER_RATE = 0.88;
     private static final double BASE_MUTATION_RATE = 0.15;
     private static final double MAX_MUTATION_RATE = 0.55;
@@ -89,7 +90,10 @@ public class GeneticTimetableScheduler {
             List<Shift> shifts,
             List<TimeSlot> timeSlots,
             Set<String> blockedRoomShifts,
-            Set<String> blockedLecturerShifts) {
+            Set<String> blockedLecturerShifts,
+            int eveningShiftStartPeriodFrom,
+            long maxRuntimeMs,
+            int maxGenerations) {
 
         this.sections = sections;
         this.rooms = rooms;
@@ -98,6 +102,9 @@ public class GeneticTimetableScheduler {
         this.blockedRoomShifts = blockedRoomShifts != null ? blockedRoomShifts : Collections.emptySet();
         this.blockedLecturerShifts = blockedLecturerShifts != null ? blockedLecturerShifts : Collections.emptySet();
         this.progressCallback = null;
+        this.eveningShiftStartPeriodFrom = eveningShiftStartPeriodFrom;
+        this.maxRuntimeMs = maxRuntimeMs > 0 ? maxRuntimeMs : 240_000L;
+        this.maxGenerations = maxGenerations > 0 ? maxGenerations : 500;
 
         // Build caches
         this.sectionMap = sections.stream().collect(Collectors.toMap(ClassSection::getId, s -> s));
@@ -207,9 +214,8 @@ public class GeneticTimetableScheduler {
         int stagnantGenerations = 0;
         int totalRequired = getTotalRequiredSessions();
 
-        for (int gen = 0; gen < MAX_GENERATIONS; gen++) {
-            // Giới hạn thời gian cứng — tránh timeout HTTP
-            if (System.currentTimeMillis() - startTime > MAX_RUNTIME_MS) {
+        for (int gen = 0; gen < maxGenerations; gen++) {
+            if (System.currentTimeMillis() - startTime > maxRuntimeMs) {
                 break;
             }
             boolean improved = false;
@@ -226,16 +232,15 @@ public class GeneticTimetableScheduler {
                 stagnantGenerations++;
 
             if (progressCallback != null && bestChromosome != null) {
-                progressCallback.onProgress(gen + 1, MAX_GENERATIONS,
+                progressCallback.onProgress(gen + 1, maxGenerations,
                         bestChromosome.fitness, bestChromosome.conflicts);
             }
 
-            // Dừng sớm: không conflict + đủ số buổi
             if (bestChromosome != null
                     && bestChromosome.conflicts == 0
                     && bestChromosome.genes.size() >= totalRequired) {
                 if (progressCallback != null) {
-                    progressCallback.onProgress(MAX_GENERATIONS, MAX_GENERATIONS,
+                    progressCallback.onProgress(maxGenerations, maxGenerations,
                             bestChromosome.fitness, 0);
                 }
                 break;
@@ -272,7 +277,7 @@ public class GeneticTimetableScheduler {
         }
 
         if (progressCallback != null && bestChromosome != null) {
-            progressCallback.onProgress(MAX_GENERATIONS, MAX_GENERATIONS,
+            progressCallback.onProgress(maxGenerations, maxGenerations,
                     bestChromosome.fitness, bestChromosome.conflicts);
         }
         if (bestChromosome != null) {
@@ -585,9 +590,9 @@ public class GeneticTimetableScheduler {
                         .merge(gene.dayOfWeek, 1, (a, b) -> a + b);
             }
 
-            // ── OFFLINE vào ca tối ──────────────────────────────────────────
+            // ── Ca tối chỉ cho ONLINE/E-learning/Coursera ────────────────────
             Shift shift = shiftMap.get(gene.shiftId);
-            if (shift != null && isEveningShift(shift) && isOfflineCourse(course)) {
+            if (shift != null && isEveningShift(shift) && !isEveningAllowedForCourse(course)) {
                 eveningViolations++;
             }
 
@@ -1243,15 +1248,21 @@ public class GeneticTimetableScheduler {
     }
 
     /**
-     * Danh sách ca được phép: OFFLINE/HYBRID/ONLINE_COURSERA không được xếp vào ca
-     * tối
+     * Ca được phép: chỉ ONLINE_ELEARNING và ONLINE_COURSERA được xếp ca tối;
+     * OFFLINE/HYBRID chỉ ca ngày.
      */
     private List<Shift> getAllowedShifts(Course course) {
-        if (!isOfflineCourse(course))
+        if (isEveningAllowedForCourse(course))
             return new ArrayList<>(shifts);
         return shifts.stream()
                 .filter(s -> !isEveningShift(s))
                 .collect(Collectors.toList());
+    }
+
+    /** Học phần ONLINE / E-learning / Coursera mới được xếp ca tối */
+    private boolean isEveningAllowedForCourse(Course course) {
+        return course.getLearningMethod() == Course.LearningMethod.ONLINE_ELEARNING
+                || course.getLearningMethod() == Course.LearningMethod.ONLINE_COURSERA;
     }
 
     /**
@@ -1268,8 +1279,7 @@ public class GeneticTimetableScheduler {
     }
 
     private boolean isEveningShift(Shift shift) {
-        return (shift.getStartPeriod() != null && shift.getStartPeriod() >= 10)
-                || (shift.getName() != null && shift.getName().toLowerCase().contains("tối"));
+        return shift.getStartPeriod() != null && shift.getStartPeriod() >= eveningShiftStartPeriodFrom;
     }
 
     private boolean isOfflineCourse(Course course) {

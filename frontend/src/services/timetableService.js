@@ -1,7 +1,7 @@
 import axios from '../utils/axiosConfig';
 
-export const generateTimetable = (semesterId) =>
-  axios.post('/timetable/generate', { semesterId }, { timeout: 600000 }); // 10 phút
+export const generateTimetable = (semesterId, algorithm = 'SA') =>
+  axios.post('/timetable/generate', { semesterId, algorithm }, { timeout: 600000 }); // 10 phút
 
 export const getTimetable = (semesterId, sectionId = null) =>
   axios.get('/timetable', { params: { semesterId, ...(sectionId && { sectionId }) } });

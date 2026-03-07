@@ -27,6 +27,7 @@ public class SimulatedAnnealingTimetableScheduler {
     private final Map<Long, ClassSection> sectionMap;
     private final Map<Long, Shift> shiftMap;
     private final Map<Long, Integer> lecturerAvailableSlots;
+    private final int eveningShiftStartPeriodFrom;
 
     // SA parameters — tối ưu để giảm conflict
     private static final double T0 = 800.0;           // Nhiệt độ ban đầu cao hơn → khám phá nhiều
@@ -58,7 +59,8 @@ public class SimulatedAnnealingTimetableScheduler {
             List<Shift> shifts,
             List<TimeSlot> timeSlots,
             Set<String> blockedRoomShifts,
-            Set<String> blockedLecturerShifts) {
+            Set<String> blockedLecturerShifts,
+            int eveningShiftStartPeriodFrom) {
 
         this.sections = sections;
         this.rooms = rooms;
@@ -68,6 +70,7 @@ public class SimulatedAnnealingTimetableScheduler {
         this.sectionMap = sections.stream().collect(Collectors.toMap(ClassSection::getId, s -> s));
         this.shiftMap = shifts.stream().collect(Collectors.toMap(Shift::getId, s -> s));
         this.lecturerAvailableSlots = computeLecturerAvailableSlots();
+        this.eveningShiftStartPeriodFrom = eveningShiftStartPeriodFrom;
     }
 
     public void setProgressCallback(GeneticTimetableScheduler.ProgressCallback callback) {
@@ -491,7 +494,7 @@ public class SimulatedAnnealingTimetableScheduler {
             }
 
             Shift shift = shiftMap.get(gene.shiftId);
-            if (shift != null && isEveningShift(shift) && isOfflineCourse(course)) eveningViolations++;
+            if (shift != null && isEveningShift(shift) && !isEveningAllowedForCourse(course)) eveningViolations++;
             if (gene.dayOfWeek == 7) saturdayCount++;
             sectionCount.merge(gene.sectionId, 1, (a, b) -> a + b);
         }
@@ -745,9 +748,16 @@ public class SimulatedAnnealingTimetableScheduler {
         return avail > 0 ? (double) req / avail : 0;
     }
 
+    /** Ca được phép: chỉ ONLINE_ELEARNING và ONLINE_COURSERA được xếp ca tối; OFFLINE/HYBRID chỉ ca ngày */
     private List<Shift> getAllowedShifts(Course course) {
-        if (!isOfflineCourse(course)) return new ArrayList<>(shifts);
+        if (isEveningAllowedForCourse(course)) return new ArrayList<>(shifts);
         return shifts.stream().filter(s -> !isEveningShift(s)).collect(Collectors.toList());
+    }
+
+    /** Học phần ONLINE / E-learning / Coursera mới được xếp ca tối */
+    private boolean isEveningAllowedForCourse(Course course) {
+        return course.getLearningMethod() == Course.LearningMethod.ONLINE_ELEARNING
+                || course.getLearningMethod() == Course.LearningMethod.ONLINE_COURSERA;
     }
 
     private List<Room> getSuitableRooms(String requiredType) {
@@ -759,10 +769,10 @@ public class SimulatedAnnealingTimetableScheduler {
     }
 
     private boolean isEveningShift(Shift shift) {
-        return (shift.getStartPeriod() != null && shift.getStartPeriod() >= 10)
-                || (shift.getName() != null && shift.getName().toLowerCase().contains("tối"));
+        return shift.getStartPeriod() != null && shift.getStartPeriod() >= eveningShiftStartPeriodFrom;
     }
 
+    /** Dùng cho room type: OFFLINE/HYBRID/ONLINE_COURSERA cần phòng LT thật (không ảo) */
     private boolean isOfflineCourse(Course course) {
         return course.getLearningMethod() == Course.LearningMethod.OFFLINE
                 || course.getLearningMethod() == Course.LearningMethod.HYBRID

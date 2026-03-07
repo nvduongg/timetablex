@@ -43,7 +43,8 @@ public class TimetableController {
     }
 
     /**
-     * Kích hoạt thuật toán xếp TKB tự động cho một học kỳ
+     * Kích hoạt thuật toán xếp TKB tự động cho một học kỳ.
+     * payload: semesterId (bắt buộc), algorithm (tùy chọn: "SA" | "GA", mặc định "SA")
      */
     @PostMapping("/generate")
     public ResponseEntity<?> generateTimetable(@RequestBody Map<String, Object> payload) {
@@ -51,8 +52,9 @@ public class TimetableController {
         if (semesterId == null) {
             return badRequest("semesterId không được để trống");
         }
+        String algorithm = payload.get("algorithm") != null ? payload.get("algorithm").toString().trim() : "SA";
         try {
-            return ResponseEntity.ok(timetableService.generateTimetable(semesterId));
+            return ResponseEntity.ok(timetableService.generateTimetable(semesterId, algorithm));
         } catch (IllegalArgumentException | IllegalStateException e) {
             return badRequest(e.getMessage());
         } catch (Exception e) {

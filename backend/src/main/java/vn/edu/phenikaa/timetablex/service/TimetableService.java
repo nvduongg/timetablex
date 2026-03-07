@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.phenikaa.timetablex.algorithm.GeneticTimetableScheduler;
@@ -44,14 +45,21 @@ public class TimetableService {
         @Autowired
         private SemesterRepository semesterRepo;
 
+        @Value("${timetable.evening-shift.start-period-from:13}")
+        private int eveningShiftStartPeriodFrom;
+        @Value("${timetable.ga.max-runtime-ms:240000}")
+        private long gaMaxRuntimeMs;
+        @Value("${timetable.ga.max-generations:500}")
+        private int gaMaxGenerations;
+
         /**
-         * Thuật toán xếp TKB tự động cho một học kỳ sử dụng Simulated Annealing.
-         * Ca học (Shift) là tiền đề bắt buộc: mỗi buổi học chiếm trọn một ca trong
-         * ngày.
-         * Không xếp môn học trực tiếp (OFFLINE/HYBRID) vào ca tối.
+         * Thuật toán xếp TKB tự động cho một học kỳ.
+         * algorithm: "SA" = Simulated Annealing (mặc định), "GA" = Genetic Algorithm.
+         * Ca học (Shift) là tiền đề bắt buộc. Không xếp OFFLINE/HYBRID vào ca tối.
          */
         @Transactional
-        public Map<String, Object> generateTimetable(Long semesterId) {
+        public Map<String, Object> generateTimetable(Long semesterId, String algorithm) {
+                String algo = (algorithm != null && algorithm.toUpperCase().startsWith("GA")) ? "GA" : "SA";
                 Semester semester = semesterRepo.findById(semesterId)
                                 .orElseThrow(() -> new IllegalArgumentException(
                                                 "Không tìm thấy học kỳ ID: " + semesterId));
@@ -149,18 +157,24 @@ public class TimetableService {
                         }
                 }
 
-                // Đã xóa hết TKB ở trên → không có slot bị chiếm, GA xếp tự do
+                // Đã xóa hết TKB ở trên → không có slot bị chiếm
                 Set<String> blockedRoomShifts = new HashSet<>();
                 Set<String> blockedLecturerShifts = new HashSet<>();
 
-                SimulatedAnnealingTimetableScheduler scheduler = new SimulatedAnnealingTimetableScheduler(
-                                sections, rooms, shifts, timeSlots, blockedRoomShifts, blockedLecturerShifts);
-
-                scheduler.setProgressCallback((generation, maxGenerations, bestFitness, conflicts) -> {
-                        // Progress tracking (có thể mở rộng sau)
-                });
-
-                GeneticTimetableScheduler.GeneticResult result = scheduler.run();
+                GeneticTimetableScheduler.GeneticResult result;
+                if ("GA".equals(algo)) {
+                        GeneticTimetableScheduler gaScheduler = new GeneticTimetableScheduler(
+                                        sections, rooms, shifts, timeSlots, blockedRoomShifts, blockedLecturerShifts,
+                                        eveningShiftStartPeriodFrom, gaMaxRuntimeMs, gaMaxGenerations);
+                        gaScheduler.setProgressCallback((generation, maxGenerations, bestFitness, conflicts) -> {});
+                        result = gaScheduler.run();
+                } else {
+                        SimulatedAnnealingTimetableScheduler saScheduler = new SimulatedAnnealingTimetableScheduler(
+                                        sections, rooms, shifts, timeSlots, blockedRoomShifts, blockedLecturerShifts,
+                                        eveningShiftStartPeriodFrom);
+                        saScheduler.setProgressCallback((generation, maxGenerations, bestFitness, conflicts) -> {});
+                        result = saScheduler.run();
+                }
                 GeneticTimetableScheduler.Chromosome bestChromosome = result.bestChromosome;
 
                 if (bestChromosome == null || bestChromosome.getGenes().isEmpty()) {
@@ -323,9 +337,10 @@ public class TimetableService {
                 response.put("overloadWarnings", overloadWarnings);
                 response.put("conflicts", conflicts);
                 response.put("fitness", result.bestFitness);
+                response.put("algorithm", algo);
                 response.put("message", String.format(
-                                "Đã xếp %d buổi học. Không thể xếp: %d buổi (%d lớp bị ảnh hưởng). SA fitness: %.0f",
-                                entries.size(), conflictCount, conflictCountBySection.size(), result.bestFitness));
+                                "Đã xếp %d buổi học. Không thể xếp: %d buổi (%d lớp bị ảnh hưởng). %s fitness: %.0f",
+                                entries.size(), conflictCount, conflictCountBySection.size(), algo, result.bestFitness));
                 return response;
         }
 
@@ -350,9 +365,10 @@ public class TimetableService {
                                 suitableRooms = new ArrayList<>(rooms);
                 }
 
-                boolean isOffline = isOfflineCourse(course);
+                // Ca tối chỉ cho ONLINE_ELEARNING và ONLINE_COURSERA
+                boolean eveningAllowed = isEveningAllowedForCourse(course);
                 List<Shift> allowedShifts = shifts.stream()
-                                .filter(s -> !isOffline || !isEveningShift(s))
+                                .filter(s -> !isEveningShift(s) || eveningAllowed)
                                 .collect(Collectors.toList());
                 if (allowedShifts.isEmpty())
                         allowedShifts = new ArrayList<>(shifts);
@@ -482,9 +498,9 @@ public class TimetableService {
                                 .filter(r -> requiredRoomType.equals(r.getType()))
                                 .collect(Collectors.toList());
 
-                boolean isOffline = isOfflineCourse(course);
+                boolean eveningAllowed = isEveningAllowedForCourse(course);
                 List<Shift> allowedShifts = shiftRepo.findAll().stream()
-                                .filter(shift -> !isOffline || !isEveningShift(shift))
+                                .filter(shift -> !isEveningShift(shift) || eveningAllowed)
                                 .collect(Collectors.toList());
 
                 List<Integer> days = Arrays.asList(2, 3, 4, 5, 6, 7);
@@ -891,9 +907,15 @@ public class TimetableService {
                                 || course.getLearningMethod() == Course.LearningMethod.ONLINE_COURSERA;
         }
 
-        private static boolean isEveningShift(Shift shift) {
-                return (shift.getStartPeriod() != null && shift.getStartPeriod() >= 10)
-                                || (shift.getName() != null && shift.getName().toLowerCase().contains("tối"));
+        /** Ca tối chỉ cho học phần ONLINE / E-learning / Coursera */
+        private static boolean isEveningAllowedForCourse(Course course) {
+                return course.getLearningMethod() == Course.LearningMethod.ONLINE_ELEARNING
+                                || course.getLearningMethod() == Course.LearningMethod.ONLINE_COURSERA;
+        }
+
+        /** Ca tối: startPeriod >= cấu hình (mặc định 13). Chỉ ONLINE_ELEARNING, ONLINE_COURSERA được xếp ca tối. */
+        private boolean isEveningShift(Shift shift) {
+                return shift.getStartPeriod() != null && shift.getStartPeriod() >= eveningShiftStartPeriodFrom;
         }
 
         private static String determineRequiredRoomType(ClassSection section, Course course) {
