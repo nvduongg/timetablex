@@ -881,7 +881,7 @@ const TimetableManagement = () => {
                             marginBottom: 16,
                         }}>
                             <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: '#0050b3' }}>
-                                Hệ thống sẽ sử dụng <strong>{selectedAlgorithm === 'GA' ? 'Genetic Algorithm (GA)' : 'Simulated Annealing (SA)'}</strong> để xếp TKB tối ưu cho tất cả các lớp đã phân công giảng viên.
+                                Hệ thống hỗ trợ <strong>2 thuật toán SA và GA</strong> để bạn chọn và so sánh. Lần xếp này bạn đã chọn <strong>{selectedAlgorithm === 'GA' ? 'Genetic Algorithm (GA)' : 'Simulated Annealing (SA)'}</strong>. Kết quả được lưu để so sánh trong mục &quot;Đánh giá SA vs GA&quot;.
                             </p>
                         </div>
                         <ul style={{ margin: 0, paddingLeft: 20, color: '#595959', fontSize: 14, lineHeight: 2 }}>
