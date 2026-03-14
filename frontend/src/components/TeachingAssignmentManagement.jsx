@@ -174,7 +174,7 @@ const TeachingAssignmentManagement = ({ auth }) => {
     const filteredSections = sections.filter(s => {
         switch (statusFilter) {
             case 'UNASSIGNED':
-                return !s.lecturer && !s.skipAssignment;
+                return !s.lecturer && !s.skipAssignment && !s.needsSupport;
             case 'ASSIGNED':
                 return !!s.lecturer;
             case 'SKIPPED':
@@ -195,7 +195,7 @@ const TeachingAssignmentManagement = ({ auth }) => {
         {
             title: 'Học phần', key: 'course',
             render: (_, r) => (
-                <Space direction="vertical" size={0}>
+                <Space orientation="vertical" size={0}>
                     <span style={{ fontWeight: 500 }}>{r.courseOffering?.course?.code || '—'}</span>
                     <span style={{ fontSize: 12, color: '#666' }}>{r.courseOffering?.course?.name || '—'}</span>
                 </Space>
@@ -218,7 +218,7 @@ const TeachingAssignmentManagement = ({ auth }) => {
                 const otherFacultyLecturers = qualifiedLecturers.filter(l => !isOwnFaculty(l));
 
                 return (
-                    <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                    <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                         {isFromOtherFaculty && (
                             <div style={{ marginBottom: 4 }}>
                                 <Tag color="orange" icon={<QuestionCircleOutlined />} style={{ fontSize: 11 }}>
@@ -239,12 +239,13 @@ const TeachingAssignmentManagement = ({ auth }) => {
                             showSearch
                             optionFilterProp="label"
                             optionLabelProp="label" // Hiển thị tên (label) thay vì ID
-                            value={r.skipAssignment ? '__SKIP__' : (r.lecturer?.id ?? null)}
+                            value={r.skipAssignment ? '__SKIP__' : (r.lecturer?.id ?? '__UNASSIGNED__')}
                             onChange={(val) => {
                                 if (val === '__SKIP__') handleAssign(r.id, null, true);
+                                else if (val === '__UNASSIGNED__') handleAssign(r.id, null, false);
                                 else handleAssign(r.id, val || null, false);
                             }}
-                            dropdownRender={(menu) => (
+                            popupRender={(menu) => (
                                 <>
                                     {menu}
                                     {otherFacultyLecturers.length > 0 && (
@@ -256,8 +257,8 @@ const TeachingAssignmentManagement = ({ auth }) => {
                                 </>
                             )}
                         >
-                            {skipAllowed && <Option value="__SKIP__"><Tag color="orange">Bỏ qua (phân công sau)</Tag></Option>}
-                            <Option value={null}>— Chưa phân công —</Option>
+                            {skipAllowed && <Option value="__SKIP__" label="Bỏ qua (phân công sau)"><Tag color="orange">Bỏ qua (phân công sau)</Tag></Option>}
+                            <Option value="__UNASSIGNED__" label="— Chưa phân công —">— Chưa phân công —</Option>
                             {ownFacultyLecturers.length > 0 && (
                                 <Option disabled style={{ fontWeight: 600, color: '#333', fontSize: 11, padding: '4px 0' }}>
                                     —— {r.needsSupport ? (r.courseOffering?.course?.faculty?.name || 'Khoa quản lý chuyên môn') : (r.courseOffering?.faculty?.name || 'Khoa chủ quản')} ——
@@ -302,6 +303,7 @@ const TeachingAssignmentManagement = ({ auth }) => {
             title: 'Trạng thái', key: 'status', width: 130,
             render: (_, r) => {
                 if (r.skipAssignment) return <Tag color="orange">Bỏ qua</Tag>;
+                if (r.needsSupport) return <Tag color="geekblue">Đã gửi Y/C Hỗ trợ</Tag>;
                 if (r.lecturer) return <Tag color="green">Đã phân công</Tag>;
                 return <Tag>Chưa phân công</Tag>;
             }
@@ -446,7 +448,7 @@ const TeachingAssignmentManagement = ({ auth }) => {
                 width={640}
             >
                 {selectedSectionForSupport && (
-                    <Space direction="vertical" size={16} style={{ width: '100%' }}>
+                    <Space orientation="vertical" size={16} style={{ width: '100%' }}>
                         <div>
                             <div style={{ fontSize: 12, fontWeight: 600, color: '#666', marginBottom: 8 }}>Lớp học phần</div>
                             <div>

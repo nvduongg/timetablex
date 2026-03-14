@@ -130,14 +130,19 @@ const CourseOfferingManagement = () => {
     };
 
     const handleGenerate = async (values) => {
+        if (!currentSemesterId) {
+            message.warning('Vui lòng chọn học kỳ trước khi thiết lập kế hoạch học phần');
+            return;
+        }
         setLoading(true);
         try {
             await OfferingService.generateAutomatedPlan({
                 semesterId: currentSemesterId,
-                cohort: values.cohort,
-                semesterIndex: values.index
+                planningYear: values.planningYear,
+                planningTerm: values.planningTerm,
+                termsPerYear: values.termsPerYear
             });
-            message.success('Hệ thống đã tính toán xong kế hoạch!');
+            message.success('Hệ thống đã tính toán xong kế hoạch cho toàn trường!');
             setIsGenerateModalOpen(false);
             fetchOfferings();
         } catch {
@@ -194,20 +199,28 @@ const CourseOfferingManagement = () => {
         {
             title: 'Lớp LT', dataIndex: 'theoryClassCount',
             align: 'center', width: 90,
-            render: (val) => val > 0 ? (
-                <Tag color="geekblue" style={{ fontSize: 13, border: 'none' }}>
-                    {val}
-                </Tag>
-            ) : <span style={{ color: '#ccc' }}>-</span>
+            render: (val, record) => {
+                const hasPractice = record.practiceClassCount > 0;
+                if (val > 0) return (
+                    <Tooltip title={!hasPractice ? 'Môn thuần lý thuyết – không tách lớp TH' : 'Lớp lý thuyết gộp'}>
+                        <Tag color={!hasPractice ? 'blue' : 'geekblue'} style={{ fontSize: 13, border: 'none' }}>{val}</Tag>
+                    </Tooltip>
+                );
+                return <span style={{ color: '#ccc' }}>—</span>;
+            }
         },
         {
             title: 'Lớp TH', dataIndex: 'practiceClassCount',
             align: 'center', width: 90,
-            render: (val) => val > 0 ? (
-                <Tag color="purple" style={{ fontSize: 13, border: 'none' }}>
-                    {val}
-                </Tag>
-            ) : <span style={{ color: '#ccc' }}>-</span>
+            render: (val, record) => {
+                const hasTheory = record.theoryClassCount > 0;
+                if (val > 0) return (
+                    <Tooltip title={!hasTheory ? 'Môn học trên phòng máy – chỉ mở lớp TH' : 'Lớp TH tách từ mỗi lớp LT'}>
+                        <Tag color={!hasTheory ? 'cyan' : 'purple'} style={{ fontSize: 13, border: 'none' }}>{val}</Tag>
+                    </Tooltip>
+                );
+                return <span style={{ color: '#ccc' }}>—</span>;
+            }
         },
         {
             title: 'Trạng thái', dataIndex: 'status', width: 160,
@@ -377,38 +390,44 @@ const CourseOfferingManagement = () => {
                 title={
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <RobotOutlined style={{ color: '#005a8d' }} />
-                        <span>Cấu hình Gợi ý Tự động</span>
+                        <span>Thiết lập Gợi ý Tự động Toàn trường</span>
                     </div>
                 }
                 open={isGenerateModalOpen}
                 onCancel={() => setIsGenerateModalOpen(false)}
                 footer={null}
-                width={500}
+                width={550}
                 centered
             >
                 <div style={{ marginBottom: 20 }}>
                     <Alert
-                        title="Hệ thống sẽ quét toàn bộ dữ liệu Sinh viên và Khung CTĐT để tính toán nhu cầu mở lớp dự kiến."
+                        message="Hệ thống sẽ quét TẤT CẢ lớp biên chế trong trường, tự động tính toán 'độ tuổi' của từng Khóa dựa trên Khóa gốc để nội suy chính xác Lộ trình mà sinh viên phải học."
                         type="info"
                         showIcon
                         style={{ border: 'none', background: '#e6f7ff' }}
                     />
                 </div>
 
-                <Form form={form} layout="vertical" onFinish={handleGenerate}>
+                <Form form={form} layout="vertical" onFinish={handleGenerate} initialValues={{ planningYear: 2025, planningTerm: 3, termsPerYear: 3 }}>
+                    <Alert
+                        message="Hệ thống sẽ tự tra cứu Năm nhập học từ dữ liệu CTĐT. Chỉ cần chỉ định học kỳ đang lập kế hoạch."
+                        type="success" showIcon
+                        style={{ border: 'none', background: '#f6ffed', marginBottom: 20 }}
+                    />
                     <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item name="cohort" label="Áp dụng cho Khóa" rules={[{ required: true }]}>
-                                <Select placeholder="Chọn khóa" loading={cohorts.length === 0}>
-                                    {cohorts.map(k => (
-                                        <Option key={k} value={k}>{k}</Option>
-                                    ))}
-                                </Select>
+                        <Col span={8}>
+                            <Form.Item name="planningYear" label="Năm học" rules={[{ required: true }]}>
+                                <InputNumber min={2000} max={2100} style={{ width: '100%' }} variant="filled" />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
-                            <Form.Item name="index" label="Học kỳ thứ (trong CTĐT)" rules={[{ required: true, message: 'Nhập số' }]}>
-                                <InputNumber min={1} max={12} style={{ width: '100%' }} placeholder="VD: 1" variant="filled" />
+                        <Col span={8}>
+                            <Form.Item name="planningTerm" label="Kỳ (1, 2, 3)" rules={[{ required: true }]}>
+                                <InputNumber min={1} max={4} style={{ width: '100%' }} variant="filled" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="termsPerYear" label="Kỳ/Năm" rules={[{ required: true }]}>
+                                <InputNumber min={2} max={4} style={{ width: '100%' }} variant="filled" />
                             </Form.Item>
                         </Col>
                     </Row>

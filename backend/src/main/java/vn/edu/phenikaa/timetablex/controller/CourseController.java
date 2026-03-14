@@ -76,4 +76,15 @@ public class CourseController {
             return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
         }
     }
+
+    /** Upsert: nếu mã HP chưa có → thêm mới; nếu đã có → cập nhật TC LT/TH và thông tin khác */
+    @PostMapping(value = "/upsert", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> upsertExcel(@RequestParam("file") MultipartFile file) {
+        try {
+            courseService.upsertExcel(file);
+            return ResponseEntity.ok("Cập nhật học phần thành công");
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+        }
+    }
 }

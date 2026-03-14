@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Modal, Form, Select, Input, message, Typography, Flex, Tag } from 'antd';
+import { Button, Table, Modal, Form, Select, Input, InputNumber, Row, Col, message, Typography, Flex, Tag } from 'antd';
 import { PlusOutlined, SearchOutlined, ReadOutlined } from '@ant-design/icons';
 import * as MajorService from '../services/majorService';
 import * as CurriculumService from '../services/curriculumService';
@@ -66,7 +66,9 @@ const CurriculumManagement = () => {
                 <Flex vertical gap={2} style={{ minWidth: 0 }}>
                     <Text strong ellipsis>{text}</Text>
                     <Text type="secondary" style={{ fontSize: 12 }} ellipsis>
-                        Khóa {record.cohort} • {record.major?.name}
+                        Khóa {record.cohort}
+                        {record.admissionYear ? ` (Nhập học ${record.admissionYear})` : ''}
+                        {' • '}{record.major?.name}
                     </Text>
                 </Flex>
             )
@@ -165,10 +167,29 @@ const CurriculumManagement = () => {
                     <Form.Item name="name" label="Tên CTĐT" rules={[{ required: true, message: 'Nhập tên' }]}>
                         <Input placeholder="VD: K18 - Công nghệ thông tin (Chuẩn)" variant="filled" />
                     </Form.Item>
-                    <Form.Item name="cohort" label="Khóa áp dụng" rules={[{ required: true, message: 'Nhập khóa' }]}>
-                        <Input placeholder="VD: K18" variant="filled" />
-                    </Form.Item>
-                    <Form.Item style={{ textAlign: 'right', marginTop: 24, marginBottom: 0 }}>
+                    <Row gutter={12}>
+                        <Col span={12}>
+                            <Form.Item name="cohort" label="Khóa áp dụng" rules={[{ required: true, message: 'Nhập khóa' }]}>
+                                <Input placeholder="VD: K18" variant="filled" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                name="admissionYear"
+                                label="Năm nhập học"
+                                rules={[{ required: true, message: 'Nhập năm' }]}
+                                tooltip="Năm khóa này bắt đầu nhập học. Dùng để tự động tính toán học kỳ khi lập kế hoạch mở lớp."
+                            >
+                                <InputNumber
+                                    min={2000} max={2100}
+                                    placeholder="VD: 2024"
+                                    variant="filled"
+                                    style={{ width: '100%' }}
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Form.Item style={{ textAlign: 'right', marginTop: 8, marginBottom: 0 }}>
                         <Button onClick={() => { setIsCreateModalOpen(false); form.resetFields(); }} style={{ marginRight: 8 }}>Hủy</Button>
                         <Button type="primary" htmlType="submit">Tạo mới</Button>
                     </Form.Item>

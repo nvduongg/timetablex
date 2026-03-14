@@ -223,6 +223,68 @@ public class CourseService {
         }
     }
 
+    /** Giống importExcel nhưng NẾU mã HP đã tồn tại thì CẬP NHẬT thay vì bỏ qua.
+     *  Dùng để re-import lại cấu trúc tín chỉ (TC LT / TC TH) mà không cần xóa dữ liệu. */
+    public void upsertExcel(MultipartFile file) throws IOException {
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+            List<Faculty> faculties = facultyRepo.findAll();
+
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0) continue;
+
+                String code       = getCellValue(row.getCell(0));
+                String name       = getCellValue(row.getCell(1));
+                Double thCredits  = getNumericValue(row.getCell(3));
+                Double prCredits  = getNumericValue(row.getCell(4));
+                Double selfStudy  = getNumericValue(row.getCell(5));
+                String methodStr  = getCellValue(row.getCell(6));
+                String roomType   = getCellValue(row.getCell(7));
+                String facultyCode = getCellValue(row.getCell(8));
+                String sharedCodesRaw = getCellValue(row.getCell(9));
+
+                if (code == null || facultyCode == null) continue;
+
+                Optional<Faculty> fac = faculties.stream()
+                        .filter(f -> f.getCode().equalsIgnoreCase(facultyCode))
+                        .findFirst();
+                if (fac.isEmpty()) continue;
+
+                // Lấy hoặc tạo mới
+                Course c = courseRepo.findByCode(code).orElse(new Course());
+                c.setCode(code);
+                if (name != null && !name.isBlank()) c.setName(name);
+                c.setCredits((thCredits != null ? thCredits : 0.0) + (prCredits != null ? prCredits : 0.0));
+                c.setTheoryCredits(thCredits);
+                c.setPracticeCredits(prCredits);
+                c.setSelfStudyCredits(selfStudy);
+                try {
+                    c.setLearningMethod(methodStr != null && !methodStr.isBlank()
+                            ? Course.LearningMethod.valueOf(methodStr.trim().toUpperCase())
+                            : Course.LearningMethod.OFFLINE);
+                } catch (IllegalArgumentException e) {
+                    c.setLearningMethod(Course.LearningMethod.OFFLINE);
+                }
+                c.setRequiredRoomType(roomType != null && !roomType.isBlank() ? roomType : "LT");
+                c.setFaculty(fac.get());
+
+                Set<Faculty> shared = new HashSet<>();
+                if (sharedCodesRaw != null && !sharedCodesRaw.isBlank()) {
+                    for (String part : sharedCodesRaw.split("[,;]")) {
+                        String fc = part.trim();
+                        if (fc.isEmpty()) continue;
+                        faculties.stream()
+                                .filter(f -> f.getCode().equalsIgnoreCase(fc) && !f.getId().equals(fac.get().getId()))
+                                .findFirst()
+                                .ifPresent(shared::add);
+                    }
+                }
+                c.setSharedFaculties(shared);
+                courseRepo.save(c);
+            }
+        }
+    }
+
     private String getCellValue(Cell cell) {
         if (cell == null) return null;
         if (cell.getCellType() == CellType.STRING) return cell.getStringCellValue().trim();

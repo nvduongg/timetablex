@@ -10,17 +10,30 @@ import java.util.List;
 
 @Repository
 public interface CurriculumRepository extends JpaRepository<Curriculum, Long> {
-    // Có thể tồn tại nhiều CTĐT cho cùng (major, cohort) → trả List để service tự xử lý
+    // Có thể tồn tại nhiều CTĐT cho cùng (major, cohort) → trả List để service tự
+    // xử lý
     List<Curriculum> findByMajorIdAndCohort(Long majorId, String cohort);
 
-    @EntityGraph(attributePaths = {"details", "details.course", "major"})
-    @Query("SELECT c FROM Curriculum c")
+    @EntityGraph(type = EntityGraph.EntityGraphType.LOAD, attributePaths = {
+            "details",
+            "details.course",
+            "details.course.faculty",
+            "major",
+            "major.faculty"
+    })
+    @Query("SELECT DISTINCT c FROM Curriculum c")
     List<Curriculum> findAllWithDetailsAndCourses();
 
     @Query("SELECT DISTINCT c.cohort FROM Curriculum c ORDER BY c.cohort DESC")
     List<String> findAllCohorts();
 
-    @EntityGraph(attributePaths = {"details", "details.course", "major"})
-    @Query("SELECT c FROM Curriculum c WHERE c.major.faculty.id = :facultyId")
+    @EntityGraph(type = EntityGraph.EntityGraphType.LOAD, attributePaths = {
+            "details",
+            "details.course",
+            "details.course.faculty",
+            "major",
+            "major.faculty"
+    })
+    @Query("SELECT DISTINCT c FROM Curriculum c WHERE c.major.faculty.id = :facultyId")
     List<Curriculum> findByMajor_Faculty_Id(Long facultyId);
 }

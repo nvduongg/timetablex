@@ -51,38 +51,50 @@ public class CourseOfferingService {
 
     @Transactional
     public void generateAutomatedPlan(AutoGenerateRequest req) {
+        if (req == null || req.getSemesterId() == null) {
+            throw new IllegalArgumentException("Học kỳ (semesterId) không được để trống");
+        }
         Semester semester = semesterRepo.findById(req.getSemesterId()).orElseThrow();
 
-        // Lọc theo cohort nhưng tránh NPE nếu lớp chưa có khóa hoặc request thiếu cohort
-        final String targetCohort = req.getCohort() != null ? req.getCohort().trim() : null;
-        List<AdministrativeClass> classes = adminClassRepo.findAll().stream()
-                .filter(c -> c.getCohort() != null && targetCohort != null
-                        && c.getCohort().trim().equalsIgnoreCase(targetCohort))
-                .toList();
-
+        // Lấy tất cả các lớp biên chế trong toàn trường
+        List<AdministrativeClass> classes = adminClassRepo.findAll();
         if (classes.isEmpty()) return;
-
-        Map<Long, Integer> demandByMajor = new HashMap<>();
-        for (AdministrativeClass cls : classes) {
-            Long majorId = cls.getMajor().getId();
-            demandByMajor.put(majorId, demandByMajor.getOrDefault(majorId, 0) + cls.getStudentCount());
-        }
 
         Map<Course, Integer> courseDemandMap = new HashMap<>();
 
-        for (Map.Entry<Long, Integer> entry : demandByMajor.entrySet()) {
-            Long majorId = entry.getKey();
-            Integer studentCount = entry.getValue();
+        for (AdministrativeClass cls : classes) {
+            if (cls.getCohort() == null || cls.getCohort().isBlank()) continue;
 
-            // Có thể tồn tại nhiều CTĐT cho cùng (majorId, cohort) → gộp tất cả
-            List<Curriculum> currList = curriculumRepo.findByMajorIdAndCohort(majorId, targetCohort);
+            Long majorId = cls.getMajor().getId();
+            // Lấy CTĐT khớp với chuyên ngành và khóa của lớp này
+            List<Curriculum> currList = curriculumRepo.findByMajorIdAndCohort(majorId, cls.getCohort());
+            if (currList.isEmpty()) continue;
+
+            // Lấy admissionYear trực tiếp từ CTĐT (ưu tiên giá trị đã lưu trong CTĐT)
+            Integer admYear = currList.stream()
+                    .map(Curriculum::getAdmissionYear)
+                    .filter(java.util.Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+
+            // Nếu CTĐT chưa có admissionYear → bỏ qua lớp này, in cảnh báo
+            if (admYear == null) {
+                System.err.printf("[AutoGenerate] Bỏ qua lớp %s: CTĐT chưa có Năm nhập học (admissionYear). " +
+                        "Vui lòng cập nhật lại CTĐT của khóa %s.%n", cls.getCode(), cls.getCohort());
+                continue;
+            }
+
+            int semesterIndex = (req.getPlanningYear() - admYear) * req.getTermsPerYear() + req.getPlanningTerm();
+
+            // Nếu học kỳ âm (chưa nhập học) hoặc > 20 (đã ra trường) → bỏ qua
+            if (semesterIndex < 1 || semesterIndex > 20) continue;
 
             for (Curriculum curr : currList) {
                 List<CurriculumDetail> details = curr.getDetails().stream()
                         .filter(d -> {
                             if (d.getSemesterIndex() == null) return false;
                             String[] semesters = d.getSemesterIndex().split(",");
-                            String target = String.valueOf(req.getSemesterIndex());
+                            String target = String.valueOf(semesterIndex);
                             for (String s : semesters) {
                                 if (s.trim().equals(target)) return true;
                             }
@@ -92,14 +104,17 @@ public class CourseOfferingService {
 
                 for (CurriculumDetail detail : details) {
                     Course course = detail.getCourse();
-                    courseDemandMap.put(course, courseDemandMap.getOrDefault(course, 0) + studentCount);
+                    courseDemandMap.put(course, courseDemandMap.getOrDefault(course, 0) + cls.getStudentCount());
                 }
             }
         }
 
+
         // Sĩ số tối đa mỗi lớp
         int THEORY_SIZE = 60;
         int PRACTICE_SIZE = 30;
+        // Tỷ lệ tách TH từ mỗi lớp LT (mỗi 1 lớp LT tách thành bao nhiêu lớp TH)
+        int PRACTICE_PER_THEORY = (int) Math.ceil((double) THEORY_SIZE / PRACTICE_SIZE); // = 2
 
         List<CourseOffering> offerings = new ArrayList<>();
 
@@ -107,7 +122,8 @@ public class CourseOfferingService {
             Course course = entry.getKey();
             Integer totalStudents = entry.getValue();
 
-            if (offeringRepo.existsBySemesterAndCourse(semester, course)) continue;
+            if (offeringRepo.existsBySemesterAndCourse(semester, course))
+                continue;
 
             CourseOffering offering = new CourseOffering();
             offering.setSemester(semester);
@@ -115,17 +131,31 @@ public class CourseOfferingService {
             offering.setFaculty(course.getFaculty());
             offering.setStudentDemand(totalStudents);
 
-            if (course.getTheoryCredits() != null && course.getTheoryCredits() > 0) {
-                offering.setTheoryClassCount((int) Math.ceil((double) totalStudents / THEORY_SIZE));
-            } else {
-                offering.setTheoryClassCount(0);
-            }
+            boolean hasTheory   = course.getTheoryCredits()   != null && course.getTheoryCredits()   > 0;
+            boolean hasPractice = course.getPracticeCredits() != null && course.getPracticeCredits() > 0;
 
-            if (course.getPracticeCredits() != null && course.getPracticeCredits() > 0) {
+            if (hasTheory && hasPractice) {
+                // Trường hợp 1: Môn kết hợp LT + TH (VD: Vật lý, Hóa học)
+                // → Mở gộp lớp LT lớn, sau đó mỗi lớp LT tách nhỏ ra thành K lớp TH
+                int theoryCount = (int) Math.ceil((double) totalStudents / THEORY_SIZE);
+                offering.setTheoryClassCount(theoryCount);
+                offering.setPracticeClassCount(theoryCount * PRACTICE_PER_THEORY);
+            } else if (hasTheory) {
+                // Trường hợp 2: Môn thuần lý thuyết (VD: Triết học, Lịch sử Đảng)
+                // → Chỉ mở lớp LT, không có lớp TH
+                offering.setTheoryClassCount((int) Math.ceil((double) totalStudents / THEORY_SIZE));
+                offering.setPracticeClassCount(0);
+            } else if (hasPractice) {
+                // Trường hợp 3: Môn thuần thực hành / phòng máy (VD: Lập trình, Thí nghiệm)
+                // → Không có lớp LT gộp, chỉ có lớp TH nhỏ
+                offering.setTheoryClassCount(0);
                 offering.setPracticeClassCount((int) Math.ceil((double) totalStudents / PRACTICE_SIZE));
             } else {
+                // Không xác định được cấu trúc tín chỉ → mặc định 1 lớp LT
+                offering.setTheoryClassCount(1);
                 offering.setPracticeClassCount(0);
             }
+
 
             offering.setStatus(CourseOffering.Status.DRAFT);
             offerings.add(offering);
@@ -137,16 +167,22 @@ public class CourseOfferingService {
     /**
      * P.ĐT chỉnh sửa nhanh kế hoạch (số lớp LT/TH, nhu cầu SV).
      * Chỉ cho phép sửa khi trạng thái chưa APPROVED.
-     * Nếu đang REJECTED hoặc WAITING_APPROVAL thì sau khi sửa sẽ đưa về DRAFT để gửi duyệt lại.
+     * Nếu đang REJECTED hoặc WAITING_APPROVAL thì sau khi sửa sẽ đưa về DRAFT để
+     * gửi duyệt lại.
      */
-    public CourseOffering updatePlan(Long id, Integer theoryClassCount, Integer practiceClassCount, Integer studentDemand) {
+    public CourseOffering updatePlan(Long id, Integer theoryClassCount, Integer practiceClassCount,
+            Integer studentDemand) {
         CourseOffering offering = offeringRepo.findById(id).orElseThrow();
         if (offering.getStatus() == CourseOffering.Status.APPROVED) {
-            throw new IllegalStateException("Kế hoạch đã được Khoa chốt, không thể chỉnh sửa trực tiếp. Vui lòng liên hệ Khoa/Viện.");
+            throw new IllegalStateException(
+                    "Kế hoạch đã được Khoa chốt, không thể chỉnh sửa trực tiếp. Vui lòng liên hệ Khoa/Viện.");
         }
-        if (theoryClassCount != null) offering.setTheoryClassCount(theoryClassCount);
-        if (practiceClassCount != null) offering.setPracticeClassCount(practiceClassCount);
-        if (studentDemand != null) offering.setStudentDemand(studentDemand);
+        if (theoryClassCount != null)
+            offering.setTheoryClassCount(theoryClassCount);
+        if (practiceClassCount != null)
+            offering.setPracticeClassCount(practiceClassCount);
+        if (studentDemand != null)
+            offering.setStudentDemand(studentDemand);
 
         if (offering.getStatus() == CourseOffering.Status.REJECTED
                 || offering.getStatus() == CourseOffering.Status.WAITING_APPROVAL) {
@@ -163,7 +199,10 @@ public class CourseOfferingService {
         return offeringRepo.save(offering);
     }
 
-    /** P.ĐT gửi danh sách học phần dự kiến cho Khoa xác nhận (DRAFT → WAITING_APPROVAL). Tạo thông báo theo từng Khoa. */
+    /**
+     * P.ĐT gửi danh sách học phần dự kiến cho Khoa xác nhận (DRAFT →
+     * WAITING_APPROVAL). Tạo thông báo theo từng Khoa.
+     */
     @Transactional
     public void sendForApproval(Long semesterId, List<Long> offeringIds) {
         Semester semester = semesterRepo.findById(semesterId)
@@ -178,16 +217,15 @@ public class CourseOfferingService {
             toSend = offeringRepo.findAllById(offeringIds).stream()
                     .filter(o -> o.getSemester().getId().equals(semesterId)
                             && (o.getStatus() == CourseOffering.Status.DRAFT
-                                || o.getStatus() == CourseOffering.Status.REJECTED))
+                                    || o.getStatus() == CourseOffering.Status.REJECTED))
                     .toList();
         }
         if (toSend.isEmpty()) {
             throw new IllegalStateException(
-                "Không có học phần nào ở trạng thái Nháp hoặc Khoa yêu cầu chỉnh sửa để gửi duyệt. " +
-                (offeringIds != null && !offeringIds.isEmpty()
-                    ? "Các học phần đã chọn có thể đã được duyệt hoặc đang chờ xử lý."
-                    : "")
-            );
+                    "Không có học phần nào ở trạng thái Nháp hoặc Khoa yêu cầu chỉnh sửa để gửi duyệt. " +
+                            (offeringIds != null && !offeringIds.isEmpty()
+                                    ? "Các học phần đã chọn có thể đã được duyệt hoặc đang chờ xử lý."
+                                    : ""));
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -206,9 +244,9 @@ public class CourseOfferingService {
                 notificationService.create(
                         e.getKey(),
                         "Yêu cầu xác nhận danh sách học phần dự kiến",
-                        "P.ĐT đã gửi " + e.getValue() + " học phần dự kiến tổ chức cho " + semesterName + ". Vui lòng xác nhận hoặc phản hồi trong vòng 03 ngày làm việc.",
-                        semesterId
-                );
+                        "P.ĐT đã gửi " + e.getValue() + " học phần dự kiến tổ chức cho " + semesterName
+                                + ". Vui lòng xác nhận hoặc phản hồi trong vòng 03 ngày làm việc.",
+                        semesterId);
             } catch (Exception ex) {
                 // Không fail toàn bộ quá trình nếu một notification lỗi
                 System.err.println("Lỗi khi tạo notification cho facultyId " + e.getKey() + ": " + ex.getMessage());
@@ -225,7 +263,8 @@ public class CourseOfferingService {
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
             for (Row row : sheet) {
-                if (row.getRowNum() == 0) continue;
+                if (row.getRowNum() == 0)
+                    continue;
 
                 String courseCode = getCellString(row.getCell(0));
                 String facultyCode = getCellString(row.getCell(1));
@@ -233,11 +272,15 @@ public class CourseOfferingService {
                 Integer practiceCount = getCellInt(row.getCell(3));
                 Integer demand = getCellInt(row.getCell(4));
 
-                if (courseCode == null || facultyCode == null) continue;
+                if (courseCode == null || facultyCode == null)
+                    continue;
 
-                Optional<Course> courseOpt = courses.stream().filter(c -> courseCode.equalsIgnoreCase(c.getCode())).findFirst();
-                Optional<Faculty> facultyOpt = faculties.stream().filter(f -> facultyCode.equalsIgnoreCase(f.getCode())).findFirst();
-                if (courseOpt.isEmpty() || facultyOpt.isEmpty()) continue;
+                Optional<Course> courseOpt = courses.stream().filter(c -> courseCode.equalsIgnoreCase(c.getCode()))
+                        .findFirst();
+                Optional<Faculty> facultyOpt = faculties.stream().filter(f -> facultyCode.equalsIgnoreCase(f.getCode()))
+                        .findFirst();
+                if (courseOpt.isEmpty() || facultyOpt.isEmpty())
+                    continue;
 
                 Course course = courseOpt.get();
                 Faculty faculty = facultyOpt.get();
@@ -287,17 +330,26 @@ public class CourseOfferingService {
     }
 
     private String getCellString(Cell cell) {
-        if (cell == null) return null;
-        if (cell.getCellType() == CellType.STRING) return cell.getStringCellValue().trim();
-        if (cell.getCellType() == CellType.NUMERIC) return String.valueOf((long) cell.getNumericCellValue());
+        if (cell == null)
+            return null;
+        if (cell.getCellType() == CellType.STRING)
+            return cell.getStringCellValue().trim();
+        if (cell.getCellType() == CellType.NUMERIC)
+            return String.valueOf((long) cell.getNumericCellValue());
         return null;
     }
 
     private Integer getCellInt(Cell cell) {
-        if (cell == null) return 0;
-        if (cell.getCellType() == CellType.NUMERIC) return (int) cell.getNumericCellValue();
+        if (cell == null)
+            return 0;
+        if (cell.getCellType() == CellType.NUMERIC)
+            return (int) cell.getNumericCellValue();
         if (cell.getCellType() == CellType.STRING) {
-            try { return Integer.parseInt(cell.getStringCellValue().trim()); } catch (NumberFormatException e) { return 0; }
+            try {
+                return Integer.parseInt(cell.getStringCellValue().trim());
+            } catch (NumberFormatException e) {
+                return 0;
+            }
         }
         return 0;
     }

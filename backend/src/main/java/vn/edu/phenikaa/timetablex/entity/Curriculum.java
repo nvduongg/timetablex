@@ -22,6 +22,11 @@ public class Curriculum {
 
     private String cohort; // Khóa: K17
 
+    /** Năm nhập học của khóa này (VD: 2024 với K18).
+     *  Dùng để tự động nội suy học kỳ hiện tại khi lập kế hoạch mở lớp toàn trường. */
+    private Integer admissionYear;
+
+
     @OneToMany(mappedBy = "curriculum", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference // Để tránh vòng lặp vô tận khi serialize JSON
     private List<CurriculumDetail> details;
