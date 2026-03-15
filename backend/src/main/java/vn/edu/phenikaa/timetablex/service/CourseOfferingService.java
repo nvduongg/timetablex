@@ -34,6 +34,8 @@ public class CourseOfferingService {
     private FacultyRepository facultyRepo;
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private CohortService cohortService;
 
     public List<CourseOffering> getBySemester(Long semesterId) {
         return offeringRepo.findBySemesterId(semesterId);
@@ -60,7 +62,10 @@ public class CourseOfferingService {
         List<AdministrativeClass> classes = adminClassRepo.findAll();
         if (classes.isEmpty()) return;
 
-        Map<Course, Integer> courseDemandMap = new HashMap<>();
+        // Key: (cohort, courseId) → đảm bảo K17 và K18 học cùng môn vẫn tạo offering riêng
+        record DemandKey(String cohort, Long courseId) {}
+        Map<DemandKey, Integer>  demandMap  = new LinkedHashMap<>();
+        Map<DemandKey, Course>   courseMap  = new LinkedHashMap<>();
 
         for (AdministrativeClass cls : classes) {
             if (cls.getCohort() == null || cls.getCohort().isBlank()) continue;
@@ -104,11 +109,17 @@ public class CourseOfferingService {
 
                 for (CurriculumDetail detail : details) {
                     Course course = detail.getCourse();
-                    courseDemandMap.put(course, courseDemandMap.getOrDefault(course, 0) + cls.getStudentCount());
+                    // Bỏ qua các môn Thực tập / Đồ án / Khóa luận (loại phòng DN)
+                    // vì những môn này sinh viên tự đăng ký với GV, không cần xếp lịch phòng
+                    if ("DN".equalsIgnoreCase(course.getRequiredRoomType())) continue;
+
+                    // Nhóm nhu cầu theo (cohort, course) — K17 và K18 cùng học 1 môn → 2 offering riêng
+                    DemandKey key = new DemandKey(cls.getCohort(), course.getId());
+                    demandMap.merge(key, cls.getStudentCount(), Integer::sum);
+                    courseMap.putIfAbsent(key, course);
                 }
             }
         }
-
 
         // Sĩ số tối đa mỗi lớp
         int THEORY_SIZE = 60;
@@ -118,17 +129,24 @@ public class CourseOfferingService {
 
         List<CourseOffering> offerings = new ArrayList<>();
 
-        for (Map.Entry<Course, Integer> entry : courseDemandMap.entrySet()) {
-            Course course = entry.getKey();
-            Integer totalStudents = entry.getValue();
+        for (Map.Entry<DemandKey, Integer> entry : demandMap.entrySet()) {
+            DemandKey key           = entry.getKey();
+            Course    course        = courseMap.get(key);
+            Integer   totalStudents = entry.getValue();
+            String    cohort        = key.cohort();
 
-            if (offeringRepo.existsBySemesterAndCourse(semester, course))
+            // Bỏ qua nếu offering (học kỳ, môn, khóa) đã tồn tại
+            if (offeringRepo.existsBySemesterAndCourseAndCohort(semester, course, cohort))
                 continue;
 
             CourseOffering offering = new CourseOffering();
             offering.setSemester(semester);
             offering.setCourse(course);
             offering.setFaculty(course.getFaculty());
+            offering.setCohort(cohort);
+            // Gắn thêm tham chiếu Cohort nếu có trong danh mục
+            Cohort cohortEntity = cohortService.getByCodeOrNull(cohort);
+            offering.setCohortRef(cohortEntity);
             offering.setStudentDemand(totalStudents);
 
             boolean hasTheory   = course.getTheoryCredits()   != null && course.getTheoryCredits()   > 0;
@@ -156,13 +174,13 @@ public class CourseOfferingService {
                 offering.setPracticeClassCount(0);
             }
 
-
             offering.setStatus(CourseOffering.Status.DRAFT);
             offerings.add(offering);
         }
 
         offeringRepo.saveAll(offerings);
     }
+
 
     /**
      * P.ĐT chỉnh sửa nhanh kế hoạch (số lớp LT/TH, nhu cầu SV).
@@ -262,6 +280,13 @@ public class CourseOfferingService {
 
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
+            
+            // In-memory lookup map of existing offerings for this semester
+            List<CourseOffering> existingOfferings = offeringRepo.findBySemesterId(semesterId);
+            java.util.Map<Long, CourseOffering> existingOfferingsMap = existingOfferings.stream()
+                    .collect(java.util.stream.Collectors.toMap(o -> o.getCourse().getId(), o -> o));
+            List<CourseOffering> offeringsToSave = new ArrayList<>();
+
             for (Row row : sheet) {
                 if (row.getRowNum() == 0)
                     continue;
@@ -285,10 +310,7 @@ public class CourseOfferingService {
                 Course course = courseOpt.get();
                 Faculty faculty = facultyOpt.get();
 
-                CourseOffering offering = offeringRepo.findBySemesterId(semesterId).stream()
-                        .filter(o -> o.getCourse().getId().equals(course.getId()))
-                        .findFirst()
-                        .orElse(null);
+                CourseOffering offering = existingOfferingsMap.get(course.getId());
 
                 if (offering == null) {
                     offering = new CourseOffering();
@@ -300,7 +322,11 @@ public class CourseOfferingService {
                 offering.setTheoryClassCount(theoryCount != null ? theoryCount : 0);
                 offering.setPracticeClassCount(practiceCount != null ? practiceCount : 0);
                 offering.setStudentDemand(demand != null ? demand : 0);
-                offeringRepo.save(offering);
+                offeringsToSave.add(offering);
+                existingOfferingsMap.put(course.getId(), offering); // update map in case there are duplicates in file
+            }
+            if (!offeringsToSave.isEmpty()) {
+                offeringRepo.saveAll(offeringsToSave);
             }
         }
     }

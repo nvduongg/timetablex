@@ -22,6 +22,10 @@ public class Curriculum {
 
     private String cohort; // Khóa: K17
 
+    @ManyToOne
+    @JoinColumn(name = "cohort_id")
+    private Cohort cohortRef; // Tham chiếu danh mục Niên khóa
+
     /** Năm nhập học của khóa này (VD: 2024 với K18).
      *  Dùng để tự động nội suy học kỳ hiện tại khi lập kế hoạch mở lớp toàn trường. */
     private Integer admissionYear;

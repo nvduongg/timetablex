@@ -57,12 +57,16 @@ public class RoomService {
         }
     }
 
-    // Import Excel
     public void importExcel(MultipartFile file) throws IOException {
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
             List<Room> rooms = new ArrayList<>();
             Set<String> processedNames = new HashSet<>();
+            
+            // Prefetch existing rooms to memory
+            Set<String> existingRooms = roomRepository.findAll().stream()
+                    .map(Room::getName)
+                    .collect(java.util.stream.Collectors.toSet());
 
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue;
@@ -73,7 +77,7 @@ public class RoomService {
 
                 String name = getCellValue(nameCell);
                 if (name == null || name.isBlank() || name.startsWith("---")) continue;
-                if (roomRepository.existsByName(name) || processedNames.contains(name)) continue;
+                if (existingRooms.contains(name) || processedNames.contains(name)) continue;
 
                 int capacity = 0;
                 if (capacityCell != null && capacityCell.getCellType() == CellType.NUMERIC) {
@@ -97,7 +101,9 @@ public class RoomService {
                 rooms.add(room);
                 processedNames.add(name);
             }
-            roomRepository.saveAll(rooms);
+            if (!rooms.isEmpty()) {
+                roomRepository.saveAll(rooms);
+            }
         }
     }
 

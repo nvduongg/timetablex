@@ -104,6 +104,9 @@ public class TimeSlotService {
             Sheet sheet1 = workbook.getSheet("TimeSlots");
             if (sheet1 != null) {
                 List<TimeSlot> slotsToSave = new ArrayList<>();
+                java.util.Map<Integer, TimeSlot> existingSlots = timeSlotRepo.findAll().stream()
+                        .collect(java.util.stream.Collectors.toMap(TimeSlot::getPeriodIndex, slot -> slot));
+
                 for (Row row : sheet1) {
                     if (row.getRowNum() == 0)
                         continue;
@@ -134,7 +137,7 @@ public class TimeSlotService {
 
                         if (startTime != null && endTime != null) {
                             // Kiểm tra tồn tại để update hoặc tạo mới
-                            TimeSlot slot = timeSlotRepo.findByPeriodIndex(periodIndex);
+                            TimeSlot slot = existingSlots.get(periodIndex);
                             if (slot == null) {
                                 slot = new TimeSlot();
                                 slot.setPeriodIndex(periodIndex);
@@ -143,6 +146,7 @@ public class TimeSlotService {
                             slot.setStartTime(startTime);
                             slot.setEndTime(endTime);
                             slotsToSave.add(slot);
+                            existingSlots.put(periodIndex, slot);
                         }
                     } catch (Exception e) {
                         /* Skip row error */ }
@@ -155,6 +159,9 @@ public class TimeSlotService {
             Sheet sheet2 = workbook.getSheet("Shifts");
             if (sheet2 != null) {
                 List<Shift> shiftsToSave = new ArrayList<>();
+                java.util.Map<String, Shift> existingShifts = shiftRepo.findAll().stream()
+                        .collect(java.util.stream.Collectors.toMap(Shift::getName, shift -> shift));
+
                 for (Row row : sheet2) {
                     if (row.getRowNum() == 0)
                         continue;
@@ -164,7 +171,7 @@ public class TimeSlotService {
                         Integer endPeriod = (int) row.getCell(2).getNumericCellValue();
 
                         // Kiểm tra tồn tại
-                        Shift shift = shiftRepo.findByName(name);
+                        Shift shift = existingShifts.get(name);
                         if (shift == null) {
                             shift = new Shift();
                             shift.setName(name);
@@ -172,6 +179,7 @@ public class TimeSlotService {
                         shift.setStartPeriod(startPeriod);
                         shift.setEndPeriod(endPeriod);
                         shiftsToSave.add(shift);
+                        existingShifts.put(name, shift);
                     } catch (Exception e) {
                         /* Skip row error */ }
                 }

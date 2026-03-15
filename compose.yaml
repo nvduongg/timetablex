@@ -14,7 +14,23 @@ services:
     networks:
       - app-network
 
-  # 2. Backend (Java Spring Boot)
+  # 2. pgAdmin 4 - DB Management UI
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: timetablex-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@phenikaa-uni.edu.vn
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80" # Truy cập tại http://localhost:5050
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin # Lưu session / server đã kết nối
+    depends_on:
+      - database
+    networks:
+      - app-network
+
+  # 3. Backend (Java Spring Boot)
   backend:
     image: eclipse-temurin:17-jdk-alpine # Dùng image Java có sẵn
     container_name: timetablex-backend
@@ -55,6 +71,7 @@ services:
 
 volumes:
   db_data:
+  pgadmin_data:
 
 networks:
   app-network:

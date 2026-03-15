@@ -22,6 +22,8 @@ public class CurriculumService {
     private CurriculumDetailRepository detailRepo;
     @Autowired
     private CourseRepository courseRepo;
+    @Autowired
+    private CohortRepository cohortRepo;
 
     public List<Curriculum> getAll() {
         return curriculumRepo.findAllWithDetailsAndCourses();
@@ -33,6 +35,19 @@ public class CurriculumService {
     }
 
     public Curriculum create(Curriculum curr) {
+        // Nếu frontend gửi kèm cohortRef (id Niên khóa) thì tự đồng bộ
+        if (curr.getCohortRef() != null && curr.getCohortRef().getId() != null) {
+            Long cohortId = curr.getCohortRef().getId();
+            Cohort cohort = cohortRepo.findById(cohortId).orElse(null);
+            if (cohort != null) {
+                if (curr.getCohort() == null || curr.getCohort().isBlank()) {
+                    curr.setCohort(cohort.getCode());
+                }
+                if (curr.getAdmissionYear() == null && cohort.getAdmissionYear() != null) {
+                    curr.setAdmissionYear(cohort.getAdmissionYear());
+                }
+            }
+        }
         return curriculumRepo.save(curr);
     }
 

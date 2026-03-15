@@ -90,6 +90,11 @@ public class MajorService {
             Sheet sheet = workbook.getSheetAt(0);
             List<Major> majors = new ArrayList<>();
             List<Faculty> allFaculties = facultyRepository.findAll(); // Lấy tất cả khoa để tra cứu cho nhanh
+            
+            // Lấy tất cả Mã ngành đã có sẵn trong DB để kiểm tra N+1 query
+            Set<String> existingMajors = majorRepository.findAll().stream()
+                    .map(Major::getCode)
+                    .collect(java.util.stream.Collectors.toSet());
             Set<String> processedCodes = new HashSet<>();
 
             for (Row row : sheet) {
@@ -108,7 +113,7 @@ public class MajorService {
                     continue;
 
                 // 1. Kiểm tra xem Ngành đã tồn tại chưa (trong file hiện tại hoặc trong DB)
-                if (processedCodes.contains(code) || majorRepository.existsByCode(code))
+                if (processedCodes.contains(code) || existingMajors.contains(code))
                     continue;
 
                 // 2. Tìm Khoa tương ứng với Mã Khoa trong Excel
@@ -125,7 +130,9 @@ public class MajorService {
                     processedCodes.add(code);
                 }
             }
-            majorRepository.saveAll(majors);
+            if (!majors.isEmpty()) {
+                majorRepository.saveAll(majors);
+            }
         }
     }
 

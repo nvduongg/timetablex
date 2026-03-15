@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Checkbox, Upload, message, Tooltip } from 'antd';
+import { Table, Button, Modal, Form, Input, Checkbox, Upload, message, Tooltip, Space } from 'antd';
 import {
     UploadOutlined,
     PlusOutlined,
@@ -11,10 +11,16 @@ import * as FacultyService from '../services/facultyService';
 
 const FacultyManagement = () => {
     const [faculties, setFaculties] = useState([]);
+    const [searchText, setSearchText] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [editingFaculty, setEditingFaculty] = useState(null);
     const [form] = Form.useForm();
+
+    const filteredFaculties = faculties.filter(f =>
+        f.code?.toLowerCase().includes(searchText.toLowerCase()) ||
+        f.name?.toLowerCase().includes(searchText.toLowerCase())
+    );
 
     const fetchFaculties = async () => {
         setLoading(true);
@@ -151,24 +157,28 @@ const FacultyManagement = () => {
         <div style={{ width: '100%' }}>
             <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Input
-                    placeholder="Tìm kiếm khoa..."
+                    placeholder="Tìm kiếm theo mã hoặc tên khoa..."
                     variant="filled"
-                    style={{ width: 280, borderRadius: 6, fontWeight: 500 }}
+                    allowClear
+                    style={{ width: 300, borderRadius: 6 }}
+                    onChange={e => setSearchText(e.target.value)}
                 />
-                <div style={{ display: 'flex', gap: 10 }}>
-                    <Button icon={<DownloadOutlined />} onClick={handleDownloadTemplate}>Tải mẫu</Button>
-                    <Upload customRequest={handleUpload} showUploadList={false}>
-                        <Button icon={<UploadOutlined />}>Import</Button>
-                    </Upload>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={handleAddNew}>
-                        Thêm mới
-                    </Button>
-                </div>
+                <Space.Compact>
+                        <Tooltip title="Tải file Excel mẫu để điền dữ liệu">
+                            <Button icon={<DownloadOutlined />} onClick={handleDownloadTemplate}>File mẫu</Button>
+                        </Tooltip>
+                        <Upload customRequest={handleUpload} showUploadList={false}>
+                            <Tooltip title="Import danh sách khoa từ Excel">
+                                <Button icon={<UploadOutlined />}>Import Excel</Button>
+                            </Tooltip>
+                        </Upload>
+                        <Button type="primary" icon={<PlusOutlined />} onClick={handleAddNew}>Thêm mới</Button>
+                    </Space.Compact>
             </div>
 
             <Table
                 columns={columns}
-                dataSource={faculties}
+                dataSource={filteredFaculties}
                 rowKey="id"
                 loading={loading}
                 pagination={{ pageSize: 8, placement: 'bottomRight', style: { marginTop: 24 } }}

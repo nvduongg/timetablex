@@ -102,6 +102,13 @@ public class LecturerService {
             Sheet sheet = workbook.getSheetAt(0);
             List<Faculty> faculties = facultyRepo.findAll();
             List<Course> allCourses = courseRepo.findAll(); // Cache để tìm cho nhanh
+            
+            // Prefetch existing lecturers
+            Set<String> existingEmails = lecturerRepo.findAll().stream()
+                    .map(Lecturer::getEmail)
+                    .collect(java.util.stream.Collectors.toSet());
+            Set<String> processedEmails = new HashSet<>();
+            List<Lecturer> lecturersToSave = new ArrayList<>();
 
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue;
@@ -112,7 +119,7 @@ public class LecturerService {
                 String coursesStr = getCellValue(row.getCell(3)); // Chuỗi mã môn
 
                 if (email != null && facultyCode != null) {
-                    if (lecturerRepo.existsByEmail(email)) continue;
+                    if (existingEmails.contains(email) || processedEmails.contains(email)) continue;
 
                     Optional<Faculty> fac = faculties.stream()
                             .filter(f -> f.getCode().equalsIgnoreCase(facultyCode)).findFirst();
@@ -136,9 +143,13 @@ public class LecturerService {
                             }
                             lecturer.setCourses(competency);
                         }
-                        lecturerRepo.save(lecturer);
+                        lecturersToSave.add(lecturer);
+                        processedEmails.add(email);
                     }
                 }
+            }
+            if (!lecturersToSave.isEmpty()) {
+                lecturerRepo.saveAll(lecturersToSave);
             }
         }
     }

@@ -19,6 +19,7 @@ const LecturerManagement = () => {
     const [lecturers, setLecturers] = useState([]);
     const [faculties, setFaculties] = useState([]);
     const [allCourses, setAllCourses] = useState([]);
+    const [searchText, setSearchText] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -26,6 +27,12 @@ const LecturerManagement = () => {
     const [selectedLecturerForComp, setSelectedLecturerForComp] = useState(null);
     const [targetKeys, setTargetKeys] = useState([]);
     const [form] = Form.useForm();
+
+    const filteredLecturers = lecturers.filter(l =>
+        l.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+        l.email?.toLowerCase().includes(searchText.toLowerCase()) ||
+        l.faculty?.name?.toLowerCase().includes(searchText.toLowerCase())
+    );
 
     const fetchData = async () => {
         setLoading(true);
@@ -176,18 +183,22 @@ const LecturerManagement = () => {
     return (
         <div style={{ width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, alignItems: 'center' }}>
-                <Input placeholder="Tìm kiếm giảng viên..." variant="filled" style={{ width: 300, borderRadius: 6 }} />
-                <div style={{ display: 'flex', gap: 10 }}>
-                    <Button icon={<DownloadOutlined />} onClick={handleDownloadTemplate}>Mẫu Excel</Button>
-                    <Upload customRequest={handleUpload} showUploadList={false}>
-                        <Button icon={<UploadOutlined />}>Import</Button>
-                    </Upload>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={handleAddNew}>Thêm mới</Button>
-                </div>
+                <Input placeholder="Tìm kiếm theo tên, email hoặc khoa..." variant="filled" allowClear style={{ width: 320, borderRadius: 6 }} onChange={e => setSearchText(e.target.value)} />
+                <Space.Compact>
+                        <Tooltip title="Tải file Excel mẫu">
+                            <Button icon={<DownloadOutlined />} onClick={handleDownloadTemplate}>File mẫu</Button>
+                        </Tooltip>
+                        <Upload customRequest={handleUpload} showUploadList={false}>
+                            <Tooltip title="Import danh sách giảng viên từ Excel">
+                                <Button icon={<UploadOutlined />}>Import Excel</Button>
+                            </Tooltip>
+                        </Upload>
+                        <Button type="primary" icon={<PlusOutlined />} onClick={handleAddNew}>Thêm mới</Button>
+                    </Space.Compact>
             </div>
 
             <Table 
-                dataSource={lecturers} columns={columns} rowKey="id" loading={loading} size="middle"
+                dataSource={filteredLecturers} columns={columns} rowKey="id" loading={loading} size="middle"
                 pagination={{ pageSize: 8, placement: 'bottomRight', style: {marginTop: 24} }}
             />
 

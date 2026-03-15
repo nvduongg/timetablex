@@ -4,6 +4,7 @@ import { PlusOutlined, SearchOutlined, ReadOutlined } from '@ant-design/icons';
 import * as MajorService from '../services/majorService';
 import * as CurriculumService from '../services/curriculumService';
 import * as CourseService from '../services/courseService';
+import * as CohortService from '../services/cohortService';
 import RoadmapManagement from './RoadmapManagement';
 
 const { Text } = Typography;
@@ -15,15 +16,17 @@ const CurriculumManagement = () => {
     const [curriculums, setCurriculums] = useState([]);
     const [majors, setMajors] = useState([]);
     const [courses, setCourses] = useState([]);
+    const [cohorts, setCohorts] = useState([]);
     const [searchText, setSearchText] = useState('');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [form] = Form.useForm();
 
     const fetchInitData = async () => {
-        const [currRes, majorRes, courseRes] = await Promise.allSettled([
+        const [currRes, majorRes, courseRes, cohortRes] = await Promise.allSettled([
             CurriculumService.getCurriculums(),
             MajorService.getMajors(),
-            CourseService.getCourses()
+            CourseService.getCourses(),
+            CohortService.getActiveCohorts()
         ]);
         if (currRes.status === 'fulfilled')
             setCurriculums(Array.isArray(currRes.value?.data) ? currRes.value.data : []);
@@ -34,6 +37,9 @@ const CurriculumManagement = () => {
         if (courseRes.status === 'fulfilled')
             setCourses(Array.isArray(courseRes.value?.data) ? courseRes.value.data : []);
         else message.error('Lỗi tải danh sách môn học.');
+        if (cohortRes.status === 'fulfilled')
+            setCohorts(Array.isArray(cohortRes.value?.data) ? cohortRes.value.data : []);
+        else message.error('Lỗi tải danh sách Niên khóa.');
     };
 
     useEffect(() => {
@@ -41,7 +47,14 @@ const CurriculumManagement = () => {
     }, []);
 
     const handleCreate = async (values) => {
-        const payload = { ...values, major: { id: values.majorId } };
+        const selectedCohort = cohorts.find(c => c.id === values.cohortId);
+        const payload = {
+            ...values,
+            major: { id: values.majorId },
+            cohortRef: values.cohortId ? { id: values.cohortId } : undefined,
+            cohort: values.cohort || selectedCohort?.code,
+            admissionYear: values.admissionYear || selectedCohort?.admissionYear,
+        };
         try {
             await CurriculumService.createCurriculum(payload);
             message.success('Tạo khung CTĐT thành công');
@@ -169,8 +182,27 @@ const CurriculumManagement = () => {
                     </Form.Item>
                     <Row gutter={12}>
                         <Col span={12}>
-                            <Form.Item name="cohort" label="Khóa áp dụng" rules={[{ required: true, message: 'Nhập khóa' }]}>
-                                <Input placeholder="VD: K18" variant="filled" />
+                            <Form.Item
+                                name="cohortId"
+                                label="Khóa áp dụng"
+                                rules={[{ required: true, message: 'Chọn khóa' }]}
+                            >
+                                <Select
+                                    placeholder="Chọn niên khóa"
+                                    variant="filled"
+                                    onChange={(value) => {
+                                        const c = cohorts.find(co => co.id === value);
+                                        if (c?.admissionYear) {
+                                            form.setFieldsValue({ admissionYear: c.admissionYear });
+                                        }
+                                    }}
+                                >
+                                    {cohorts.map(c => (
+                                        <Option key={c.id} value={c.id}>
+                                            {c.code}{c.admissionYear ? ` (${c.admissionYear})` : ''}
+                                        </Option>
+                                    ))}
+                                </Select>
                             </Form.Item>
                         </Col>
                         <Col span={12}>

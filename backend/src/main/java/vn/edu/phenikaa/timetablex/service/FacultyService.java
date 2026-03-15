@@ -13,6 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class FacultyService {
@@ -60,6 +61,9 @@ public class FacultyService {
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
             List<Faculty> faculties = new ArrayList<>();
+            Set<String> existingCodes = facultyRepository.findAll().stream()
+                    .map(Faculty::getCode)
+                    .collect(java.util.stream.Collectors.toSet());
 
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue; // Bỏ qua header
@@ -72,16 +76,19 @@ public class FacultyService {
                     String code = codeCell.getStringCellValue();
                     String name = nameCell.getStringCellValue();
 
-                    // Kiểm tra trùng lặp đơn giản
-                    if (!facultyRepository.existsByCode(code)) {
+                    // Kiểm tra trùng lặp đơn giản trên memory thay vì query DB
+                    if (!existingCodes.contains(code)) {
                         Faculty faculty = new Faculty();
                         faculty.setCode(code);
                         faculty.setName(name);
                         faculties.add(faculty);
+                        existingCodes.add(code); // Thêm vào set hiện tại để chống trùng lặp trong chính file Excel
                     }
                 }
             }
-            facultyRepository.saveAll(faculties);
+            if (!faculties.isEmpty()) {
+                facultyRepository.saveAll(faculties);
+            }
         }
     }
 }

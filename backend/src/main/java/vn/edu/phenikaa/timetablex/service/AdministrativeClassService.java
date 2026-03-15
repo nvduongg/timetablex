@@ -93,6 +93,11 @@ public class AdministrativeClassService {
             Sheet sheet = workbook.getSheetAt(0);
             List<AdministrativeClass> classes = new ArrayList<>();
             List<Major> allMajors = majorRepository.findAll();
+            
+            // Load DB classes to memory
+            Set<String> existingClasses = classRepository.findAll().stream()
+                    .map(AdministrativeClass::getCode)
+                    .collect(java.util.stream.Collectors.toSet());
             Set<String> processedCodes = new HashSet<>();
 
             for (Row row : sheet) {
@@ -109,7 +114,7 @@ public class AdministrativeClassService {
                     String majorCode = getCellValue(majorCodeCell);
                     if (code == null || majorCode == null) continue;
 
-                    if (classRepository.existsByCode(code) || processedCodes.contains(code)) continue;
+                    if (existingClasses.contains(code) || processedCodes.contains(code)) continue;
 
                     Optional<Major> matchingMajor = allMajors.stream()
                             .filter(m -> majorCode.equalsIgnoreCase(m.getCode()))
@@ -135,7 +140,9 @@ public class AdministrativeClassService {
                     }
                 }
             }
-            classRepository.saveAll(classes);
+            if (!classes.isEmpty()) {
+                classRepository.saveAll(classes);
+            }
         }
     }
 

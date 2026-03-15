@@ -21,6 +21,10 @@ public class AdministrativeClass {
 
     private String cohort; // Khóa: K17, K18...
 
+    @ManyToOne
+    @JoinColumn(name = "cohort_id")
+    private Cohort cohortRef; // Tham chiếu danh mục Niên khóa
+
     private Integer studentCount; // Sĩ số (Quan trọng để chọn phòng học)
 
     @ManyToOne

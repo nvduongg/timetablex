@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { App, Table, Button, Modal, Form, Input, Select, InputNumber, Upload, Tag, Tooltip } from 'antd';
+import { App, Table, Button, Modal, Form, Input, Select, InputNumber, Upload, Tag, Tooltip, Space } from 'antd';
 import { 
     UploadOutlined, 
     PlusOutlined, 
@@ -15,10 +15,16 @@ const { Option } = Select;
 const RoomManagement = () => {
     const { message, modal } = App.useApp();
     const [rooms, setRooms] = useState([]);
+    const [searchText, setSearchText] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [editingRoom, setEditingRoom] = useState(null);
     const [form] = Form.useForm();
+
+    const filteredRooms = rooms.filter(r =>
+        r.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+        r.type?.toLowerCase().includes(searchText.toLowerCase())
+    );
 
     const fetchRooms = async () => {
         setLoading(true);
@@ -169,18 +175,22 @@ const RoomManagement = () => {
     return (
         <div style={{ width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, alignItems: 'center' }}>
-                <Input placeholder="Tìm kiếm phòng..." variant="filled" style={{ width: 280, borderRadius: 6 }} />
-                <div style={{ display: 'flex', gap: 10 }}>
-                    <Button icon={<DownloadOutlined />} onClick={handleDownloadTemplate}>Mẫu</Button>
+                <Input placeholder="Tìm kiếm theo tên hoặc loại phòng..." variant="filled" allowClear style={{ width: 320, borderRadius: 6 }} onChange={e => setSearchText(e.target.value)} />
+                <Space.Compact>
+                    <Tooltip title="Tải file Excel mẫu">
+                        <Button icon={<DownloadOutlined />} onClick={handleDownloadTemplate}>File mẫu</Button>
+                    </Tooltip>
                     <Upload customRequest={handleUpload} showUploadList={false}>
-                        <Button icon={<UploadOutlined />}>Import</Button>
+                        <Tooltip title="Import danh sách phòng từ Excel">
+                            <Button icon={<UploadOutlined />}>Import Excel</Button>
+                        </Tooltip>
                     </Upload>
                     <Button type="primary" icon={<PlusOutlined />} onClick={handleAddNew}>Thêm mới</Button>
-                </div>
+                </Space.Compact>
             </div>
 
             <Table 
-                columns={columns} dataSource={rooms} rowKey="id" loading={loading}
+                columns={columns} dataSource={filteredRooms} rowKey="id" loading={loading}
                 pagination={{ pageSize: 10, placement: 'bottomRight', style: { marginTop: 24 } }}
             />
 

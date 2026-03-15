@@ -5,6 +5,7 @@ import MainLayout from './layouts/MainLayout';
 import FacultyManagement from './components/FacultyManagement';
 import MajorManagement from './components/MajorManagement';
 import ClassManagement from './components/ClassManagement';
+import CohortManagement from './components/CohortManagement';
 import RoomManagement from './components/RoomManagement';
 import TimeManagement from './components/TimeManagement';
 import CourseManagement from './components/CourseManagement';
@@ -150,6 +151,7 @@ function App() {
             <Route path="/faculties" element={<ProtectedRoute path="/faculties" auth={auth}><FacultyManagement /></ProtectedRoute>} />
             <Route path="/majors" element={<ProtectedRoute path="/majors" auth={auth}><MajorManagement /></ProtectedRoute>} />
             <Route path="/classes" element={<ProtectedRoute path="/classes" auth={auth}><ClassManagement /></ProtectedRoute>} />
+            <Route path="/cohorts" element={<ProtectedRoute path="/cohorts" auth={auth}><CohortManagement /></ProtectedRoute>} />
             <Route path="/rooms" element={<ProtectedRoute path="/rooms" auth={auth}><RoomManagement /></ProtectedRoute>} />
             <Route path="/timeslots" element={<ProtectedRoute path="/timeslots" auth={auth}><TimeManagement /></ProtectedRoute>} />
             <Route path="/courses" element={<ProtectedRoute path="/courses" auth={auth}><CourseManagement /></ProtectedRoute>} />

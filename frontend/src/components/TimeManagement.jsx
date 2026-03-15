@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { App, Table, Button, Modal, Form, Input, TimePicker, InputNumber, Tabs, Upload, Tooltip, Tag } from 'antd';
+import { App, Table, Button, Modal, Form, Input, TimePicker, InputNumber, Tabs, Upload, Tooltip, Tag, Space } from 'antd';
 import { 
     PlusOutlined, 
     EditOutlined, 
@@ -234,15 +234,19 @@ const TimeManagement = () => {
                     variant="filled" style={{ width: 300, borderRadius: 6 }}
                     value={searchText} onChange={(e) => setSearchText(e.target.value)} allowClear
                 />
-                <div style={{ display: 'flex', gap: 10 }}>
-                    <Button icon={<DownloadOutlined />} onClick={handleDownloadTemplate}>Mẫu Excel</Button>
+                <Space.Compact>
+                    <Tooltip title="Tải file Excel mẫu">
+                        <Button icon={<DownloadOutlined />} onClick={handleDownloadTemplate}>File mẫu</Button>
+                    </Tooltip>
                     <Upload customRequest={handleUpload} showUploadList={false}>
-                        <Button icon={<UploadOutlined />}>Import</Button>
+                        <Tooltip title="Import tiết/ca từ Excel">
+                            <Button icon={<UploadOutlined />}>Import Excel</Button>
+                        </Tooltip>
                     </Upload>
                     <Button type="primary" icon={<PlusOutlined />} onClick={handleAddNew}>
                         {activeTab === '1' ? "Thêm Tiết" : "Thêm Ca"}
                     </Button>
-                </div>
+                </Space.Compact>
             </div>
 
             <Tabs 

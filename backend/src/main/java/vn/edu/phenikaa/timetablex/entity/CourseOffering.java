@@ -25,6 +25,12 @@ public class CourseOffering {
     @JoinColumn(name = "faculty_id", nullable = false)
     private Faculty faculty; // Khoa nào phụ trách môn này (để Khoa đó vào xác nhận ở Bước 2)
 
+    private String cohort; // Niên khóa sinh viên: K17, K18... (phân biệt offering cho các khóa cùng học 1 môn)
+
+    @ManyToOne
+    @JoinColumn(name = "cohort_id")
+    private Cohort cohortRef; // Tham chiếu danh mục Niên khóa
+
     private Integer theoryClassCount; // Số lớp lý thuyết dự kiến
     private Integer practiceClassCount; // Số lớp thực hành dự kiến
 

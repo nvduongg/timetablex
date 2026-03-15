@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, InputNumber, Upload, message, Tag, Tooltip } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, InputNumber, Upload, message, Tag, Tooltip, Space } from 'antd';
 import { 
     UploadOutlined, 
     PlusOutlined, 
@@ -9,26 +9,38 @@ import {
 } from '@ant-design/icons';
 import * as ClassService from '../services/classService';
 import * as MajorService from '../services/majorService';
+import * as CohortService from '../services/cohortService';
 
 const { Option } = Select;
 
 const ClassManagement = () => {
     const [classes, setClasses] = useState([]);
     const [majors, setMajors] = useState([]);
+    const [cohorts, setCohorts] = useState([]);
+    const [searchText, setSearchText] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [editingClass, setEditingClass] = useState(null);
     const [form] = Form.useForm();
 
+    const filteredClasses = classes.filter(c =>
+        c.code?.toLowerCase().includes(searchText.toLowerCase()) ||
+        c.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+        c.cohort?.toLowerCase().includes(searchText.toLowerCase()) ||
+        c.major?.name?.toLowerCase().includes(searchText.toLowerCase())
+    );
+
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [classRes, majorRes] = await Promise.all([
+            const [classRes, majorRes, cohortRes] = await Promise.all([
                 ClassService.getClasses(),
-                MajorService.getMajors()
+                MajorService.getMajors(),
+                CohortService.getActiveCohorts()
             ]);
             setClasses(classRes.data || classRes);
             setMajors(majorRes.data || majorRes);
+            setCohorts(cohortRes.data || cohortRes);
         } catch {
             message.error('Lỗi tải dữ liệu');
         } finally {
@@ -48,13 +60,18 @@ const ClassManagement = () => {
         setEditingClass(record);
         form.setFieldsValue({
             ...record,
-            majorId: record.major?.id || record.majorId
+            majorId: record.major?.id || record.majorId,
+            cohortId: record.cohortRef?.id || record.cohortId,
         });
         setIsModalOpen(true);
     };
 
     const handleSave = async (values) => {
-        const payload = { ...values, major: { id: values.majorId } };
+        const payload = {
+            ...values,
+            major: { id: values.majorId },
+            cohortRef: values.cohortId ? { id: values.cohortId } : undefined,
+        };
         try {
             if (editingClass) {
                 await ClassService.updateClass(editingClass.id, payload);
@@ -129,7 +146,10 @@ const ClassManagement = () => {
         },
         { 
             title: 'Khóa', dataIndex: 'cohort', key: 'cohort', width: 100,
-            render: t => <Tag style={{ border: 'none', background: '#f5f5f5', color: '#666' }}>{t}</Tag>
+            render: (_, record) => {
+                const text = record.cohortRef?.code || record.cohort || '';
+                return <Tag style={{ border: 'none', background: '#f5f5f5', color: '#666' }}>{text}</Tag>;
+            }
         },
         { 
             title: 'Sĩ số', dataIndex: 'studentCount', key: 'studentCount', width: 100, align: 'center',
@@ -161,18 +181,22 @@ const ClassManagement = () => {
     return (
         <div style={{ width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, alignItems: 'center' }}>
-                <Input placeholder="Tìm kiếm lớp..." variant="filled" style={{ width: 280, borderRadius: 6 }} />
-                <div style={{ display: 'flex', gap: 10 }}>
-                    <Button icon={<DownloadOutlined />} onClick={handleDownloadTemplate}>Mẫu</Button>
+                <Input placeholder="Tìm kiếm theo mã, tên lớp, khóa hoặc ngành..." variant="filled" allowClear style={{ width: 340, borderRadius: 6 }} onChange={e => setSearchText(e.target.value)} />
+                <Space.Compact>
+                    <Tooltip title="Tải file Excel mẫu">
+                        <Button icon={<DownloadOutlined />} onClick={handleDownloadTemplate}>File mẫu</Button>
+                    </Tooltip>
                     <Upload customRequest={handleUpload} showUploadList={false}>
-                        <Button icon={<UploadOutlined />}>Import</Button>
+                        <Tooltip title="Import danh sách lớp từ Excel">
+                            <Button icon={<UploadOutlined />}>Import Excel</Button>
+                        </Tooltip>
                     </Upload>
                     <Button type="primary" icon={<PlusOutlined />} onClick={handleAddNew}>Thêm mới</Button>
-                </div>
+                </Space.Compact>
             </div>
 
             <Table 
-                dataSource={classes} columns={columns} rowKey="id" loading={loading}
+                dataSource={filteredClasses} columns={columns} rowKey="id" loading={loading}
                 pagination={{ pageSize: 8, placement: 'bottomRight', style: { marginTop: 24 } }}
             />
 
@@ -197,8 +221,14 @@ const ClassManagement = () => {
                         <Input placeholder="VD: Công nghệ thông tin 1 - K17" variant="filled" />
                     </Form.Item>
                     <div style={{ display: 'flex', gap: 16 }}>
-                        <Form.Item name="cohort" label="Khóa" style={{ flex: 1 }}>
-                            <Input placeholder="VD: K17" variant="filled" />
+                        <Form.Item name="cohortId" label="Khóa" style={{ flex: 1 }}>
+                            <Select placeholder="Chọn niên khóa" allowClear variant="filled">
+                                {cohorts.map(c => (
+                                    <Option key={c.id} value={c.id}>
+                                        {c.code}{c.admissionYear ? ` (${c.admissionYear})` : ''}
+                                    </Option>
+                                ))}
+                            </Select>
                         </Form.Item>
                         <Form.Item name="studentCount" label="Sĩ số" style={{ flex: 1 }}>
                             <InputNumber style={{ width: '100%' }} min={1} placeholder="0" variant="filled" />

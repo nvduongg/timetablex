@@ -154,6 +154,12 @@ public class CourseService {
             Sheet sheet = workbook.getSheetAt(0);
             List<Course> courses = new ArrayList<>();
             List<Faculty> faculties = facultyRepo.findAll();
+            
+            // Prefetch existing course codes
+            Set<String> existingCourses = courseRepo.findAll().stream()
+                    .map(Course::getCode)
+                    .collect(java.util.stream.Collectors.toSet());
+            Set<String> processedCodes = new HashSet<>();
 
             for (Row row : sheet) {
                 if (row.getRowNum() == 0)
@@ -171,7 +177,7 @@ public class CourseService {
                 String sharedCodesRaw = getCellValue(row.getCell(9));
 
                 if (code != null && facultyCode != null) {
-                    if (courseRepo.existsByCode(code))
+                    if (existingCourses.contains(code) || processedCodes.contains(code))
                         continue;
 
                     Optional<Faculty> fac = faculties.stream()
@@ -216,10 +222,13 @@ public class CourseService {
                         c.setSharedFaculties(shared);
 
                         courses.add(c);
+                        processedCodes.add(code);
                     }
                 }
             }
-            courseRepo.saveAll(courses);
+            if (!courses.isEmpty()) {
+                courseRepo.saveAll(courses);
+            }
         }
     }
 
@@ -229,6 +238,11 @@ public class CourseService {
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
             List<Faculty> faculties = facultyRepo.findAll();
+            
+            // Prefetch existing courses to map by code
+            java.util.Map<String, Course> existingCoursesMap = courseRepo.findAll().stream()
+                    .collect(java.util.stream.Collectors.toMap(Course::getCode, c -> c));
+            List<Course> coursesToSave = new ArrayList<>();
 
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue;
@@ -250,8 +264,12 @@ public class CourseService {
                         .findFirst();
                 if (fac.isEmpty()) continue;
 
-                // Lấy hoặc tạo mới
-                Course c = courseRepo.findByCode(code).orElse(new Course());
+                // Lấy hoặc tạo mới từ in-memory map
+                Course c = existingCoursesMap.get(code);
+                if (c == null) {
+                    c = new Course();
+                    existingCoursesMap.put(code, c);
+                }
                 c.setCode(code);
                 if (name != null && !name.isBlank()) c.setName(name);
                 c.setCredits((thCredits != null ? thCredits : 0.0) + (prCredits != null ? prCredits : 0.0));
@@ -280,7 +298,10 @@ public class CourseService {
                     }
                 }
                 c.setSharedFaculties(shared);
-                courseRepo.save(c);
+                coursesToSave.add(c);
+            }
+            if (!coursesToSave.isEmpty()) {
+                courseRepo.saveAll(coursesToSave);
             }
         }
     }

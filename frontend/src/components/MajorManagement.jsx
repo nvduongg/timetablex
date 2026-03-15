@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Upload, message, Tag, Tooltip } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, Upload, message, Tag, Tooltip, Space } from 'antd';
 import {
     UploadOutlined,
     PlusOutlined,
@@ -15,10 +15,17 @@ const { Option } = Select;
 const MajorManagement = () => {
     const [majors, setMajors] = useState([]);
     const [faculties, setFaculties] = useState([]);
+    const [searchText, setSearchText] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [editingMajor, setEditingMajor] = useState(null);
     const [form] = Form.useForm();
+
+    const filteredMajors = majors.filter(m =>
+        m.code?.toLowerCase().includes(searchText.toLowerCase()) ||
+        m.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+        m.faculty?.name?.toLowerCase().includes(searchText.toLowerCase())
+    );
 
     const fetchData = async () => {
         setLoading(true);
@@ -179,24 +186,28 @@ const MajorManagement = () => {
         <div style={{ width: '100%' }}>
             <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Input
-                    placeholder="Tìm kiếm ngành học..."
+                    placeholder="Tìm kiếm theo mã, tên ngành hoặc khoa..."
                     variant="filled"
-                    style={{ width: 280, borderRadius: 6 }}
+                    allowClear
+                    style={{ width: 320, borderRadius: 6 }}
+                    onChange={e => setSearchText(e.target.value)}
                 />
-                <div style={{ display: 'flex', gap: 10 }}>
-                    <Button icon={<DownloadOutlined />} onClick={handleDownloadTemplate}>Tải mẫu</Button>
-                    <Upload customRequest={handleUpload} showUploadList={false}>
-                        <Button icon={<UploadOutlined />}>Import</Button>
-                    </Upload>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={handleAddNew}>
-                        Thêm mới
-                    </Button>
-                </div>
+                <Space.Compact>
+                        <Tooltip title="Tải file Excel mẫu để điền dữ liệu">
+                            <Button icon={<DownloadOutlined />} onClick={handleDownloadTemplate}>File mẫu</Button>
+                        </Tooltip>
+                        <Upload customRequest={handleUpload} showUploadList={false}>
+                            <Tooltip title="Import danh sách ngành từ Excel">
+                                <Button icon={<UploadOutlined />}>Import Excel</Button>
+                            </Tooltip>
+                        </Upload>
+                        <Button type="primary" icon={<PlusOutlined />} onClick={handleAddNew}>Thêm mới</Button>
+                    </Space.Compact>
             </div>
 
             <Table
                 columns={columns}
-                dataSource={majors}
+                dataSource={filteredMajors}
                 rowKey="id"
                 loading={loading}
                 pagination={{ pageSize: 8, placement: 'bottomRight', style: { marginTop: 24 } }}
