@@ -120,7 +120,7 @@ const CohortManagement = () => {
             title: 'Năm nhập học',
             dataIndex: 'admissionYear',
             key: 'admissionYear',
-            width: 130,
+            width: 200,
             align: 'center',
             render: (y) => y ? <Tag color="blue" style={{ border: 'none' }}>{y}</Tag> : <span style={{ color: '#ccc' }}>—</span>,
         },
@@ -213,7 +213,7 @@ const CohortManagement = () => {
                         name="name"
                         label="Tên hiển thị"
                     >
-                        <Input placeholder="VD: Khóa 18 - CNTT" variant="filled" />
+                        <Input placeholder="VD: Đại học chính quy Khóa 17" variant="filled" />
                     </Form.Item>
                     <Form.Item
                         name="admissionYear"

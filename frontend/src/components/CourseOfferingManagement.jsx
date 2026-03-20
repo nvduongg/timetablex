@@ -28,7 +28,7 @@ const CourseOfferingManagement = () => {
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-    const [form] = Form.useForm();
+    const [form] = Form.useForm(); // giữ lại nếu sau này cần mở rộng, hiện tại không hiển thị trường nhập
     const [editForm] = Form.useForm();
 
     const normStatus = (s) => String(s || '').trim().toUpperCase();
@@ -129,19 +129,54 @@ const CourseOfferingManagement = () => {
         }
     };
 
-    const handleGenerate = async (values) => {
+    const buildAutoGenerateParams = () => {
+        if (!currentSemesterId) return null;
+        const sem = semesters.find(s => s.id === currentSemesterId);
+        let planningYear;
+        let planningTerm;
+        const termsPerYear = 3;
+
+        if (sem?.code) {
+            const parts = String(sem.code).split('_');
+            // Hỗ trợ cả 2025_1 và 2025_2026_1
+            if (parts.length === 2) {
+                const y = parseInt(parts[0], 10);
+                const t = parseInt(parts[1], 10);
+                if (!isNaN(y)) planningYear = y;
+                if (!isNaN(t)) planningTerm = t;
+            } else if (parts.length === 3) {
+                const startYear = parseInt(parts[0], 10);
+                const term = parseInt(parts[2], 10);
+                if (!isNaN(startYear)) planningYear = startYear;
+                if (!isNaN(term)) planningTerm = term;
+            }
+        }
+        if (!planningYear && sem?.startDate) {
+            const d = new Date(sem.startDate);
+            if (!isNaN(d.getTime())) planningYear = d.getFullYear();
+        }
+
+        return {
+            semesterId: currentSemesterId,
+            planningYear: planningYear ?? new Date().getFullYear(),
+            planningTerm: planningTerm ?? 1,
+            termsPerYear,
+        };
+    };
+
+    const doGenerate = async () => {
         if (!currentSemesterId) {
             message.warning('Vui lòng chọn học kỳ trước khi thiết lập kế hoạch học phần');
             return;
         }
+        const payload = buildAutoGenerateParams();
+        if (!payload) {
+            message.error('Không xác định được tham số gợi ý từ học kỳ hiện tại');
+            return;
+        }
         setLoading(true);
         try {
-            await OfferingService.generateAutomatedPlan({
-                semesterId: currentSemesterId,
-                planningYear: values.planningYear,
-                planningTerm: values.planningTerm,
-                termsPerYear: values.termsPerYear
-            });
+            await OfferingService.generateAutomatedPlan(payload);
             message.success('Hệ thống đã tính toán xong kế hoạch cho toàn trường!');
             setIsGenerateModalOpen(false);
             fetchOfferings();
@@ -150,6 +185,35 @@ const CourseOfferingManagement = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleGenerate = async () => {
+        if (!currentSemesterId) {
+            message.warning('Vui lòng chọn học kỳ');
+            return;
+        }
+        // Nếu đã có kế hoạch hiện tại → cảnh báo sẽ ghi đè
+        if ((offerings || []).length > 0) {
+            Modal.confirm({
+                title: 'Ghi đè kế hoạch hiện tại?',
+                content:
+                    'Hệ thống sẽ tính toán lại toàn bộ kế hoạch mở lớp cho học kỳ này dựa trên CTĐT hiện tại. ' +
+                    'Các thay đổi thủ công trước đó (số lớp LT/TH, nhu cầu SV) có thể bị ghi đè. Bạn có chắc chắn muốn tiếp tục?',
+                okText: 'Tiếp tục gợi ý',
+                cancelText: 'Hủy',
+                onOk: () => doGenerate(),
+            });
+        } else {
+            await doGenerate();
+        }
+    };
+
+    const openGenerateModal = () => {
+        if (!currentSemesterId) {
+            message.warning('Vui lòng chọn học kỳ trước khi thiết lập kế hoạch học phần');
+            return;
+        }
+        setIsGenerateModalOpen(true);
     };
 
     const openEditModal = (record) => {
@@ -186,6 +250,13 @@ const CourseOfferingManagement = () => {
         {
             title: 'Tên môn học', dataIndex: ['course', 'name'],
             render: t => <span style={{ fontWeight: 500 }}>{t}</span>
+        },
+        {
+            title: 'Khóa', dataIndex: 'cohort', width: 80,
+            render: (_, r) => {
+                const text = (r.cohortRef && r.cohortRef.code) || r.cohort || '—';
+                return <Tag style={{ border: 'none', background: '#f5f5f5', color: '#666' }}>{text}</Tag>;
+            }
         },
         {
             title: 'Khoa phụ trách', dataIndex: ['faculty', 'name'],
@@ -361,7 +432,7 @@ const CourseOfferingManagement = () => {
                         >
                             Gửi duyệt
                         </Button>
-                        <Button type="primary" icon={<RobotOutlined />} onClick={() => setIsGenerateModalOpen(true)}>
+                        <Button type="primary" icon={<RobotOutlined />} onClick={openGenerateModal}>
                             Gợi ý
                         </Button>
                     </Space.Compact>
@@ -408,37 +479,25 @@ const CourseOfferingManagement = () => {
                     />
                 </div>
 
-                <Form form={form} layout="vertical" onFinish={handleGenerate} initialValues={{ planningYear: 2025, planningTerm: 3, termsPerYear: 3 }}>
-                    <Alert
-                        message="Hệ thống sẽ tự tra cứu Năm nhập học từ dữ liệu CTĐT. Chỉ cần chỉ định học kỳ đang lập kế hoạch."
-                        type="success" showIcon
-                        style={{ border: 'none', background: '#f6ffed', marginBottom: 20 }}
-                    />
-                    <Row gutter={16}>
-                        <Col span={8}>
-                            <Form.Item name="planningYear" label="Năm học" rules={[{ required: true }]}>
-                                <InputNumber min={2000} max={2100} style={{ width: '100%' }} variant="filled" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="planningTerm" label="Kỳ (1, 2, 3)" rules={[{ required: true }]}>
-                                <InputNumber min={1} max={4} style={{ width: '100%' }} variant="filled" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="termsPerYear" label="Kỳ/Năm" rules={[{ required: true }]}>
-                                <InputNumber min={2} max={4} style={{ width: '100%' }} variant="filled" />
-                            </Form.Item>
-                        </Col>
-                    </Row>
+                <Alert
+                    message="Hệ thống sẽ tự tra cứu Năm nhập học và Lộ trình từ CTĐT của từng Khóa. Bạn chỉ cần xác nhận để bắt đầu quét & tính toán cho học kỳ đang chọn."
+                    type="success" showIcon
+                    style={{ border: 'none', background: '#f6ffed', marginBottom: 20 }}
+                />
 
-                    <div style={{ textAlign: 'right', marginTop: 16 }}>
-                        <Button onClick={() => setIsGenerateModalOpen(false)} style={{ marginRight: 8 }}>Hủy</Button>
-                        <Button type="primary" htmlType="submit" icon={<SyncOutlined spin={loading} />} loading={loading}>
-                            Bắt đầu quét & Tính toán
-                        </Button>
-                    </div>
-                </Form>
+                <div style={{ textAlign: 'right', marginTop: 16 }}>
+                    <Button onClick={() => setIsGenerateModalOpen(false)} style={{ marginRight: 8 }}>
+                        Hủy
+                    </Button>
+                    <Button
+                        type="primary"
+                        icon={<SyncOutlined spin={loading} />}
+                        loading={loading}
+                        onClick={handleGenerate}
+                    >
+                        Bắt đầu quét & Tính toán
+                    </Button>
+                </div>
             </Modal>
 
             <Modal

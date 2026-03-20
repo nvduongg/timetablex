@@ -58,10 +58,16 @@ const ClassManagement = () => {
 
     const handleEdit = (record) => {
         setEditingClass(record);
+        const fallbackCohortId = (() => {
+            if (!record.cohort || !cohorts.length) return undefined;
+            const code = String(record.cohort).trim();
+            const found = cohorts.find(c => String(c.code).trim() === code);
+            return found ? found.id : undefined;
+        })();
         form.setFieldsValue({
             ...record,
             majorId: record.major?.id || record.majorId,
-            cohortId: record.cohortRef?.id || record.cohortId,
+            cohortId: record.cohortRef?.id || record.cohortId || fallbackCohortId,
         });
         setIsModalOpen(true);
     };

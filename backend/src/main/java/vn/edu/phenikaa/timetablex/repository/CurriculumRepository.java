@@ -14,6 +14,10 @@ public interface CurriculumRepository extends JpaRepository<Curriculum, Long> {
     // xử lý
     List<Curriculum> findByMajorIdAndCohort(Long majorId, String cohort);
 
+    // Lấy tất cả CTĐT theo Khóa (niên khóa) bất kể ngành — dùng cho bước sinh lớp học phần,
+    // để giới hạn lớp biên chế theo đúng ngành có CTĐT chứa học phần đó.
+    List<Curriculum> findByCohort(String cohort);
+
     @EntityGraph(type = EntityGraph.EntityGraphType.LOAD, attributePaths = {
             "details",
             "details.course",

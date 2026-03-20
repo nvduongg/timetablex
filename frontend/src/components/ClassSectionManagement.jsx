@@ -164,6 +164,17 @@ const ClassSectionManagement = () => {
             ),
         },
         {
+            title: 'Khóa',
+            key: 'cohort',
+            width: 80,
+            render: (_, r) => {
+                const text = (r.courseOffering?.cohortRef && r.courseOffering.cohortRef.code)
+                    || r.courseOffering?.cohort
+                    || '—';
+                return <Tag style={{ border: 'none', background: '#f5f5f5', color: '#666' }}>{text}</Tag>;
+            },
+        },
+        {
             title: 'Khoa phụ trách',
             dataIndex: ['courseOffering', 'faculty', 'name'],
             render: t => t ? <Tag style={{ border: 'none', background: '#f5f5f5', color: '#666' }}>{t}</Tag> : '—',

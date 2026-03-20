@@ -5,12 +5,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.phenikaa.timetablex.entity.AdministrativeClass;
 import vn.edu.phenikaa.timetablex.entity.ClassSection;
+import vn.edu.phenikaa.timetablex.entity.Course;
 import vn.edu.phenikaa.timetablex.entity.CourseOffering;
+import vn.edu.phenikaa.timetablex.entity.Curriculum;
+import vn.edu.phenikaa.timetablex.entity.CurriculumDetail;
+import vn.edu.phenikaa.timetablex.entity.Faculty;
 import vn.edu.phenikaa.timetablex.entity.Lecturer;
 import vn.edu.phenikaa.timetablex.repository.AdministrativeClassRepository;
 import vn.edu.phenikaa.timetablex.repository.ClassSectionRepository;
 import vn.edu.phenikaa.timetablex.repository.TimetableEntryRepository;
 import vn.edu.phenikaa.timetablex.repository.CourseOfferingRepository;
+import vn.edu.phenikaa.timetablex.repository.CurriculumRepository;
 import vn.edu.phenikaa.timetablex.repository.FacultyRepository;
 import vn.edu.phenikaa.timetablex.repository.LecturerRepository;
 import vn.edu.phenikaa.timetablex.repository.SemesterRepository;
@@ -40,6 +45,8 @@ public class ClassSectionService {
     private AdministrativeClassRepository adminClassRepo;
     @Autowired
     private TimetableEntryRepository timetableEntryRepo;
+    @Autowired
+    private CurriculumRepository curriculumRepo;
 
     public List<ClassSection> getBySemester(Long semesterId) {
         return sectionRepo.findByCourseOffering_Semester_Id(semesterId);
@@ -107,8 +114,9 @@ public class ClassSectionService {
             if (offeringIdsWithSections.contains(o.getId()))
                 continue;
 
-            String courseCode = o.getCourse() != null && o.getCourse().getCode() != null
-                    ? o.getCourse().getCode()
+            Course course = o.getCourse();
+            String courseCode = course != null && course.getCode() != null
+                    ? course.getCode()
                     : "HP" + o.getId();
 
             // Lấy lớp biên chế: khoa phụ trách + các khoa dùng chung môn (nếu có)
@@ -127,6 +135,57 @@ public class ClassSectionService {
                     if (!facultyAdminClasses.contains(ac))
                         facultyAdminClasses.add(ac);
                 }
+            }
+
+            // Giới hạn lớp biên chế theo CTĐT: chỉ những ngành có CTĐT (theo Khóa) chứa học phần này
+            Set<Long> allowedMajorIds = new HashSet<>();
+            if (course != null) {
+                String cohortCodeForCurr = null;
+                if (o.getCohortRef() != null && o.getCohortRef().getCode() != null) {
+                    cohortCodeForCurr = o.getCohortRef().getCode();
+                } else if (o.getCohort() != null && !o.getCohort().isBlank()) {
+                    cohortCodeForCurr = o.getCohort().trim();
+                }
+                if (cohortCodeForCurr != null && !cohortCodeForCurr.isBlank()) {
+                    List<Curriculum> curriculums = curriculumRepo.findByCohort(cohortCodeForCurr);
+                    for (Curriculum c : curriculums) {
+                        if (c.getDetails() == null || c.getMajor() == null || c.getMajor().getId() == null) continue;
+                        boolean containsCourse = c.getDetails().stream()
+                                .map(CurriculumDetail::getCourse)
+                                .filter(Objects::nonNull)
+                                .anyMatch(dc -> dc.getId().equals(course.getId()));
+                        if (containsCourse) {
+                            allowedMajorIds.add(c.getMajor().getId());
+                        }
+                    }
+                }
+            }
+            if (!allowedMajorIds.isEmpty()) {
+                facultyAdminClasses = facultyAdminClasses.stream()
+                        .filter(ac -> ac.getMajor() != null && allowedMajorIds.contains(ac.getMajor().getId()))
+                        .toList();
+            }
+
+            // Lọc lớp biên chế theo Khóa của CourseOffering (nếu có) để sinh lớp theo từng khóa riêng
+            String cohortCode = null;
+            if (o.getCohortRef() != null && o.getCohortRef().getCode() != null) {
+                cohortCode = o.getCohortRef().getCode();
+            } else if (o.getCohort() != null && !o.getCohort().isBlank()) {
+                cohortCode = o.getCohort().trim();
+            }
+            if (cohortCode != null && !cohortCode.isBlank()) {
+                String finalCohortCode = cohortCode;
+                facultyAdminClasses = facultyAdminClasses.stream()
+                        .filter(ac -> {
+                            String acCode = null;
+                            if (ac.getCohortRef() != null && ac.getCohortRef().getCode() != null) {
+                                acCode = ac.getCohortRef().getCode();
+                            } else if (ac.getCohort() != null && !ac.getCohort().isBlank()) {
+                                acCode = ac.getCohort().trim();
+                            }
+                            return finalCohortCode.equalsIgnoreCase(acCode);
+                        })
+                        .toList();
             }
 
             int lt = o.getTheoryClassCount() != null ? o.getTheoryClassCount() : 0;

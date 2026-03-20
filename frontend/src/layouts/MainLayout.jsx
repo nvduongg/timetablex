@@ -46,8 +46,8 @@ const getMenuItems = (role) => {
       children: [
         { key: '/faculties', label: 'Khoa/Viện' },
         { key: '/majors', label: 'Ngành' },
-        { key: '/classes', label: 'Lớp' },
         { key: '/cohorts', label: 'Niên khóa' },
+        { key: '/classes', label: 'Lớp' },
         { key: '/rooms', label: 'Phòng học' },
         { key: '/timeslots', label: 'Ca học' },
         { key: '/courses', label: 'Môn học' },
@@ -142,7 +142,7 @@ const MainLayout = ({ children, auth, onLogout }) => {
     if (path.startsWith('/teaching-assignments')) return ['module3'];
     if (path.startsWith('/timetable')) return ['module4'];
     if (path.startsWith('/support-requests') || path.startsWith('/users')) return ['system'];
-    if (['/faculties','/majors','/classes','/rooms','/timeslots','/courses','/curriculum','/lecturers','/semesters'].includes(path)) return ['data'];
+    if (['/faculties','/majors','/classes','/cohorts','/rooms','/timeslots','/courses','/curriculum','/lecturers','/semesters'].includes(path)) return ['data'];
     return [];
   }, [location.pathname]);
 

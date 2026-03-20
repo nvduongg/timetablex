@@ -68,24 +68,44 @@ public class CourseOfferingService {
         Map<DemandKey, Course>   courseMap  = new LinkedHashMap<>();
 
         for (AdministrativeClass cls : classes) {
-            if (cls.getCohort() == null || cls.getCohort().isBlank()) continue;
+            // Ưu tiên dùng Cohort entity nếu có, fallback về chuỗi cohort cũ
+            String cohortCode = null;
+            if (cls.getCohortRef() != null && cls.getCohortRef().getCode() != null) {
+                cohortCode = cls.getCohortRef().getCode();
+            } else if (cls.getCohort() != null && !cls.getCohort().isBlank()) {
+                cohortCode = cls.getCohort().trim();
+            }
+            if (cohortCode == null || cohortCode.isBlank()) continue;
 
             Long majorId = cls.getMajor().getId();
-            // Lấy CTĐT khớp với chuyên ngành và khóa của lớp này
-            List<Curriculum> currList = curriculumRepo.findByMajorIdAndCohort(majorId, cls.getCohort());
+            // Lấy CTĐT khớp với chuyên ngành và khóa của lớp này (theo mã khóa)
+            List<Curriculum> currList = curriculumRepo.findByMajorIdAndCohort(majorId, cohortCode);
             if (currList.isEmpty()) continue;
 
-            // Lấy admissionYear trực tiếp từ CTĐT (ưu tiên giá trị đã lưu trong CTĐT)
+            // Lấy admissionYear trực tiếp từ CTĐT (ưu tiên giá trị đã lưu trong CTĐT),
+            // fallback sang Cohort của CTĐT hoặc Cohort của Lớp nếu cần
             Integer admYear = currList.stream()
                     .map(Curriculum::getAdmissionYear)
                     .filter(java.util.Objects::nonNull)
                     .findFirst()
                     .orElse(null);
+            if (admYear == null) {
+                admYear = currList.stream()
+                        .map(Curriculum::getCohortRef)
+                        .filter(Objects::nonNull)
+                        .map(Cohort::getAdmissionYear)
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                        .orElse(null);
+            }
+            if (admYear == null && cls.getCohortRef() != null) {
+                admYear = cls.getCohortRef().getAdmissionYear();
+            }
 
-            // Nếu CTĐT chưa có admissionYear → bỏ qua lớp này, in cảnh báo
+            // Nếu vẫn chưa xác định được admissionYear → bỏ qua lớp này, in cảnh báo
             if (admYear == null) {
                 System.err.printf("[AutoGenerate] Bỏ qua lớp %s: CTĐT chưa có Năm nhập học (admissionYear). " +
-                        "Vui lòng cập nhật lại CTĐT của khóa %s.%n", cls.getCode(), cls.getCohort());
+                        "Vui lòng cập nhật lại CTĐT của khóa %s.%n", cls.getCode(), cohortCode);
                 continue;
             }
 
@@ -114,7 +134,7 @@ public class CourseOfferingService {
                     if ("DN".equalsIgnoreCase(course.getRequiredRoomType())) continue;
 
                     // Nhóm nhu cầu theo (cohort, course) — K17 và K18 cùng học 1 môn → 2 offering riêng
-                    DemandKey key = new DemandKey(cls.getCohort(), course.getId());
+                    DemandKey key = new DemandKey(cohortCode, course.getId());
                     demandMap.merge(key, cls.getStudentCount(), Integer::sum);
                     courseMap.putIfAbsent(key, course);
                 }
@@ -122,10 +142,11 @@ public class CourseOfferingService {
         }
 
         // Sĩ số tối đa mỗi lớp
-        int THEORY_SIZE = 60;
-        int PRACTICE_SIZE = 30;
+        final int THEORY_SIZE = 60;
+        final int PRACTICE_SIZE = 30;
+        final int SB_SIZE = 140; // Sân bãi / GDTC: có thể gom lớp lớn hơn
         // Tỷ lệ tách TH từ mỗi lớp LT (mỗi 1 lớp LT tách thành bao nhiêu lớp TH)
-        int PRACTICE_PER_THEORY = (int) Math.ceil((double) THEORY_SIZE / PRACTICE_SIZE); // = 2
+        final int PRACTICE_PER_THEORY = (int) Math.ceil((double) THEORY_SIZE / PRACTICE_SIZE); // = 2
 
         List<CourseOffering> offerings = new ArrayList<>();
 
@@ -151,8 +172,15 @@ public class CourseOfferingService {
 
             boolean hasTheory   = course.getTheoryCredits()   != null && course.getTheoryCredits()   > 0;
             boolean hasPractice = course.getPracticeCredits() != null && course.getPracticeCredits() > 0;
+            boolean isFieldCourse = "SB".equalsIgnoreCase(course.getRequiredRoomType());
 
-            if (hasTheory && hasPractice) {
+            if (isFieldCourse) {
+                // Môn sân bãi / GDTC: coi như LT mở rộng, không tách TH, cho phép sĩ số lớn
+                int theoryCount = (int) Math.ceil((double) totalStudents / SB_SIZE);
+                if (theoryCount < 1) theoryCount = 1;
+                offering.setTheoryClassCount(theoryCount);
+                offering.setPracticeClassCount(0);
+            } else if (hasTheory && hasPractice) {
                 // Trường hợp 1: Môn kết hợp LT + TH (VD: Vật lý, Hóa học)
                 // → Mở gộp lớp LT lớn, sau đó mỗi lớp LT tách nhỏ ra thành K lớp TH
                 int theoryCount = (int) Math.ceil((double) totalStudents / THEORY_SIZE);

@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import vn.edu.phenikaa.timetablex.entity.AdministrativeClass;
+import vn.edu.phenikaa.timetablex.entity.Cohort;
 import vn.edu.phenikaa.timetablex.entity.Major;
 import vn.edu.phenikaa.timetablex.repository.AdministrativeClassRepository;
+import vn.edu.phenikaa.timetablex.repository.CohortRepository;
 import vn.edu.phenikaa.timetablex.repository.MajorRepository;
 
 import java.io.ByteArrayInputStream;
@@ -28,6 +30,9 @@ public class AdministrativeClassService {
     @Autowired
     private MajorRepository majorRepository;
 
+    @Autowired
+    private CohortRepository cohortRepository;
+
     public List<AdministrativeClass> getAll() {
         return classRepository.findAll();
     }
@@ -38,6 +43,13 @@ public class AdministrativeClassService {
     }
 
     public AdministrativeClass save(AdministrativeClass adminClass) {
+        // Nếu frontend gửi theo cohortRef (id Niên khóa) thì đồng bộ luôn trường cohort (code) cho thuận tiện tra cứu
+        if (adminClass.getCohortRef() != null && adminClass.getCohortRef().getId() != null) {
+            Cohort cohort = cohortRepository.findById(adminClass.getCohortRef().getId()).orElse(null);
+            if (cohort != null) {
+                adminClass.setCohort(cohort.getCode());
+            }
+        }
         return classRepository.save(adminClass);
     }
 
@@ -126,7 +138,21 @@ public class AdministrativeClassService {
                         String nameVal = getCellValue(nameCell);
                         adminClass.setName(nameVal != null ? nameVal : "");
                         String cohortVal = getCellValue(cohortCell);
-                        adminClass.setCohort(cohortVal != null ? cohortVal : "");
+                        if (cohortVal != null && !cohortVal.isBlank()) {
+                            String normalized = cohortVal.trim();
+                            // Chỉ chấp nhận các Khóa đã được khai báo trong danh mục Niên khóa
+                            var cohortOpt = cohortRepository.findByCode(normalized);
+                            if (cohortOpt.isEmpty()) {
+                                // Bỏ qua dòng này nếu Khóa chưa được định nghĩa trong Cohort
+                                System.err.printf("[ImportClass] Bỏ qua lớp %s: Khóa '%s' chưa được khai báo trong Niên khóa.%n",
+                                        code, normalized);
+                                continue;
+                            }
+                            adminClass.setCohort(normalized);
+                            adminClass.setCohortRef(cohortOpt.get());
+                        } else {
+                            adminClass.setCohort("");
+                        }
 
                         int size = 0;
                         if (sizeCell != null && sizeCell.getCellType() == CellType.NUMERIC) {
