@@ -129,18 +129,83 @@ public class CourseService {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             Sheet sheet = workbook.createSheet("Courses");
+
+            // Style cho header
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerStyle.setFont(headerFont);
+
             Row header = sheet.createRow(0);
-            // Header cập nhật
-            header.createCell(0).setCellValue("Mã HP");
-            header.createCell(1).setCellValue("Tên Học Phần");
-            header.createCell(2).setCellValue("Tổng TC");
-            header.createCell(3).setCellValue("TC Lý thuyết");
-            header.createCell(4).setCellValue("TC Thực hành");
-            header.createCell(5).setCellValue("TC Tự học"); // Column F
-            header.createCell(6).setCellValue("Hình thức (OFFLINE/ONLINE_ELEARNING/ONLINE_COURSERA/HYBRID)"); // Column G
-            header.createCell(7).setCellValue("Loại phòng");
-            header.createCell(8).setCellValue("Mã Khoa");
-            header.createCell(9).setCellValue("Mã Khoa dùng chung (cách nhau dấu phẩy, VD: IT,CS,MATH)");
+            String[] headers = {
+                "Mã HP",
+                "Tên Học Phần",
+                "Tổng TC",
+                "TC Lý thuyết",
+                "TC Thực hành",
+                "TC Tự học",
+                "Hình thức (OFFLINE/ONLINE_ELEARNING/ONLINE_COURSERA/HYBRID)",
+                // Các giá trị Loại phòng hợp lệ:
+                // LT = Phòng lý thuyết (xếp lịch bình thường)
+                // TH = Phòng thực hành/lab (xếp lịch bình thường)
+                // SB = Sân bãi/Thể dục (xếp lịch, sĩ số lớn)
+                // TT = Thực tập doanh nghiệp (KHÔNG xếp lịch)
+                // TL = Tiểu luận (KHÔNG xếp lịch)
+                // DA = Đồ án môn học / Đồ án tốt nghiệp (KHÔNG xếp lịch)
+                // LA = Luận văn / Luận án (KHÔNG xếp lịch)
+                "Loại phòng (LT / TH / SB / TT / TL / DA / LA)",
+                "Mã Khoa",
+                "Mã Khoa dùng chung (cách nhau dấu phẩy, VD: IT,CS,MATH)"
+            };
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = header.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+
+            // Dòng mẫu 1: Môn lý thuyết thông thường
+            Row sample1 = sheet.createRow(1);
+            sample1.createCell(0).setCellValue("CSE702036");
+            sample1.createCell(1).setCellValue("Mạng máy tính");
+            sample1.createCell(2).setCellValue(3);
+            sample1.createCell(3).setCellValue(2);
+            sample1.createCell(4).setCellValue(1);
+            sample1.createCell(5).setCellValue(0);
+            sample1.createCell(6).setCellValue("OFFLINE");
+            sample1.createCell(7).setCellValue("LT");
+            sample1.createCell(8).setCellValue("CNTT");
+            sample1.createCell(9).setCellValue("");
+
+            // Dòng mẫu 2: Đồ án tốt nghiệp (không xếp lịch)
+            Row sample2 = sheet.createRow(2);
+            sample2.createCell(0).setCellValue("CSE800001");
+            sample2.createCell(1).setCellValue("Đồ án tốt nghiệp");
+            sample2.createCell(2).setCellValue(10);
+            sample2.createCell(3).setCellValue(0);
+            sample2.createCell(4).setCellValue(0);
+            sample2.createCell(5).setCellValue(10);
+            sample2.createCell(6).setCellValue("OFFLINE");
+            sample2.createCell(7).setCellValue("DA");
+            sample2.createCell(8).setCellValue("CNTT");
+            sample2.createCell(9).setCellValue("");
+
+            // Dòng mẫu 3: Thực tập doanh nghiệp (không xếp lịch)
+            Row sample3 = sheet.createRow(3);
+            sample3.createCell(0).setCellValue("CSE700001");
+            sample3.createCell(1).setCellValue("Thực tập doanh nghiệp");
+            sample3.createCell(2).setCellValue(3);
+            sample3.createCell(3).setCellValue(0);
+            sample3.createCell(4).setCellValue(0);
+            sample3.createCell(5).setCellValue(3);
+            sample3.createCell(6).setCellValue("OFFLINE");
+            sample3.createCell(7).setCellValue("TT");
+            sample3.createCell(8).setCellValue("CNTT");
+            sample3.createCell(9).setCellValue("");
+
+            // Tự động điều chỉnh độ rộng cột
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
 
             workbook.write(out);
         } finally {

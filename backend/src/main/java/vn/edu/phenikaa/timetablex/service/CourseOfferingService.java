@@ -20,6 +20,18 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 @Service
 public class CourseOfferingService {
+
+    /**
+     * Các loại hình tổ chức học phần KHÔNG cần xếp lịch phòng học (hệ Đại học).
+     * TT = Thực tập doanh nghiệp
+     * TL = Tiểu luận
+     * DA = Đồ án môn học / Khóa luận tốt nghiệp (cấp cao nhất hệ ĐH)
+     * DN = tên cũ của TT, giữ để tương thích ngược với dữ liệu cũ
+     * LA = Luận văn/Luận án (dành cho Cao học — giữ làm safety-net nếu dữ liệu nhập sai)
+     */
+    private static final java.util.Set<String> EXCLUDED_ROOM_TYPES = java.util.Set.of(
+            "TT", "TL", "DA", "DN", "LA"
+    );
     @Autowired
     private CourseOfferingRepository offeringRepo;
     @Autowired
@@ -129,9 +141,17 @@ public class CourseOfferingService {
 
                 for (CurriculumDetail detail : details) {
                     Course course = detail.getCourse();
-                    // Bỏ qua các môn Thực tập / Đồ án / Khóa luận (loại phòng DN)
-                    // vì những môn này sinh viên tự đăng ký với GV, không cần xếp lịch phòng
-                    if ("DN".equalsIgnoreCase(course.getRequiredRoomType())) continue;
+                    // Bỏ qua các môn không cần xếp lịch phòng:
+                    // TT (Thực tập), TL (Tiểu luận), DA (Đồ án), LA (Luận văn/Luận án), DN (tương thích cũ)
+                    String roomType = course.getRequiredRoomType();
+                    if (roomType != null && EXCLUDED_ROOM_TYPES.contains(roomType.toUpperCase())) continue;
+                    // Bỏ qua nếu loại phòng null/rỗng và môn không có tín chỉ LT lẫn TH
+                    // (trường hợp dữ liệu không đầy đủ, tránh tạo offering vô nghĩa)
+                    if (roomType == null || roomType.isBlank()) {
+                        boolean noCredits = (course.getTheoryCredits() == null || course.getTheoryCredits() == 0)
+                                && (course.getPracticeCredits() == null || course.getPracticeCredits() == 0);
+                        if (noCredits) continue;
+                    }
 
                     // Nhóm nhu cầu theo (cohort, course) — K17 và K18 cùng học 1 môn → 2 offering riêng
                     DemandKey key = new DemandKey(cohortCode, course.getId());

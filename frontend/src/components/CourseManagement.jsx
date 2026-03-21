@@ -191,20 +191,35 @@ const CourseManagement = () => {
             )
         },
         {
-            title: 'Yêu cầu phòng', dataIndex: 'requiredRoomType', width: 150,
+            title: 'Yêu cầu phòng', dataIndex: 'requiredRoomType', width: 180,
             render: (type) => {
-                const config = {
+                // Các loại CÓ xếp lịch phòng học
+                const scheduled = {
                     LT:     { color: '#389e0d', bg: '#f6ffed', text: 'LT — Giảng đường' },
                     PM:     { color: '#096dd9', bg: '#e6f7ff', text: 'PM — Phòng máy' },
                     TN:     { color: '#d46b08', bg: '#fff7e6', text: 'TN — Thí nghiệm' },
                     SB:     { color: '#08979c', bg: '#e6fffb', text: 'SB — Sân bãi' },
-                    XT:     { color: '#874d00', bg: '#fffbe6', text: 'XT — Xưởng TH' },
+                    XT:     { color: '#874d00', bg: '#fffbe6', text: 'XT — Phòng nghe nói' },
                     BV:     { color: '#c41d7f', bg: '#fff0f6', text: 'BV — Bệnh viện' },
-                    DN:     { color: '#531dab', bg: '#f9f0ff', text: 'DN — Thực tập DN' },
                     ONLINE: { color: '#0050b3', bg: '#e6f0ff', text: 'ONLINE — Trực tuyến' },
                 };
-                const c = config[type] || { color: '#666', bg: '#f5f5f5', text: type || '—' };
-                return <Tag style={{ border: 'none', background: c.bg, color: c.color, fontWeight: 500 }}>{c.text}</Tag>;
+                // Các loại KHÔNG xếp lịch phòng học
+                const unscheduled = {
+                    TT:     { color: '#9254de', bg: '#f9f0ff', text: 'TT — Thực tập DN' },
+                    TL:     { color: '#722ed1', bg: '#efdbff', text: 'TL — Tiểu luận' },
+                    DA:     { color: '#cf1322', bg: '#fff1f0', text: 'DA — Đồ án / Khóa luận TN' },
+                    // Tương thích ngược với mã cũ
+                    DN:     { color: '#9254de', bg: '#f9f0ff', text: 'TT — Thực tập DN' },
+                };
+                const c = scheduled[type] || unscheduled[type] || { color: '#666', bg: '#f5f5f5', text: type || '—' };
+                const isExcluded = !!unscheduled[type];
+                return (
+                    <Tooltip title={isExcluded ? 'Không tự động xếp lịch phòng học' : 'Sẽ được xếp lịch phòng học'}>
+                        <Tag style={{ border: 'none', background: c.bg, color: c.color, fontWeight: 500 }}>
+                            {c.text}{isExcluded ? ' ✕' : ''}
+                        </Tag>
+                    </Tooltip>
+                );
             }
         },
         {
@@ -308,16 +323,27 @@ const CourseManagement = () => {
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item name="requiredRoomType" label="Yêu cầu phòng / địa điểm" rules={[{ required: true }]}>
+                            <Form.Item
+                                name="requiredRoomType"
+                                label="Yêu cầu phòng / địa điểm"
+                                rules={[{ required: true }]}
+                                tooltip="Các loại có dấu ✕ sẽ KHÔNG được tự động xếp lịch phòng học (sinh viên tự thực hiện với GV)"
+                            >
                                 <Select variant="filled" placeholder="Chọn loại">
-                                    <Option value="LT">LT — Giảng đường lý thuyết</Option>
-                                    <Option value="PM">PM — Phòng máy tính</Option>
-                                    <Option value="TN">TN — Thí nghiệm khoa học</Option>
-                                    <Option value="SB">SB — Sân bãi / Thể chất</Option>
-                                    <Option value="XT">XT — Xưởng thực hành</Option>
-                                    <Option value="BV">BV — Bệnh viện / Y tế lâm sàng</Option>
-                                    <Option value="DN">DN — Cơ sở thực tập DN</Option>
-                                    <Option value="ONLINE">ONLINE — Môi trường trực tuyến</Option>
+                                    <Select.OptGroup label="✅ Có xếp lịch phòng học">
+                                        <Option value="LT">LT — Giảng đường lý thuyết</Option>
+                                        <Option value="PM">PM — Phòng máy tính</Option>
+                                        <Option value="TN">TN — Thí nghiệm khoa học</Option>
+                                        <Option value="SB">SB — Sân bãi / Thể dục</Option>
+                                        <Option value="XT">XT — Phòng nghe nói (Language Lab)</Option>
+                                        <Option value="BV">BV — Bệnh viện / Y tế lâm sàng</Option>
+                                        <Option value="ONLINE">ONLINE — Môi trường trực tuyến</Option>
+                                    </Select.OptGroup>
+                                    <Select.OptGroup label="✕ Không xếp lịch phòng (tự học / xét riêng)">
+                                        <Option value="TT">TT — Thực tập doanh nghiệp</Option>
+                                        <Option value="TL">TL — Tiểu luận</Option>
+                                        <Option value="DA">DA — Đồ án môn học / Khóa luận tốt nghiệp</Option>
+                                    </Select.OptGroup>
                                 </Select>
                             </Form.Item>
                         </Col>

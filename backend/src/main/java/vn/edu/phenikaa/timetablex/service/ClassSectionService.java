@@ -3,6 +3,7 @@ package vn.edu.phenikaa.timetablex.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.phenikaa.timetablex.algorithm.GeneticTimetableScheduler;
 import vn.edu.phenikaa.timetablex.entity.AdministrativeClass;
 import vn.edu.phenikaa.timetablex.entity.ClassSection;
 import vn.edu.phenikaa.timetablex.entity.Course;
@@ -196,13 +197,26 @@ public class ClassSectionService {
                     ? splitAdminClassesWithMax(facultyAdminClasses, MAX_LT_STUDENTS)
                     : List.of();
             ltSlices = mergeSmallSlices(ltSlices, MIN_LT_STUDENTS, MAX_LT_STUDENTS);
-            int ltCount = Math.max(lt, ltSlices.size());
-            // Khi không có BC: vẫn tạo đủ số lớp theo P.ĐT (để gán thủ công sau)
-            if (lt > 0 && ltSlices.isEmpty() && ltCount > 0) {
+
+            // ltCount = số lớp thực tế sẽ tạo:
+            // ưu tiên số slice ĐÃ gán BC (tránh tạo lớp trống);
+            // nếu không có BC nào thì dùng số lớp theo P.ĐT
+            int ltCount = !ltSlices.isEmpty() ? ltSlices.size() : lt;
+            // Nếu P.ĐT đặt nhiều hơn số slice, tạo thêm lớp rỗng (hiếm gặp, đư phòng)
+            if (lt > ltSlices.size() && !ltSlices.isEmpty()) {
                 List<SliceWithCount> extended = new ArrayList<>(ltSlices);
-                while (extended.size() < ltCount)
+                while (extended.size() < lt)
                     extended.add(new SliceWithCount(new HashSet<>(), 0));
                 ltSlices = extended;
+                ltCount = lt;
+            }
+            // Khi không có BC: vẫn tạo đủ số lớp theo P.ĐT (để gán thủ công sau)
+            if (lt > 0 && ltSlices.isEmpty()) {
+                List<SliceWithCount> extended = new ArrayList<>();
+                while (extended.size() < lt)
+                    extended.add(new SliceWithCount(new HashSet<>(), 0));
+                ltSlices = extended;
+                ltCount = lt;
             }
 
             // ── TH: bám theo LT — mỗi nhóm LT chia tiếp thành các lớp TH (≤45 SV) ───
@@ -211,8 +225,11 @@ public class ClassSectionService {
                 if (!facultyAdminClasses.isEmpty()) {
                     if (!ltSlices.isEmpty()) {
                         for (SliceWithCount ltSwc : ltSlices) {
-                            List<AdministrativeClass> ltList = new ArrayList<>(ltSwc.adminClasses());
-                            thSlices.addAll(splitAdminClassesWithMax(ltList, MAX_TH_STUDENTS));
+                            List<AdministrativeClass> ltList = ltSwc.adminClasses().stream()
+                                    .filter(ac -> ac.getStudentCount() != null && ac.getStudentCount() > 0)
+                                    .collect(Collectors.toCollection(ArrayList::new));
+                            if (!ltList.isEmpty())
+                                thSlices.addAll(splitAdminClassesWithMax(ltList, MAX_TH_STUDENTS));
                         }
                         if (thSlices.size() < th) {
                             int total = facultyAdminClasses.stream()
@@ -224,14 +241,21 @@ public class ClassSectionService {
                     } else {
                         thSlices = splitAdminClassesWithMax(facultyAdminClasses, MAX_TH_STUDENTS);
                     }
-                    // Gộp các lớp TH quá nhỏ (< MIN_TH) để đủ quy mô
                     thSlices = mergeSmallSlices(thSlices, MIN_TH_STUDENTS, MAX_TH_STUDENTS);
                 } else {
                     for (int i = 0; i < th; i++)
                         thSlices.add(new SliceWithCount(new HashSet<>(), 0));
                 }
             }
-            int thCount = Math.max(th, thSlices.size());
+            // thCount: ưu tiên số slice thực tế đã gán BC, không đồng thời tạo lớp trống dư thừa
+            int thCount = !thSlices.isEmpty() ? thSlices.size() : th;
+            if (th > thSlices.size() && !thSlices.isEmpty()) {
+                List<SliceWithCount> extended = new ArrayList<>(thSlices);
+                while (extended.size() < th)
+                    extended.add(new SliceWithCount(new HashSet<>(), 0));
+                thSlices = extended;
+                thCount = th;
+            }
 
             // ── Lớp LT (40–80 SV/lớp) ────────────────────────────────────────────────
             for (int i = 1; i <= ltCount; i++) {
@@ -335,9 +359,32 @@ public class ClassSectionService {
                 .filter(s -> s.getLecturer() != null)
                 .collect(Collectors.groupingBy(s -> s.getLecturer().getId(), Collectors.counting()));
 
-        int assigned = 0;
+        // Pre-index: courseId -> lecturers có chuyên môn tương ứng (giảm chi phí filter lặp)
+        Map<Long, List<Lecturer>> lecturersByCourseId = new HashMap<>();
+        for (Lecturer l : lecturers) {
+            if (l.getCourses() == null) continue;
+            for (Course c : l.getCourses()) {
+                if (c == null || c.getId() == null) continue;
+                lecturersByCourseId.computeIfAbsent(c.getId(), k -> new ArrayList<>()).add(l);
+            }
+        }
+
+        // Seed để kết quả ổn định theo cùng (semesterId, facultyId).
+        Random rnd = new Random(Objects.hash(semesterId, facultyId));
+
+        // Sắp xếp theo độ khó: TH trước -> số buổi/tuần lớn trước -> ít GV phù hợp trước
+        // (để giảm trường hợp greedy gặp “nút thắt” rồi mới xử lý).
+        record Candidate(ClassSection section,
+                List<Lecturer> qualified,
+                int qualifiedCount,
+                int sessionsPerWeek,
+                long minLoad) {}
+
+        List<Candidate> candidates = new ArrayList<>(toAssign.size());
         for (ClassSection section : toAssign) {
             Course course = section.getCourseOffering().getCourse();
+            if (course == null || course.getId() == null) continue;
+
             Long offeringFacId = section.getCourseOffering().getFaculty().getId();
             Set<Long> allowedFacIds = new HashSet<>();
             allowedFacIds.add(offeringFacId);
@@ -345,20 +392,62 @@ public class ClassSectionService {
                 course.getSharedFaculties().stream().map(Faculty::getId).forEach(allowedFacIds::add);
             }
 
-            List<Lecturer> qualified = lecturers.stream()
+            // Match nhanh theo courseId, sau đó lọc theo allowedFacIds.
+            List<Lecturer> qualified = lecturersByCourseId.getOrDefault(course.getId(), List.of())
+                    .stream()
                     .filter(l -> l.getFaculty() != null && allowedFacIds.contains(l.getFaculty().getId()))
-                    .filter(l -> l.getCourses() != null && l.getCourses().stream()
-                            .anyMatch(c -> c.getId().equals(course.getId())))
                     .toList();
 
-            if (qualified.isEmpty())
+            if (qualified.isEmpty()) {
+                // Không có GV phù hợp thì bỏ qua (giữ lớp unassigned).
                 continue;
+            }
 
-            Lecturer best = qualified.stream()
-                    .min(Comparator.comparingLong(l -> load.getOrDefault(l.getId(), 0L)))
-                    .orElse(null);
-            if (best == null)
-                continue;
+            long minLoad = qualified.stream()
+                    .mapToLong(l -> load.getOrDefault(l.getId(), 0L))
+                    .min()
+                    .orElse(0L);
+
+            int sessionsPerWeek = GeneticTimetableScheduler.calcSessionsPerWeek(section);
+            candidates.add(new Candidate(section, qualified, qualified.size(), sessionsPerWeek, minLoad));
+        }
+
+        candidates.sort((a, b) -> {
+            boolean aTh = a.section().getSectionType() == ClassSection.SectionType.TH;
+            boolean bTh = b.section().getSectionType() == ClassSection.SectionType.TH;
+            if (aTh && !bTh) return -1;
+            if (!aTh && bTh) return 1;
+
+            // Sessions/tuần: ưu tiên gán cái “nặng” trước (giảm khả năng tạo lệch về mặt lịch).
+            int cmpSessions = Integer.compare(b.sessionsPerWeek(), a.sessionsPerWeek());
+            if (cmpSessions != 0) return cmpSessions;
+
+            // QualifiedCount: ít lựa chọn hơn thì xử lý trước
+            int cmpQual = Integer.compare(a.qualifiedCount(), b.qualifiedCount());
+            if (cmpQual != 0) return cmpQual;
+
+            // Nếu tương đương, xử lý lớp có minLoad cao trước (tức mọi GV đều đang nặng).
+            return Long.compare(b.minLoad(), a.minLoad());
+        });
+
+        int assigned = 0;
+        for (Candidate cand : candidates) {
+            ClassSection section = cand.section();
+            if (section.getLecturer() != null) continue; // an toàn (dù đang lọc unassigned)
+
+            // Chọn GV có tải hiện tại nhỏ nhất.
+            long bestLoad = cand.qualified().stream()
+                    .mapToLong(l -> load.getOrDefault(l.getId(), 0L))
+                    .min()
+                    .orElse(0L);
+
+            // Tránh lệch do tie-breaking theo thứ tự tên: chọn ngẫu nhiên trong nhóm hòa.
+            List<Lecturer> tied = cand.qualified().stream()
+                    .filter(l -> load.getOrDefault(l.getId(), 0L) == bestLoad)
+                    .toList();
+
+            Lecturer best = tied.isEmpty() ? null : tied.get(rnd.nextInt(tied.size()));
+            if (best == null) continue;
 
             section.setLecturer(best);
             section.setSkipAssignment(false);
@@ -459,7 +548,10 @@ public class ClassSectionService {
 
     /**
      * Gộp các slice có sĩ số < minThreshold vào slice khác để đủ quy mô lớp.
-     * Ưu tiên gộp slice nhỏ nhất với slice nhỏ nhất có thể (sao cho tổng ≤ maxPerBin).
+     * Chiến lược:
+     *  1. Ư tiên gộp slice nhỏ vào slice sẽ cho tổng ≤ maxPerBin (không vượt ngưỡng).
+     *  2. Nếu không có nơi gộp vừa, gộp vào slice nhỏ nhất hiện tại
+     *     (chấp nhận vượt giới hạn nhẹ thay vì để lớp quá ít SV).
      */
     private List<SliceWithCount> mergeSmallSlices(List<SliceWithCount> slices, int minThreshold, int maxPerBin) {
         if (slices == null || slices.isEmpty() || minThreshold <= 0)
@@ -468,7 +560,7 @@ public class ClassSectionService {
         boolean changed = true;
         while (changed) {
             changed = false;
-            // Lấy slice nhỏ nhất dưới ngưỡng (bỏ qua slice rỗng)
+            // Tìm slice nhỏ nhất dưới ngưỡng (bỏ qua slice rỗng)
             SliceWithCount smallest = null;
             int smallestIdx = -1;
             for (int i = 0; i < result.size(); i++) {
@@ -480,9 +572,9 @@ public class ClassSectionService {
                     }
                 }
             }
-            if (smallest == null)
-                break;
-            // Tìm slice khác để gộp: ưu tiên slice sao cho tổng ≤ maxPerBin và gần maxPerBin nhất
+            if (smallest == null) break;
+
+            // Bước 1: Tìm slice vừa khớit để gộp (tổng ≤ maxPerBin)
             int bestIdx = -1;
             int bestCombined = -1;
             for (int i = 0; i < result.size(); i++) {
@@ -494,15 +586,28 @@ public class ClassSectionService {
                     bestIdx = i;
                 }
             }
-            if (bestIdx < 0)
-                break;
+
+            // Bước 2: Fallback — gộp vào slice nhỏ nhất hiện có
+            // (thay vì để lớp dưới ngưỡng mãi mãi tồn tại)
+            if (bestIdx < 0 && result.size() > 1) {
+                int minOtherCount = Integer.MAX_VALUE;
+                for (int i = 0; i < result.size(); i++) {
+                    if (i == smallestIdx) continue;
+                    if (result.get(i).expectedCount() < minOtherCount) {
+                        minOtherCount = result.get(i).expectedCount();
+                        bestIdx = i;
+                    }
+                }
+            }
+
+            if (bestIdx < 0) break; // cả fallback cũng không tìm được
+
             // Gộp smallest vào result[bestIdx]
             SliceWithCount other = result.get(bestIdx);
             Set<AdministrativeClass> merged = new HashSet<>(smallest.adminClasses());
             merged.addAll(other.adminClasses());
             int mergedCount = smallest.expectedCount() + other.expectedCount();
             SliceWithCount mergedSlice = new SliceWithCount(merged, mergedCount);
-            // Xóa cả hai, thêm slice đã gộp (xóa index lớn trước để không lệch)
             result.remove(Math.max(smallestIdx, bestIdx));
             result.remove(Math.min(smallestIdx, bestIdx));
             result.add(mergedSlice);
@@ -513,44 +618,55 @@ public class ClassSectionService {
 
     /**
      * Chia lớp biên chế thành các nhóm sao cho mỗi nhóm ≤ maxPerBin SV.
-     * Nếu 1 BC có sĩ số > maxPerBin thì tách vào nhiều lớp (cùng BC xuất hiện ở nhiều lớp).
+     * Thuật toán Best-fit Decreasing:
+     *  - Sắp xếp BC giảm dần theo sĩ số.
+     *  - Với mỗi BC, chọn bin có sắn còn đủ chỗ (load + students ≤ maxPerBin)
+     *    và đã chứa nhiều nhất (để gom chặt, cân bằng).
+     *  - Nếu không có bin vừa, mở bin mới.
+     *  - Mỗi BC chỉ xuất hiện trong đúng 1 bin (không phân mảnh BC).
+     *    Nếu BC đơn lẻ vượt maxPerBin, nó sẽ đi vào bin riêng (vượt ngưỡng nhẹ).
      */
     private List<SliceWithCount> splitAdminClassesWithMax(List<AdministrativeClass> classes, int maxPerBin) {
-        List<Set<AdministrativeClass>> bins = new ArrayList<>();
-        List<Integer> binLoad = new ArrayList<>();
         if (maxPerBin <= 0 || classes == null || classes.isEmpty())
             return List.of();
 
+        // Sắp xếp giảm dần để ưu tiên những BC lớn được xếp trước
         List<AdministrativeClass> sorted = new ArrayList<>(classes);
         sorted.sort((a, b) -> {
             int sa = a.getStudentCount() != null ? a.getStudentCount() : 0;
-            int sb = b.getStudentCount() != null ? b.getStudentCount() : 0;
-            return Integer.compare(sb, sa); // giảm dần
+            int sb2 = b.getStudentCount() != null ? b.getStudentCount() : 0;
+            return Integer.compare(sb2, sa);
         });
+
+        List<Set<AdministrativeClass>> bins = new ArrayList<>();
+        List<Integer> binLoad = new ArrayList<>();
 
         for (AdministrativeClass ac : sorted) {
             int students = ac.getStudentCount() != null ? ac.getStudentCount() : 0;
-            int remaining = students;
-            while (remaining > 0) {
-                int add = Math.min(maxPerBin, remaining);
-                int chosen = -1;
-                int minLoad = Integer.MAX_VALUE; // Worst-fit: chọn bin ít tải nhất còn chỗ → cân bằng sĩ số
-                for (int i = 0; i < bins.size(); i++) {
-                    if (binLoad.get(i) + add <= maxPerBin && binLoad.get(i) < minLoad) {
-                        minLoad = binLoad.get(i);
-                        chosen = i;
-                    }
+
+            // Tìm bin vừa khớit, chọn bin đã chứa nhiều nhất (Best-fit)
+            int chosen = -1;
+            int maxExisting = -1;
+            for (int i = 0; i < bins.size(); i++) {
+                int current = binLoad.get(i);
+                if (current + students <= maxPerBin && current > maxExisting) {
+                    maxExisting = current;
+                    chosen = i;
                 }
-                if (chosen < 0) {
-                    bins.add(new HashSet<>());
-                    binLoad.add(0);
-                    chosen = bins.size() - 1;
-                }
-                bins.get(chosen).add(ac);
-                binLoad.set(chosen, binLoad.get(chosen) + add);
-                remaining -= add;
             }
+
+            // Không có bin nào vừa → mở bin mới
+            // (nếu BC đơn lẻ vượt maxPerBin, nó vẫn đi riêng 1 bin — không tách BC)
+            if (chosen < 0) {
+                bins.add(new HashSet<>());
+                binLoad.add(0);
+                chosen = bins.size() - 1;
+            }
+
+            bins.get(chosen).add(ac);
+            binLoad.set(chosen, binLoad.get(chosen) + students);
         }
+
         List<SliceWithCount> result = new ArrayList<>();
         for (int i = 0; i < bins.size(); i++)
             result.add(new SliceWithCount(bins.get(i), binLoad.get(i)));
