@@ -3,6 +3,7 @@ import { ConfigProvider, App as AntApp } from 'antd';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import FacultyManagement from './components/FacultyManagement';
+import DepartmentManagement from './components/DepartmentManagement';
 import MajorManagement from './components/MajorManagement';
 import ClassManagement from './components/ClassManagement';
 import CohortManagement from './components/CohortManagement';
@@ -27,12 +28,12 @@ const HOME_REDIRECT = {
   DEFAULT: '/dashboard',
 };
 
-// P.ĐT bị chặn khỏi các path này (chỉ Khoa)
-const FACULTY_ONLY_PATHS = ['/faculty-approval', '/teaching-assignments'];
+// Tạm thời cho phép P.ĐT truy cập (chỉ Khoa)
+const FACULTY_ONLY_PATHS = [];
 
 // Khoa bị chặn khỏi các path này. Khoa được: /lecturers, /courses, /majors, /classes, /curriculum
 const PDT_ONLY_PATHS = [
-  '/faculties', '/rooms', '/timeslots', '/semesters', '/course-offerings',
+  '/faculties', '/departments', '/rooms', '/timeslots', '/semesters', '/course-offerings',
   '/class-sections', '/support-requests', '/timetable', '/users',
 ];
 
@@ -149,6 +150,7 @@ function App() {
             {/* Phòng Đào tạo */}
             <Route path="/dashboard" element={<ProtectedRoute path="/dashboard" auth={auth}><Dashboard auth={auth} /></ProtectedRoute>} />
             <Route path="/faculties" element={<ProtectedRoute path="/faculties" auth={auth}><FacultyManagement /></ProtectedRoute>} />
+            <Route path="/departments" element={<ProtectedRoute path="/departments" auth={auth}><DepartmentManagement /></ProtectedRoute>} />
             <Route path="/majors" element={<ProtectedRoute path="/majors" auth={auth}><MajorManagement /></ProtectedRoute>} />
             <Route path="/classes" element={<ProtectedRoute path="/classes" auth={auth}><ClassManagement /></ProtectedRoute>} />
             <Route path="/cohorts" element={<ProtectedRoute path="/cohorts" auth={auth}><CohortManagement /></ProtectedRoute>} />

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { App, Table, Button, Select, Tag, Space, Alert, Tooltip, Flex, Typography, Modal, Transfer } from 'antd';
-import { FilterOutlined, ThunderboltOutlined, TeamOutlined, LinkOutlined } from '@ant-design/icons';
+import { FilterOutlined, ThunderboltOutlined, TeamOutlined, LinkOutlined, SyncOutlined } from '@ant-design/icons';
 import * as SemesterService from '../services/semesterService';
 import * as ClassSectionService from '../services/classSectionService';
+import { fixAdminClasses } from '../services/classSectionService';
 import * as ClassService from '../services/classService';
 import * as TimetableService from '../services/timetableService';
 
@@ -79,6 +80,25 @@ const ClassSectionManagement = () => {
             });
         } else {
             handleGenerate(false);
+        }
+    };
+
+    const handleFixAdminClasses = async () => {
+        if (!currentSemesterId) { message.warning('Vui lòng chọn học kỳ'); return; }
+        setLoading(true);
+        try {
+            const res = await fixAdminClasses(currentSemesterId);
+            const count = res.data?.fixedCount ?? 0;
+            if (count === 0) {
+                message.info('Không có lớp nào cần bổ sung lớp biên chế');
+            } else {
+                message.success(res.data?.message || `Đã cập nhật ${count} lớp học phần`);
+            }
+            fetchSections();
+        } catch (e) {
+            message.error(e?.response?.data?.message || 'Lỗi khi bổ sung lớp biên chế');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -294,22 +314,34 @@ const ClassSectionManagement = () => {
                     </Select>
                 </Space>
 
-                <Tooltip title="Sinh các lớp học phần từ danh sách học phần đã được Khoa/Viện xác nhận (Module 1). Lớp biên chế được gán tự động theo quy tắc chia đều. Nếu đã có lớp, sẽ hỏi xác nhận xóa hết và sinh lại.">
-                    <Button
-                        type="primary"
-                        icon={<ThunderboltOutlined />}
-                        onClick={onGenerateClick}
-                        loading={loading}
-                        disabled={!currentSemesterId}
-                    >
-                        Sinh lớp học phần
-                    </Button>
-                </Tooltip>
+                <Space size={8}>
+                    <Tooltip title="Bổ sung lớp biên chế cho các lớp HP còn thiếu hoặc đang vượt sĩ số tối đa. Có kiểm tra CTĐT và khóa học.">
+                        <Button
+                            icon={<SyncOutlined />}
+                            onClick={handleFixAdminClasses}
+                            loading={loading}
+                            disabled={!currentSemesterId || sections.length === 0}
+                        >
+                            Bổ sung lớp biên chế
+                        </Button>
+                    </Tooltip>
+                    <Tooltip title="Sinh các lớp học phần từ danh sách học phần đã được Khoa/Viện xác nhận (Module 1). Lớp biên chế được gán tự động theo quy tắc chia đều. Nếu đã có lớp, sẽ hỏi xác nhận xóa hết và sinh lại.">
+                        <Button
+                            type="primary"
+                            icon={<ThunderboltOutlined />}
+                            onClick={onGenerateClick}
+                            loading={loading}
+                            disabled={!currentSemesterId}
+                        >
+                            Sinh lớp học phần
+                        </Button>
+                    </Tooltip>
+                </Space>
             </div>
 
             <Alert
                 title="Module 2: Quản lý Lớp học phần"
-                description="Hệ thống sinh tự động các Lớp học phần từ danh sách học phần đã được Khoa/Viện xác nhận. Lớp biên chế được chia theo quy mô: LT 40–80 SV/lớp, TH 20–45 SV/lớp. Các lớp TH/LT quá nhỏ sẽ được gộp tự động để đủ quy mô tối thiểu. Bấm nút tại cột Lớp biên chế để chỉnh sửa thủ công nếu cần."
+                description="Hệ thống sinh tự động các Lớp học phần từ danh sách học phần đã được Khoa/Viện xác nhận. Lớp biên chế chia theo quy mô: LT 40–80 SV/lớp, TH 20–45 SV/lớp (lọc theo Khoa và CTĐT). Nếu sau khi sinh còn lớp thiếu BC hoặc vượt sĩ số, dùng 'Bổ sung lớp biên chế' để hệ thống tự phân bổ lại."
                 type="info" showIcon
                 style={{ marginBottom: 20, border: 'none', background: '#e6f7ff' }}
             />

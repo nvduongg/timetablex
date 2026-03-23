@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import vn.edu.phenikaa.timetablex.entity.Course;
+import vn.edu.phenikaa.timetablex.entity.Department;
 import vn.edu.phenikaa.timetablex.entity.Faculty;
 import vn.edu.phenikaa.timetablex.repository.CourseRepository;
+import vn.edu.phenikaa.timetablex.repository.DepartmentRepository;
 import vn.edu.phenikaa.timetablex.repository.FacultyRepository;
 import vn.edu.phenikaa.timetablex.repository.CurriculumDetailRepository;
 import vn.edu.phenikaa.timetablex.repository.CourseOfferingRepository;
@@ -24,6 +26,8 @@ public class CourseService {
     private CourseRepository courseRepo;
     @Autowired
     private FacultyRepository facultyRepo;
+    @Autowired
+    private DepartmentRepository departmentRepo;
     @Autowired
     private CurriculumDetailRepository curriculumDetailRepo;
     @Autowired
@@ -145,16 +149,9 @@ public class CourseService {
                 "TC Thực hành",
                 "TC Tự học",
                 "Hình thức (OFFLINE/ONLINE_ELEARNING/ONLINE_COURSERA/HYBRID)",
-                // Các giá trị Loại phòng hợp lệ:
-                // LT = Phòng lý thuyết (xếp lịch bình thường)
-                // TH = Phòng thực hành/lab (xếp lịch bình thường)
-                // SB = Sân bãi/Thể dục (xếp lịch, sĩ số lớn)
-                // TT = Thực tập doanh nghiệp (KHÔNG xếp lịch)
-                // TL = Tiểu luận (KHÔNG xếp lịch)
-                // DA = Đồ án môn học / Đồ án tốt nghiệp (KHÔNG xếp lịch)
-                // LA = Luận văn / Luận án (KHÔNG xếp lịch)
                 "Loại phòng (LT / TH / SB / TT / TL / DA / LA)",
                 "Mã Khoa",
+                "Mã Bộ môn (Tùy chọn)",
                 "Mã Khoa dùng chung (cách nhau dấu phẩy, VD: IT,CS,MATH)"
             };
             for (int i = 0; i < headers.length; i++) {
@@ -174,7 +171,8 @@ public class CourseService {
             sample1.createCell(6).setCellValue("OFFLINE");
             sample1.createCell(7).setCellValue("LT");
             sample1.createCell(8).setCellValue("CNTT");
-            sample1.createCell(9).setCellValue("");
+            sample1.createCell(9).setCellValue("HTTT"); // Mã bộ môn
+            sample1.createCell(10).setCellValue("");
 
             // Dòng mẫu 2: Đồ án tốt nghiệp (không xếp lịch)
             Row sample2 = sheet.createRow(2);
@@ -233,13 +231,15 @@ public class CourseService {
                 // Lấy dữ liệu an toàn
                 String code = getCellValue(row.getCell(0));
                 String name = getCellValue(row.getCell(1));
+                Double totalCredits = getNumericValue(row.getCell(2));
                 Double thCredits = getNumericValue(row.getCell(3));
                 Double prCredits = getNumericValue(row.getCell(4));
                 Double selfStudy = getNumericValue(row.getCell(5));
                 String methodStr = getCellValue(row.getCell(6));
                 String roomType = getCellValue(row.getCell(7));
                 String facultyCode = getCellValue(row.getCell(8));
-                String sharedCodesRaw = getCellValue(row.getCell(9));
+                String departmentCode = getCellValue(row.getCell(9)); // cột mới
+                String sharedCodesRaw = getCellValue(row.getCell(10)); // dịch từ 9 → 10
 
                 if (code != null && facultyCode != null) {
                     if (existingCourses.contains(code) || processedCodes.contains(code))
@@ -253,8 +253,14 @@ public class CourseService {
                         Course c = new Course();
                         c.setCode(code);
                         c.setName(name);
-                        // Tổng TC = LT + TH (không tính tín tự học)
-                        c.setCredits((thCredits != null ? thCredits : 0.0) + (prCredits != null ? prCredits : 0.0));
+                        
+                        // Ưu tiên lấy Tổng TC từ file nếu > 0, nếu không mới cộng dồn LT+TH
+                        if (totalCredits != null && totalCredits > 0) {
+                            c.setCredits(totalCredits);
+                        } else {
+                            c.setCredits((thCredits != null ? thCredits : 0.0) + (prCredits != null ? prCredits : 0.0));
+                        }
+                        
                         c.setTheoryCredits(thCredits);
                         c.setPracticeCredits(prCredits);
                         c.setSelfStudyCredits(selfStudy);
@@ -271,6 +277,12 @@ public class CourseService {
 
                         c.setRequiredRoomType(roomType != null ? roomType : "LT");
                         c.setFaculty(fac.get());
+
+                        // Gán Bộ môn nếu có
+                        if (departmentCode != null && !departmentCode.isBlank()) {
+                            departmentRepo.findByCode(departmentCode.trim())
+                                    .ifPresent(c::setDepartment);
+                        }
 
                         // Khoa dùng chung: parse "IT,CS,MATH" hoặc "IT; CS; MATH"
                         Set<Faculty> shared = new HashSet<>();
@@ -314,13 +326,15 @@ public class CourseService {
 
                 String code       = getCellValue(row.getCell(0));
                 String name       = getCellValue(row.getCell(1));
+                Double totalCredits = getNumericValue(row.getCell(2));
                 Double thCredits  = getNumericValue(row.getCell(3));
                 Double prCredits  = getNumericValue(row.getCell(4));
                 Double selfStudy  = getNumericValue(row.getCell(5));
                 String methodStr  = getCellValue(row.getCell(6));
                 String roomType   = getCellValue(row.getCell(7));
                 String facultyCode = getCellValue(row.getCell(8));
-                String sharedCodesRaw = getCellValue(row.getCell(9));
+                String departmentCode = getCellValue(row.getCell(9)); // cột mới
+                String sharedCodesRaw = getCellValue(row.getCell(10)); // dịch từ 9 → 10
 
                 if (code == null || facultyCode == null) continue;
 
@@ -337,7 +351,14 @@ public class CourseService {
                 }
                 c.setCode(code);
                 if (name != null && !name.isBlank()) c.setName(name);
-                c.setCredits((thCredits != null ? thCredits : 0.0) + (prCredits != null ? prCredits : 0.0));
+                
+                // Ưu tiên Tổng TC từ file nếu > 0
+                if (totalCredits != null && totalCredits > 0) {
+                    c.setCredits(totalCredits);
+                } else {
+                    c.setCredits((thCredits != null ? thCredits : 0.0) + (prCredits != null ? prCredits : 0.0));
+                }
+                
                 c.setTheoryCredits(thCredits);
                 c.setPracticeCredits(prCredits);
                 c.setSelfStudyCredits(selfStudy);
@@ -350,6 +371,12 @@ public class CourseService {
                 }
                 c.setRequiredRoomType(roomType != null && !roomType.isBlank() ? roomType : "LT");
                 c.setFaculty(fac.get());
+
+                // Gán Bộ môn nếu có
+                if (departmentCode != null && !departmentCode.isBlank()) {
+                    departmentRepo.findByCode(departmentCode.trim())
+                            .ifPresent(c::setDepartment);
+                }
 
                 Set<Faculty> shared = new HashSet<>();
                 if (sharedCodesRaw != null && !sharedCodesRaw.isBlank()) {
@@ -379,8 +406,16 @@ public class CourseService {
     }
 
     private Double getNumericValue(Cell cell) {
-        if (cell == null)
-            return 0.0;
-        return cell.getCellType() == CellType.NUMERIC ? cell.getNumericCellValue() : 0.0;
+        if (cell == null) return 0.0;
+        if (cell.getCellType() == CellType.NUMERIC) {
+            return cell.getNumericCellValue();
+        } else if (cell.getCellType() == CellType.STRING) {
+            try {
+                return Double.parseDouble(cell.getStringCellValue().trim());
+            } catch (NumberFormatException e) {
+                return 0.0;
+            }
+        }
+        return 0.0;
     }
 }

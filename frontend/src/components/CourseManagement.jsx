@@ -8,6 +8,7 @@ import {
     UploadOutlined
 } from '@ant-design/icons';
 import * as CourseService from '../services/courseService';
+import { upsertCourse } from '../services/courseService';
 import * as FacultyService from '../services/facultyService';
 
 const { Option } = Select;
@@ -137,8 +138,9 @@ const CourseManagement = () => {
     const handleUpload = async ({ file, onSuccess }) => {
         setUploading(true);
         try {
-            await CourseService.importCourse(file);
-            message.success('Import danh sách học phần thành công');
+            // Dùng upsert để cập nhật môn học đã tồn tại (sửa lỗi 0 tín chỉ)
+            await upsertCourse(file);
+            message.success('Import / cập nhật danh sách học phần thành công');
             fetchData();
         } catch (e) {
             message.error(e?.response?.data?.message || e?.response?.data || 'Lỗi import file. Kiểm tra lại định dạng.');
@@ -250,10 +252,24 @@ const CourseManagement = () => {
         }
     ];
 
+    const [searchText, setSearchText] = useState('');
+
+    const filteredCourses = courses.filter(c => 
+        (c.code?.toLowerCase().includes(searchText.toLowerCase())) ||
+        (c.name?.toLowerCase().includes(searchText.toLowerCase()))
+    );
+
     return (
         <div style={{ width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, alignItems: 'center' }}>
-                <Input placeholder="Tìm kiếm học phần..." variant="filled" style={{ width: 300, borderRadius: 6 }} />
+                <Input 
+                    placeholder="Tìm kiếm mã học phần hoặc tên..." 
+                    variant="filled" 
+                    style={{ width: 340, borderRadius: 8 }} 
+                    value={searchText}
+                    onChange={e => setSearchText(e.target.value)}
+                    allowClear
+                />
                 <Space size={8}>
                     <Space.Compact>
                         <Tooltip title="Tải file Excel mẫu để điền dữ liệu">
@@ -274,12 +290,12 @@ const CourseManagement = () => {
             </div>
 
             <Table 
-                dataSource={courses} 
+                dataSource={filteredCourses} 
                 columns={columns} 
                 rowKey="id" 
                 loading={loading}
                 size="middle"
-                pagination={{ pageSize: 8 }}
+                pagination={{ pageSize: 8, showSizeChanger: true }}
             />
 
             <Modal 

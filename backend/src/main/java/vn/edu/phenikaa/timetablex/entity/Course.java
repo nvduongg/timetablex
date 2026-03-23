@@ -42,6 +42,11 @@ public class Course {
     @JoinColumn(name = "faculty_id", nullable = false)
     private Faculty faculty;
 
+    // Môn học do Bộ môn nào quản lý (Tùy chọn)
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private vn.edu.phenikaa.timetablex.entity.Department department;
+
     // Enum định nghĩa các hình thức học
     public enum LearningMethod {
         OFFLINE,           // Học truyền thống tại lớp

@@ -26,3 +26,6 @@ export const requestSupport = (sectionId, comment) =>
 
 export const getSupportRequests = (semesterId) =>
   axios.get('/class-sections/support-requests', { params: { semesterId } });
+
+export const fixAdminClasses = (semesterId) =>
+  axios.post('/class-sections/fix-admin-classes', { semesterId });

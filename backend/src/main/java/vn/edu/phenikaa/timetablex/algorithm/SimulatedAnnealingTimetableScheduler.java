@@ -409,7 +409,7 @@ public class SimulatedAnnealingTimetableScheduler {
                     ok = tryAssign(chromosome, section, lecturer, searchOrder, shuffledShifts, shuffledRooms,
                             usedRoomShifts, usedLecturerShifts, usedDS, lecturerAssigned, true);
                 }
-                if (!ok) {
+                if (!ok && !shuffledShifts.isEmpty() && !shuffledRooms.isEmpty()) {
                     int day = searchOrder.get(rnd.nextInt(searchOrder.size()));
                     Shift shift = shuffledShifts.get(rnd.nextInt(shuffledShifts.size()));
                     String dsKey = day + "-" + shift.getId();

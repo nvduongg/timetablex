@@ -79,14 +79,13 @@ public class ClassSectionService {
      * Sinh tự động các Lớp học phần từ danh sách CourseOffering đã APPROVED.
      *
      * Quy tắc gán lớp biên chế (LT-led splitting):
-     * - LT: mỗi lớp nhận nhóm BC ≤ {@value MAX_LT_STUDENTS} SV, ≥ {@value MIN_LT_STUDENTS} SV (phòng học lớn)
+     * - LT: mỗi lớp nhận nhóm BC ≤ {@value MAX_LT_STUDENTS} SV, ≥ {@value MIN_LT_STUDENTS} SV.
      * - TH: bám theo LT — mỗi nhóm BC của LT được chia tiếp thành các lớp TH
-     *       (mỗi lớp {@value MIN_TH_STUDENTS}–{@value MAX_TH_STUDENTS} SV). Lớp TH < {@value MIN_TH_STUDENTS} SV
-     *       sẽ được gộp với lớp khác để đủ quy mô.
-     * - Dùng thuật toán Greedy Load-Balancing để cân bằng sĩ số.
-     */
-    /**
-     * @param forceRegenerate nếu true: xóa hết lớp HP + TKB của học kỳ rồi sinh lại từ đầu
+     *       (mỗi lớp {@value MIN_TH_STUDENTS}–{@value MAX_TH_STUDENTS} SV).
+     * - Nếu 1 BC đơn lẻ vượt ngưỡng max, sẽ được tách thành 2+ lớp HP (cùng tham chiếu BC đó
+     *   nhưng expectedStudentCount chia đôi), thay vì nhồi hết vào 1 lớp quá tải.
+     * - Lớp rỗng (không có BC) chỉ được tạo khi toàn bộ offering không tìm được BC nào,
+     *   tránh sinh dư lớp trống khi đã có BC đầy đủ.
      */
     @Transactional
     public int generateFromApprovedOfferings(Long semesterId, boolean forceRegenerate) {
@@ -192,70 +191,63 @@ public class ClassSectionService {
             int lt = o.getTheoryClassCount() != null ? o.getTheoryClassCount() : 0;
             int th = o.getPracticeClassCount() != null ? o.getPracticeClassCount() : 0;
 
-            // ── LT: chia BC theo MAX_LT_STUDENTS (mỗi lớp ≤ 80 SV) ──────────────────
-            List<SliceWithCount> ltSlices = lt > 0 && !facultyAdminClasses.isEmpty()
-                    ? splitAdminClassesWithMax(facultyAdminClasses, MAX_LT_STUDENTS)
-                    : List.of();
-            ltSlices = mergeSmallSlices(ltSlices, MIN_LT_STUDENTS, MAX_LT_STUDENTS);
+            boolean hasAdminClasses = !facultyAdminClasses.isEmpty();
 
-            // ltCount = số lớp thực tế sẽ tạo:
-            // ưu tiên số slice ĐÃ gán BC (tránh tạo lớp trống);
-            // nếu không có BC nào thì dùng số lớp theo P.ĐT
-            int ltCount = !ltSlices.isEmpty() ? ltSlices.size() : lt;
-            // Nếu P.ĐT đặt nhiều hơn số slice, tạo thêm lớp rỗng (hiếm gặp, đư phòng)
-            if (lt > ltSlices.size() && !ltSlices.isEmpty()) {
-                List<SliceWithCount> extended = new ArrayList<>(ltSlices);
-                while (extended.size() < lt)
-                    extended.add(new SliceWithCount(new HashSet<>(), 0));
-                ltSlices = extended;
-                ltCount = lt;
+            // ── LT: chia BC theo MAX_LT_STUDENTS ──────────────────────────────────────
+            // BC đơn lẻ vượt 80 SV → splitAdminClassesWithMax sẽ tách ảo thành 2 bin
+            List<SliceWithCount> ltSlices;
+            if (lt > 0 && hasAdminClasses) {
+                ltSlices = splitAdminClassesWithMax(facultyAdminClasses, MAX_LT_STUDENTS);
+                ltSlices = mergeSmallSlices(ltSlices, MIN_LT_STUDENTS, MAX_LT_STUDENTS);
+                // Nếu P.ĐT đặt nhiều hơn số slice tính ra, thêm lớp rỗng để đủ
+                if (lt > ltSlices.size()) {
+                    List<SliceWithCount> extended = new ArrayList<>(ltSlices);
+                    while (extended.size() < lt)
+                        extended.add(new SliceWithCount(new HashSet<>(), 0));
+                    ltSlices = extended;
+                }
+                // ltCount = số slice thực (không tạo dư nếu BC đã đủ nhiều hơn yêu cầu P.ĐT)
+            } else if (lt > 0) {
+                // Không có BC → chỉ tạo đúng số lớp trống P.ĐT yêu cầu
+                ltSlices = new ArrayList<>();
+                for (int i = 0; i < lt; i++)
+                    ltSlices.add(new SliceWithCount(new HashSet<>(), 0));
+            } else {
+                ltSlices = List.of();
             }
-            // Khi không có BC: vẫn tạo đủ số lớp theo P.ĐT (để gán thủ công sau)
-            if (lt > 0 && ltSlices.isEmpty()) {
-                List<SliceWithCount> extended = new ArrayList<>();
-                while (extended.size() < lt)
-                    extended.add(new SliceWithCount(new HashSet<>(), 0));
-                ltSlices = extended;
-                ltCount = lt;
-            }
+            int ltCount = ltSlices.size();
 
             // ── TH: bám theo LT — mỗi nhóm LT chia tiếp thành các lớp TH (≤45 SV) ───
             List<SliceWithCount> thSlices = new ArrayList<>();
             if (th > 0) {
-                if (!facultyAdminClasses.isEmpty()) {
+                if (hasAdminClasses) {
                     if (!ltSlices.isEmpty()) {
                         for (SliceWithCount ltSwc : ltSlices) {
+                            // Chỉ xét BC thực (không phải lớp rỗng)
                             List<AdministrativeClass> ltList = ltSwc.adminClasses().stream()
                                     .filter(ac -> ac.getStudentCount() != null && ac.getStudentCount() > 0)
                                     .collect(Collectors.toCollection(ArrayList::new));
                             if (!ltList.isEmpty())
                                 thSlices.addAll(splitAdminClassesWithMax(ltList, MAX_TH_STUDENTS));
                         }
-                        if (thSlices.size() < th) {
-                            int total = facultyAdminClasses.stream()
-                                    .mapToInt(ac -> ac.getStudentCount() != null ? ac.getStudentCount() : 0)
-                                    .sum();
-                            int maxPerBin = total > 0 ? Math.min(MAX_TH_STUDENTS, Math.max(1, (int) Math.ceil((double) total / th))) : MAX_TH_STUDENTS;
-                            thSlices = splitAdminClassesWithMax(facultyAdminClasses, maxPerBin);
-                        }
                     } else {
                         thSlices = splitAdminClassesWithMax(facultyAdminClasses, MAX_TH_STUDENTS);
                     }
                     thSlices = mergeSmallSlices(thSlices, MIN_TH_STUDENTS, MAX_TH_STUDENTS);
+                    // Nếu P.ĐT yêu cầu nhiều hơn, thêm lớp rỗng để đủ
+                    if (th > thSlices.size()) {
+                        List<SliceWithCount> extended = new ArrayList<>(thSlices);
+                        while (extended.size() < th)
+                            extended.add(new SliceWithCount(new HashSet<>(), 0));
+                        thSlices = extended;
+                    }
                 } else {
+                    // Không có BC → chỉ tạo đúng số lớp trống
                     for (int i = 0; i < th; i++)
                         thSlices.add(new SliceWithCount(new HashSet<>(), 0));
                 }
             }
-            // thCount: ưu tiên số slice thực tế đã gán BC, không đồng thời tạo lớp trống dư thừa
-            int thCount = !thSlices.isEmpty() ? thSlices.size() : th;
-            if (th > thSlices.size() && !thSlices.isEmpty()) {
-                List<SliceWithCount> extended = new ArrayList<>(thSlices);
-                while (extended.size() < th)
-                    extended.add(new SliceWithCount(new HashSet<>(), 0));
-                thSlices = extended;
-                thCount = th;
-            }
+            int thCount = thSlices.size();
 
             // ── Lớp LT (40–80 SV/lớp) ────────────────────────────────────────────────
             for (int i = 1; i <= ltCount; i++) {
@@ -543,6 +535,149 @@ public class ClassSectionService {
         return sectionRepo.save(section);
     }
 
+    /**
+     * Bổ sung/sửa lớp biên chế cho các lớp HP còn thiếu hoặc vượt ngưỡng sĩ số.
+     * Điều kiện "cần fix":
+     *   1. Lớp HP chưa có BC nào (administrativeClasses rỗng), HOẶC
+     *   2. Tổng sĩ số BC đang gán vượt ngưỡng max (LT > 80, TH > 45).
+     *
+     * Logic giống generateFromApprovedOfferings: lọc BC theo khoa, CTĐT, khóa,
+     * rồi chạy Best-fit Decreasing để phân bổ lại BC cho từng lớp HP.
+     *
+     * Lưu ý: Không tạo thêm lớp HP mới — chỉ cập nhật BC + expectedStudentCount
+     * cho những lớp hiện có thuộc điều kiện cần fix.
+     *
+     * @return số lớp HP đã được cập nhật BC
+     */
+    @Transactional
+    public int fixMissingOrOversizedAdminClasses(Long semesterId) {
+        List<ClassSection> allSections = sectionRepo.findByCourseOffering_Semester_Id(semesterId);
+        if (allSections.isEmpty()) return 0;
+
+        // Cache BC theo khoa
+        Map<Long, List<AdministrativeClass>> adminClassesByFaculty = new HashMap<>();
+
+        // Nhóm các lớp HP theo CourseOffering để xử lý cùng nhau
+        Map<Long, List<ClassSection>> sectionsByOffering = allSections.stream()
+                .collect(Collectors.groupingBy(s -> s.getCourseOffering().getId()));
+
+        List<ClassSection> toSave = new ArrayList<>();
+
+        for (Map.Entry<Long, List<ClassSection>> entry : sectionsByOffering.entrySet()) {
+            List<ClassSection> offeringSections = entry.getValue();
+            CourseOffering o = offeringSections.get(0).getCourseOffering();
+            Course course = o.getCourse();
+
+            // ── Kiểm tra lớp nào cần fix ───────────────────────────────────────────
+            int maxLT = MAX_LT_STUDENTS;
+            int maxTH = MAX_TH_STUDENTS;
+            List<ClassSection> needFix = offeringSections.stream().filter(s -> {
+                boolean noAc = s.getAdministrativeClasses() == null || s.getAdministrativeClasses().isEmpty();
+                if (noAc) return true;
+                int total = s.getExpectedStudentCount() != null
+                        ? s.getExpectedStudentCount()
+                        : s.getAdministrativeClasses().stream()
+                            .mapToInt(ac -> ac.getStudentCount() != null ? ac.getStudentCount() : 0).sum();
+                int max = (s.getSectionType() == ClassSection.SectionType.TH) ? maxTH : maxLT;
+                return total > max;
+            }).collect(Collectors.toList());
+
+            if (needFix.isEmpty()) continue;
+
+            // ── Lấy danh sách BC hợp lệ (giống logic generate) ───────────────────
+            Set<Long> facultyIds = new HashSet<>();
+            if (o.getFaculty() != null) facultyIds.add(o.getFaculty().getId());
+            if (course != null && course.getSharedFaculties() != null)
+                course.getSharedFaculties().stream().map(Faculty::getId).forEach(facultyIds::add);
+
+            List<AdministrativeClass> facultyAdminClasses = new ArrayList<>();
+            for (Long fid : facultyIds) {
+                List<AdministrativeClass> acs = adminClassesByFaculty.computeIfAbsent(fid,
+                        id -> adminClassRepo.findByMajor_Faculty_Id(id));
+                for (AdministrativeClass ac : acs)
+                    if (!facultyAdminClasses.contains(ac)) facultyAdminClasses.add(ac);
+            }
+
+            // Lọc theo CTĐT (ngành có khung chương trình chứa học phần này)
+            if (course != null) {
+                String cohortCodeForCurr = null;
+                if (o.getCohortRef() != null && o.getCohortRef().getCode() != null)
+                    cohortCodeForCurr = o.getCohortRef().getCode();
+                else if (o.getCohort() != null && !o.getCohort().isBlank())
+                    cohortCodeForCurr = o.getCohort().trim();
+
+                if (cohortCodeForCurr != null && !cohortCodeForCurr.isBlank()) {
+                    Set<Long> allowedMajorIds = new HashSet<>();
+                    for (Curriculum c : curriculumRepo.findByCohort(cohortCodeForCurr)) {
+                        if (c.getDetails() == null || c.getMajor() == null) continue;
+                        boolean has = c.getDetails().stream()
+                                .map(CurriculumDetail::getCourse).filter(Objects::nonNull)
+                                .anyMatch(dc -> dc.getId().equals(course.getId()));
+                        if (has) allowedMajorIds.add(c.getMajor().getId());
+                    }
+                    if (!allowedMajorIds.isEmpty()) {
+                        facultyAdminClasses = facultyAdminClasses.stream()
+                                .filter(ac -> ac.getMajor() != null && allowedMajorIds.contains(ac.getMajor().getId()))
+                                .collect(Collectors.toList());
+                    }
+                }
+            }
+
+            // Lọc theo Khóa của CourseOffering
+            String cohortCode = null;
+            if (o.getCohortRef() != null && o.getCohortRef().getCode() != null)
+                cohortCode = o.getCohortRef().getCode();
+            else if (o.getCohort() != null && !o.getCohort().isBlank())
+                cohortCode = o.getCohort().trim();
+            if (cohortCode != null && !cohortCode.isBlank()) {
+                String fc = cohortCode;
+                facultyAdminClasses = facultyAdminClasses.stream().filter(ac -> {
+                    String acCode = ac.getCohortRef() != null && ac.getCohortRef().getCode() != null
+                            ? ac.getCohortRef().getCode()
+                            : (ac.getCohort() != null ? ac.getCohort().trim() : null);
+                    return fc.equalsIgnoreCase(acCode);
+                }).collect(Collectors.toList());
+            }
+
+            if (facultyAdminClasses.isEmpty()) continue; // không có BC hợp lệ → bỏ qua
+
+            // ── Phân bổ lại BC cho từng lớp cần fix theo loại (LT / TH) ─────────
+            List<ClassSection> ltNeedFix = needFix.stream()
+                    .filter(s -> s.getSectionType() == ClassSection.SectionType.LT)
+                    .collect(Collectors.toList());
+            List<ClassSection> thNeedFix = needFix.stream()
+                    .filter(s -> s.getSectionType() == ClassSection.SectionType.TH)
+                    .collect(Collectors.toList());
+
+            if (!ltNeedFix.isEmpty()) {
+                List<SliceWithCount> ltSlices = splitAdminClassesWithMax(facultyAdminClasses, maxLT);
+                ltSlices = mergeSmallSlices(ltSlices, MIN_LT_STUDENTS, maxLT);
+                for (int i = 0; i < ltNeedFix.size() && i < ltSlices.size(); i++) {
+                    ClassSection s = ltNeedFix.get(i);
+                    SliceWithCount swc = ltSlices.get(i);
+                    s.setAdministrativeClasses(swc.adminClasses());
+                    s.setExpectedStudentCount(swc.expectedCount() > 0 ? swc.expectedCount() : null);
+                    toSave.add(s);
+                }
+            }
+
+            if (!thNeedFix.isEmpty()) {
+                List<SliceWithCount> thSlices = splitAdminClassesWithMax(facultyAdminClasses, maxTH);
+                thSlices = mergeSmallSlices(thSlices, MIN_TH_STUDENTS, maxTH);
+                for (int i = 0; i < thNeedFix.size() && i < thSlices.size(); i++) {
+                    ClassSection s = thNeedFix.get(i);
+                    SliceWithCount swc = thSlices.get(i);
+                    s.setAdministrativeClasses(swc.adminClasses());
+                    s.setExpectedStudentCount(swc.expectedCount() > 0 ? swc.expectedCount() : null);
+                    toSave.add(s);
+                }
+            }
+        }
+
+        sectionRepo.saveAll(toSave);
+        return toSave.size();
+    }
+
     /** Kết quả chia: tập BC + sĩ số dự kiến (khi BC tách nhiều lớp thì sum(BC) sai, dùng expectedCount) */
     private record SliceWithCount(Set<AdministrativeClass> adminClasses, int expectedCount) {}
 
@@ -644,7 +779,26 @@ public class ClassSectionService {
         for (AdministrativeClass ac : sorted) {
             int students = ac.getStudentCount() != null ? ac.getStudentCount() : 0;
 
-            // Tìm bin vừa khớit, chọn bin đã chứa nhiều nhất (Best-fit)
+            // ────── Trường hợp đặc biệt: BC đơn lẻ vượt ngưỡng maxPerBin ──────────
+            // Thay vì nhồi cả BC vào 1 bin quá tải, tách ảo thành nhiều bin:
+            //   mỗi bin giữ tham chiếu đến cùng BC nhưng expectedCount = chia đều.
+            // Ví dụ: 1 BC 100 SV, maxPerBin=80 → 2 bin: bin1(BC,50), bin2(BC,50)
+            if (students > maxPerBin) {
+                int numSplit = (int) Math.ceil((double) students / maxPerBin);
+                int splitCount = (int) Math.ceil((double) students / numSplit);
+                for (int split = 0; split < numSplit; split++) {
+                    int partial = (split == numSplit - 1)
+                            ? (students - splitCount * (numSplit - 1))  // phần cuối lấy phần còn lại
+                            : splitCount;
+                    Set<AdministrativeClass> newBin = new HashSet<>();
+                    newBin.add(ac);
+                    bins.add(newBin);
+                    binLoad.add(partial);
+                }
+                continue;
+            }
+
+            // ────── Trường hợp bình thường: Best-fit Decreasing ──────────────────
             int chosen = -1;
             int maxExisting = -1;
             for (int i = 0; i < bins.size(); i++) {
@@ -655,8 +809,7 @@ public class ClassSectionService {
                 }
             }
 
-            // Không có bin nào vừa → mở bin mới
-            // (nếu BC đơn lẻ vượt maxPerBin, nó vẫn đi riêng 1 bin — không tách BC)
+            // Không có bin vừa → mở bin mới
             if (chosen < 0) {
                 bins.add(new HashSet<>());
                 binLoad.add(0);

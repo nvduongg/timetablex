@@ -8,6 +8,7 @@ const { Header, Content, Sider } = Layout;
 const PATH_TO_LABEL = {
   '/dashboard': 'Tổng quan',
   '/faculties': 'Quản lý Khoa/Viện',
+  '/departments': 'Quản lý Bộ môn',
   '/majors': 'Quản lý Ngành',
   '/classes': 'Quản lý Lớp',
   '/cohorts': 'Quản lý Niên khóa',
@@ -45,6 +46,7 @@ const getMenuItems = (role) => {
       label: 'Dữ liệu cơ sở',
       children: [
         { key: '/faculties', label: 'Khoa/Viện' },
+        { key: '/departments', label: 'Bộ môn' },
         { key: '/majors', label: 'Ngành' },
         { key: '/cohorts', label: 'Niên khóa' },
         { key: '/classes', label: 'Lớp' },
@@ -63,6 +65,7 @@ const getMenuItems = (role) => {
       label: 'Lập kế hoạch & Dự kiến',
       children: [
         { key: '/course-offerings', label: 'Kế hoạch mở lớp' },
+        { key: '/faculty-approval', label: 'Duyệt kế hoạch' },
       ],
     });
   } else {
@@ -93,6 +96,14 @@ const getMenuItems = (role) => {
       label: 'Quản lý Lớp học phần',
       children: [
         { key: '/class-sections', label: 'Lớp học phần' },
+      ],
+    });
+    // P.ĐT: Phân công giảng dạy (tạm thời)
+    menuItems.push({
+      key: 'module3',
+      label: 'Phân công giảng dạy',
+      children: [
+        { key: '/teaching-assignments', label: 'Phân công giảng dạy' },
       ],
     });
   } else {
@@ -142,7 +153,7 @@ const MainLayout = ({ children, auth, onLogout }) => {
     if (path.startsWith('/teaching-assignments')) return ['module3'];
     if (path.startsWith('/timetable')) return ['module4'];
     if (path.startsWith('/support-requests') || path.startsWith('/users')) return ['system'];
-    if (['/faculties','/majors','/classes','/cohorts','/rooms','/timeslots','/courses','/curriculum','/lecturers','/semesters'].includes(path)) return ['data'];
+    if (['/faculties','/departments','/majors','/classes','/cohorts','/rooms','/timeslots','/courses','/curriculum','/lecturers','/semesters'].includes(path)) return ['data'];
     return [];
   }, [location.pathname]);
 

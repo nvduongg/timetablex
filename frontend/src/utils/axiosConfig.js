@@ -18,4 +18,18 @@ instance.interceptors.request.use((config) => {
     return config;
 });
 
+instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('auth_user');
+            if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+                window.location.href = '/';
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default instance;

@@ -21,10 +21,15 @@ public class Lecturer {
     @Column(nullable = false, unique = true)
     private String email; // VD: nga.maithuy@...
 
-    // Giảng viên thuộc 1 Khoa
+    // Giảng viên thuộc 1 Khoa (Giữ nguyên để phân quyền & filter theo Khoa)
     @ManyToOne
     @JoinColumn(name = "faculty_id", nullable = false)
     private Faculty faculty;
+
+    // Giảng viên thuộc 1 Bộ môn (Tùy chọn - để quản lý chi tiết hơn)
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
 
     // MA TRẬN CHUYÊN MÔN: Giảng viên dạy được nhiều môn
     @ManyToMany(fetch = FetchType.EAGER) // Load luôn danh sách môn khi query giảng viên

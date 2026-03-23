@@ -12,3 +12,10 @@ export const importCourse = (file) => {
         headers: { 'Content-Type': 'multipart/form-data' },
     });
 };
+export const upsertCourse = (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return axios.post('/courses/upsert', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
+};

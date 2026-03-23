@@ -95,4 +95,15 @@ public class ClassSectionController {
         ));
     }
 
+    @PostMapping("/fix-admin-classes")
+    public ResponseEntity<Map<String, Object>> fixAdminClasses(@RequestBody Map<String, Object> payload) {
+        Object semObj = payload.get("semesterId");
+        Long semesterId = semObj instanceof Number n ? n.longValue() : Long.parseLong(String.valueOf(semObj));
+        int fixed = sectionService.fixMissingOrOversizedAdminClasses(semesterId);
+        return ResponseEntity.ok(Map.of(
+                "message", "Đã bổ sung/sửa lớp biên chế cho " + fixed + " lớp học phần",
+                "fixedCount", fixed
+        ));
+    }
+
 }

@@ -19,6 +19,7 @@ public class LecturerService {
     @Autowired private LecturerRepository lecturerRepo;
     @Autowired private FacultyRepository facultyRepo;
     @Autowired private CourseRepository courseRepo;
+    @Autowired private vn.edu.phenikaa.timetablex.repository.DepartmentRepository departmentRepo;
     @Autowired private vn.edu.phenikaa.timetablex.repository.CourseOfferingRepository offeringRepo;
 
     public List<Lecturer> getAll() { return lecturerRepo.findAll(); }
@@ -83,13 +84,15 @@ public class LecturerService {
             header.createCell(0).setCellValue("Họ tên");
             header.createCell(1).setCellValue("Email");
             header.createCell(2).setCellValue("Mã Khoa");
-            header.createCell(3).setCellValue("Mã môn dạy được (Cách nhau dấu phẩy)");
+            header.createCell(3).setCellValue("Mã Bộ môn (Tùy chọn)");
+            header.createCell(4).setCellValue("Mã môn dạy được (Cách nhau dấu phẩy)");
 
             Row sample = sheet.createRow(1);
             sample.createCell(0).setCellValue("Nguyễn Văn A");
             sample.createCell(1).setCellValue("a.nguyenvan@phenikaa-uni.edu.vn");
             sample.createCell(2).setCellValue("CNTT");
-            sample.createCell(3).setCellValue("INT101, INT102"); // Ma trận nhập ở đây
+            sample.createCell(3).setCellValue("KHMT"); // Mã bộ môn
+            sample.createCell(4).setCellValue("INT101, INT102"); // Ma trận nhập ở đây
 
             workbook.write(out);
         } finally { workbook.close(); }
@@ -116,7 +119,8 @@ public class LecturerService {
                 String name = getCellValue(row.getCell(0));
                 String email = getCellValue(row.getCell(1));
                 String facultyCode = getCellValue(row.getCell(2));
-                String coursesStr = getCellValue(row.getCell(3)); // Chuỗi mã môn
+                String departmentCode = getCellValue(row.getCell(3)); // Bộ môn (cột mới)
+                String coursesStr = getCellValue(row.getCell(4)); // Chuỗi mã môn (dịch sang cột 4)
 
                 if (email != null && facultyCode != null) {
                     if (existingEmails.contains(email) || processedEmails.contains(email)) continue;
@@ -129,6 +133,12 @@ public class LecturerService {
                         lecturer.setName(name);
                         lecturer.setEmail(email);
                         lecturer.setFaculty(fac.get());
+
+                        // Gán Bộ môn nếu có
+                        if (departmentCode != null && !departmentCode.isBlank()) {
+                            departmentRepo.findByCode(departmentCode.trim())
+                                    .ifPresent(lecturer::setDepartment);
+                        }
 
                         // Xử lý Ma trận: Tách chuỗi "INT101, INT102" -> Set<Course>
                         if (coursesStr != null && !coursesStr.isEmpty()) {
