@@ -32,7 +32,7 @@ services:
 
   # 3. Backend (Java Spring Boot)
   backend:
-    image: eclipse-temurin:17-jdk-alpine # Dùng image Java có sẵn
+    image: eclipse-temurin:17-jdk # Non-alpine to fix DNS issues
     container_name: timetablex-backend
     working_dir: /app
     volumes:

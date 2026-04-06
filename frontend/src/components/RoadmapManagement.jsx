@@ -9,6 +9,11 @@ import * as CourseService from '../services/courseService';
 const { Text } = Typography;
 const { Option } = Select;
 
+/** Số học kỳ tối đa trong khung CTĐT (quy ước 3 kỳ/năm). Đại học 4 năm = 12; Y khoa 15 kỳ cần ≥15. */
+const ROADMAP_MAX_SEMESTER = 20;
+
+const ROADMAP_SEMESTER_INDICES = Array.from({ length: ROADMAP_MAX_SEMESTER }, (_, i) => i + 1);
+
 const RoadmapManagement = ({ initialCurrId = null, onBack }) => {
     const [curriculums, setCurriculums] = useState([]);
     const [selectedCurrData, setSelectedCurrData] = useState(null);
@@ -140,7 +145,7 @@ const RoadmapManagement = ({ initialCurrId = null, onBack }) => {
         return code.includes(q) || name.includes(q);
     };
 
-    // 3 kỳ/năm: HK 1-3 = Năm 1, 4-6 = Năm 2, 7-9 = Năm 3, 10-12 = Năm 4
+    // 3 kỳ/năm: HK 1-3 = Năm 1, … (HK 13–15 = Năm 5 cho chương trình 5 năm / Y khoa)
     const getSemesterLabel = (n) => {
         const year = Math.ceil(n / 3);
         const term = ((n - 1) % 3) + 1;
@@ -230,7 +235,7 @@ const RoadmapManagement = ({ initialCurrId = null, onBack }) => {
 
                     {/* Lưới học kỳ - Chỉ hiển thị các kỳ có môn học */}
                     <Row gutter={[16, 16]}>
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].filter(sem => {
+                        {ROADMAP_SEMESTER_INDICES.filter(sem => {
                             // Chỉ hiển thị kỳ có môn học (và khớp với tìm kiếm nếu có)
                             const hasCourses = (selectedCurrData?.details || []).some(d => 
                                 isDetailInSemester(d, sem) && matchesCourseSearch(d)
@@ -328,9 +333,9 @@ const RoadmapManagement = ({ initialCurrId = null, onBack }) => {
                 centered
             >
                 <Form form={addCourseForm} layout="vertical" onFinish={handleAddCourse} style={{ marginTop: 16 }}>
-                    <Form.Item name="semesterIndex" label="Học kỳ (3 kỳ/năm)" rules={[{ required: true }]}>
-                        <Select placeholder="Chọn học kỳ" variant="filled">
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(s => (
+                    <Form.Item name="semesterIndex" label={`Học kỳ (3 kỳ/năm, HK1–HK${ROADMAP_MAX_SEMESTER})`} rules={[{ required: true }]}>
+                        <Select placeholder="Chọn học kỳ" variant="filled" listHeight={320}>
+                            {ROADMAP_SEMESTER_INDICES.map(s => (
                                 <Option key={s} value={s}>HK{s} · {getSemesterLabel(s)}</Option>
                             ))}
                         </Select>

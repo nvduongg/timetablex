@@ -22,6 +22,7 @@ const CourseOfferingManagement = () => {
     const [semesters, setSemesters] = useState([]);
     const [currentSemesterId, setCurrentSemesterId] = useState(null);
     const [cohorts, setCohorts] = useState([]);
+    const [selectedCohorts, setSelectedCohorts] = useState([]);
     const [statusFilter, setStatusFilter] = useState('ALL');
     const [editModal, setEditModal] = useState({ open: false, record: null });
     const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
@@ -161,12 +162,17 @@ const CourseOfferingManagement = () => {
             planningYear: planningYear ?? new Date().getFullYear(),
             planningTerm: planningTerm ?? 1,
             termsPerYear,
+            cohortCodes: selectedCohorts,
         };
     };
 
     const doGenerate = async () => {
         if (!currentSemesterId) {
             message.warning('Vui lòng chọn học kỳ trước khi thiết lập kế hoạch học phần');
+            return;
+        }
+        if (!selectedCohorts || selectedCohorts.length === 0) {
+            message.warning('Vui lòng chọn ít nhất 1 Khóa để lập kế hoạch');
             return;
         }
         const payload = buildAutoGenerateParams();
@@ -192,6 +198,10 @@ const CourseOfferingManagement = () => {
             message.warning('Vui lòng chọn học kỳ');
             return;
         }
+        if (!selectedCohorts || selectedCohorts.length === 0) {
+            message.warning('Vui lòng chọn ít nhất 1 Khóa để lập kế hoạch');
+            return;
+        }
         // Nếu đã có kế hoạch hiện tại → cảnh báo sẽ ghi đè
         if ((offerings || []).length > 0) {
             Modal.confirm({
@@ -213,6 +223,7 @@ const CourseOfferingManagement = () => {
             message.warning('Vui lòng chọn học kỳ trước khi thiết lập kế hoạch học phần');
             return;
         }
+        setSelectedCohorts([]);
         setIsGenerateModalOpen(true);
     };
 
@@ -470,9 +481,28 @@ const CourseOfferingManagement = () => {
                 width={550}
                 centered
             >
+                <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontWeight: 600, color: '#333', marginBottom: 8 }}>Chọn Khóa (bắt buộc)</div>
+                    <Select
+                        mode="multiple"
+                        allowClear
+                        style={{ width: '100%' }}
+                        placeholder="Chọn 1 hoặc nhiều Khóa"
+                        value={selectedCohorts}
+                        onChange={setSelectedCohorts}
+                        disabled={!cohorts || cohorts.length === 0}
+                        maxTagCount="responsive"
+                    >
+                        {(cohorts || []).map(c => (
+                            <Option key={c} value={c}>
+                                {c}
+                            </Option>
+                        ))}
+                    </Select>
+                </div>
                 <div style={{ marginBottom: 20 }}>
                     <Alert
-                        message="Hệ thống sẽ quét TẤT CẢ lớp biên chế trong trường, tự động tính toán 'độ tuổi' của từng Khóa dựa trên Khóa gốc để nội suy chính xác Lộ trình mà sinh viên phải học."
+                        message="Hệ thống sẽ quét các lớp biên chế thuộc các Khóa đã chọn, tự động tính toán 'độ tuổi' của từng Khóa dựa trên Khóa gốc để nội suy chính xác Lộ trình mà sinh viên phải học."
                         type="info"
                         showIcon
                         style={{ border: 'none', background: '#e6f7ff' }}

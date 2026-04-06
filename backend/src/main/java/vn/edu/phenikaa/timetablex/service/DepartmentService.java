@@ -106,24 +106,44 @@ public class DepartmentService {
                 String facultyCode = getCellValue(row.getCell(2));
 
                 if (code == null || facultyCode == null) continue;
-                if (existingCodes.contains(code) || processedCodes.contains(code)) continue;
+                String normalizedBaseCode = code.trim();
+                if (normalizedBaseCode.isBlank()) continue;
 
-                Optional<Faculty> fac = faculties.stream()
-                        .filter(f -> f.getCode().equalsIgnoreCase(facultyCode))
-                        .findFirst();
+                List<String> facultyCodes = parseFacultyCodes(facultyCode);
+                if (facultyCodes.isEmpty()) continue;
 
-                if (fac.isPresent()) {
+                // Department hiện tại gắn 1 khoa, nên nếu 1 dòng map nhiều khoa
+                // thì tách thành nhiều Department độc lập theo mã mở rộng.
+                boolean isMultiFaculty = facultyCodes.size() > 1;
+                for (String facCode : facultyCodes) {
+                    Optional<Faculty> fac = faculties.stream()
+                            .filter(f -> f.getCode() != null && f.getCode().equalsIgnoreCase(facCode))
+                            .findFirst();
+                    if (fac.isEmpty()) continue;
+
+                    String deptCode = isMultiFaculty ? normalizedBaseCode + "-" + facCode.toUpperCase() : normalizedBaseCode;
+                    if (existingCodes.contains(deptCode) || processedCodes.contains(deptCode)) continue;
+
                     Department dept = new Department();
-                    dept.setCode(code);
-                    dept.setName(name != null ? name : code);
+                    dept.setCode(deptCode);
+                    dept.setName(name != null && !name.isBlank() ? name : normalizedBaseCode);
                     dept.setFaculty(fac.get());
                     toSave.add(dept);
-                    processedCodes.add(code);
+                    processedCodes.add(deptCode);
                 }
             }
 
             if (!toSave.isEmpty()) departmentRepo.saveAll(toSave);
         }
+    }
+
+    private List<String> parseFacultyCodes(String rawFacultyCodes) {
+        if (rawFacultyCodes == null || rawFacultyCodes.isBlank()) return Collections.emptyList();
+        return Arrays.stream(rawFacultyCodes.split("[,;/\\\\]"))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .distinct()
+                .toList();
     }
 
     private String getCellValue(Cell cell) {

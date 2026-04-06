@@ -99,7 +99,7 @@ public class CurriculumService {
         try {
             Sheet sheet = workbook.createSheet("Lộ trình");
             Row header = sheet.createRow(0);
-            header.createCell(0).setCellValue("Học kỳ (1-12)");
+            header.createCell(0).setCellValue("Học kỳ (số, ví dụ 1–20; Y khoa thường 15 kỳ)");
             header.createCell(1).setCellValue("Mã học phần");
             header.createCell(2).setCellValue("Tên học phần (gợi ý, không bắt buộc)");
 
@@ -132,7 +132,7 @@ public class CurriculumService {
 
                     if (semesterStr == null || courseCode == null) continue;
 
-                    // Chuẩn hóa format: "1", "1,2", "1;2" → ["1","2"]; chỉ lấy số (1–12)
+                    // Chuẩn hóa format: "1", "1,2", "1;2" → ["1","2"]; chỉ lấy số dương
                     String[] parts = semesterStr.replace(";", ",").split(",");
                     Set<String> semestersFromRow = new LinkedHashSet<>();
                     for (String p : parts) {
@@ -153,7 +153,7 @@ public class CurriculumService {
                 }
             }
 
-            // Tạo / cập nhật detail: mỗi môn 1 record, semesterIndex gộp đủ 12 kỳ
+            // Tạo / cập nhật detail: mỗi môn 1 record, semesterIndex gộp các kỳ (có thể >12, vd. Y khoa)
             List<CurriculumDetail> toSave = new ArrayList<>();
             List<CurriculumDetail> existingDetails = curriculum.getDetails();
             Map<Long, CurriculumDetail> existingByCourse = new HashMap<>();

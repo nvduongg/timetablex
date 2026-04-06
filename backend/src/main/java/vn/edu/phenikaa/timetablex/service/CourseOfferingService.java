@@ -68,6 +68,22 @@ public class CourseOfferingService {
         if (req == null || req.getSemesterId() == null) {
             throw new IllegalArgumentException("Học kỳ (semesterId) không được để trống");
         }
+
+        // Bắt buộc chọn Khóa để giới hạn phạm vi gợi ý
+        List<String> cohortCodes = req.getCohortCodes();
+        if (cohortCodes == null || cohortCodes.isEmpty()) {
+            throw new IllegalArgumentException("Vui lòng chọn ít nhất 1 Khóa để lập kế hoạch");
+        }
+        Set<String> allowedCohortCodes = cohortCodes.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .map(String::toUpperCase)
+                .collect(Collectors.toSet());
+        if (allowedCohortCodes.isEmpty()) {
+            throw new IllegalArgumentException("Vui lòng chọn ít nhất 1 Khóa hợp lệ để lập kế hoạch");
+        }
+
         Semester semester = semesterRepo.findById(req.getSemesterId()).orElseThrow();
 
         // Lấy tất cả các lớp biên chế trong toàn trường
@@ -88,6 +104,10 @@ public class CourseOfferingService {
                 cohortCode = cls.getCohort().trim();
             }
             if (cohortCode == null || cohortCode.isBlank()) continue;
+
+            // Chỉ lấy các lớp thuộc các Khóa đã chọn
+            cohortCode = cohortCode.trim().toUpperCase();
+            if (!allowedCohortCodes.contains(cohortCode)) continue;
 
             Long majorId = cls.getMajor().getId();
             // Lấy CTĐT khớp với chuyên ngành và khóa của lớp này (theo mã khóa)

@@ -1,0 +1,581 @@
+﻿Mã lớp	Tên lớp	Khóa	Sĩ số	Mã ngành
+MED1-K16A	Y khoa - K16 nhom A	K16	32	MED1
+MED1-K17A	Y khoa - K17 nhom A	K17	40	MED1
+MED1-K18A	Y khoa - K18 nhom A	K18	48	MED1
+MED1-K19A	Y khoa - K19 nhom A	K19	32	MED1
+MED1-K16B	Y khoa - K16 nhom B	K16	40	MED1
+MED1-K17B	Y khoa - K17 nhom B	K17	48	MED1
+MED1-K18B	Y khoa - K18 nhom B	K18	32	MED1
+MED1-K19B	Y khoa - K19 nhom B	K19	40	MED1
+MED1-K16C	Y khoa - K16 nhom C	K16	48	MED1
+MED1-K17C	Y khoa - K17 nhom C	K17	32	MED1
+MED1-K18C	Y khoa - K18 nhom C	K18	40	MED1
+PHA1-K16A	Dược học - K16 nhom A	K16	46	PHA1
+PHA1-K17A	Dược học - K17 nhom A	K17	54	PHA1
+PHA1-K18A	Dược học - K18 nhom A	K18	38	PHA1
+PHA1-K19A	Dược học - K19 nhom A	K19	46	PHA1
+PHA1-K16B	Dược học - K16 nhom B	K16	54	PHA1
+PHA1-K17B	Dược học - K17 nhom B	K17	38	PHA1
+PHA1-K18B	Dược học - K18 nhom B	K18	46	PHA1
+PHA1-K19B	Dược học - K19 nhom B	K19	54	PHA1
+PHA1-K16C	Dược học - K16 nhom C	K16	38	PHA1
+PHA1-K17C	Dược học - K17 nhom C	K17	46	PHA1
+PHA1-K18C	Dược học - K18 nhom C	K18	54	PHA1
+DEN1-K16A	Răng - Hàm - Mặt - K16 nhom A	K16	36	DEN1
+DEN1-K17A	Răng - Hàm - Mặt - K17 nhom A	K17	44	DEN1
+DEN1-K18A	Răng - Hàm - Mặt - K18 nhom A	K18	52	DEN1
+DEN1-K19A	Răng - Hàm - Mặt - K19 nhom A	K19	36	DEN1
+DEN1-K16B	Răng - Hàm - Mặt - K16 nhom B	K16	44	DEN1
+DEN1-K17B	Răng - Hàm - Mặt - K17 nhom B	K17	52	DEN1
+DEN1-K18B	Răng - Hàm - Mặt - K18 nhom B	K18	36	DEN1
+DEN1-K19B	Răng - Hàm - Mặt - K19 nhom B	K19	44	DEN1
+DEN1-K16C	Răng - Hàm - Mặt - K16 nhom C	K16	52	DEN1
+DEN1-K17C	Răng - Hàm - Mặt - K17 nhom C	K17	36	DEN1
+DEN1-K18C	Răng - Hàm - Mặt - K18 nhom C	K18	44	DEN1
+NUR1-K16A	Điều dưỡng - K16 nhom A	K16	50	NUR1
+NUR1-K17A	Điều dưỡng - K17 nhom A	K17	34	NUR1
+NUR1-K18A	Điều dưỡng - K18 nhom A	K18	42	NUR1
+NUR1-K19A	Điều dưỡng - K19 nhom A	K19	50	NUR1
+NUR1-K16B	Điều dưỡng - K16 nhom B	K16	34	NUR1
+NUR1-K17B	Điều dưỡng - K17 nhom B	K17	42	NUR1
+NUR1-K18B	Điều dưỡng - K18 nhom B	K18	50	NUR1
+NUR1-K19B	Điều dưỡng - K19 nhom B	K19	34	NUR1
+NUR1-K16C	Điều dưỡng - K16 nhom C	K16	42	NUR1
+NUR1-K17C	Điều dưỡng - K17 nhom C	K17	50	NUR1
+NUR1-K18C	Điều dưỡng - K18 nhom C	K18	34	NUR1
+MIW-K16A	Hộ sinh - K16 nhom A	K16	40	MIW
+MIW-K17A	Hộ sinh - K17 nhom A	K17	48	MIW
+MIW-K18A	Hộ sinh - K18 nhom A	K18	32	MIW
+MIW-K19A	Hộ sinh - K19 nhom A	K19	40	MIW
+MIW-K16B	Hộ sinh - K16 nhom B	K16	48	MIW
+MIW-K17B	Hộ sinh - K17 nhom B	K17	32	MIW
+MIW-K18B	Hộ sinh - K18 nhom B	K18	40	MIW
+MIW-K19B	Hộ sinh - K19 nhom B	K19	48	MIW
+MIW-K16C	Hộ sinh - K16 nhom C	K16	32	MIW
+MIW-K17C	Hộ sinh - K17 nhom C	K17	40	MIW
+MIW-K18C	Hộ sinh - K18 nhom C	K18	48	MIW
+MTT1-K16A	Kỹ thuật xét nghiệm y học - K16 nhom A	K16	54	MTT1
+MTT1-K17A	Kỹ thuật xét nghiệm y học - K17 nhom A	K17	38	MTT1
+MTT1-K18A	Kỹ thuật xét nghiệm y học - K18 nhom A	K18	46	MTT1
+MTT1-K19A	Kỹ thuật xét nghiệm y học - K19 nhom A	K19	54	MTT1
+MTT1-K16B	Kỹ thuật xét nghiệm y học - K16 nhom B	K16	38	MTT1
+MTT1-K17B	Kỹ thuật xét nghiệm y học - K17 nhom B	K17	46	MTT1
+MTT1-K18B	Kỹ thuật xét nghiệm y học - K18 nhom B	K18	54	MTT1
+MTT1-K19B	Kỹ thuật xét nghiệm y học - K19 nhom B	K19	38	MTT1
+MTT1-K16C	Kỹ thuật xét nghiệm y học - K16 nhom C	K16	46	MTT1
+MTT1-K17C	Kỹ thuật xét nghiệm y học - K17 nhom C	K17	54	MTT1
+MTT1-K18C	Kỹ thuật xét nghiệm y học - K18 nhom C	K18	38	MTT1
+RET1-K16A	Kỹ thuật phục hồi chức năng - K16 nhom A	K16	44	RET1
+RET1-K17A	Kỹ thuật phục hồi chức năng - K17 nhom A	K17	52	RET1
+RET1-K18A	Kỹ thuật phục hồi chức năng - K18 nhom A	K18	36	RET1
+RET1-K19A	Kỹ thuật phục hồi chức năng - K19 nhom A	K19	44	RET1
+RET1-K16B	Kỹ thuật phục hồi chức năng - K16 nhom B	K16	52	RET1
+RET1-K17B	Kỹ thuật phục hồi chức năng - K17 nhom B	K17	36	RET1
+RET1-K18B	Kỹ thuật phục hồi chức năng - K18 nhom B	K18	44	RET1
+RET1-K19B	Kỹ thuật phục hồi chức năng - K19 nhom B	K19	52	RET1
+RET1-K16C	Kỹ thuật phục hồi chức năng - K16 nhom C	K16	36	RET1
+RET1-K17C	Kỹ thuật phục hồi chức năng - K17 nhom C	K17	44	RET1
+RET1-K18C	Kỹ thuật phục hồi chức năng - K18 nhom C	K18	52	RET1
+RTS1-K16A	Kỹ thuật hình ảnh y học - K16 nhom A	K16	34	RTS1
+RTS1-K17A	Kỹ thuật hình ảnh y học - K17 nhom A	K17	42	RTS1
+RTS1-K18A	Kỹ thuật hình ảnh y học - K18 nhom A	K18	50	RTS1
+RTS1-K19A	Kỹ thuật hình ảnh y học - K19 nhom A	K19	34	RTS1
+RTS1-K16B	Kỹ thuật hình ảnh y học - K16 nhom B	K16	42	RTS1
+RTS1-K17B	Kỹ thuật hình ảnh y học - K17 nhom B	K17	50	RTS1
+RTS1-K18B	Kỹ thuật hình ảnh y học - K18 nhom B	K18	34	RTS1
+RTS1-K19B	Kỹ thuật hình ảnh y học - K19 nhom B	K19	42	RTS1
+RTS1-K16C	Kỹ thuật hình ảnh y học - K16 nhom C	K16	50	RTS1
+RTS1-K17C	Kỹ thuật hình ảnh y học - K17 nhom C	K17	34	RTS1
+RTS1-K18C	Kỹ thuật hình ảnh y học - K18 nhom C	K18	42	RTS1
+FTME-K16A	Y học cổ truyền - K16 nhom A	K16	48	FTME
+FTME-K17A	Y học cổ truyền - K17 nhom A	K17	32	FTME
+FTME-K18A	Y học cổ truyền - K18 nhom A	K18	40	FTME
+FTME-K19A	Y học cổ truyền - K19 nhom A	K19	48	FTME
+FTME-K16B	Y học cổ truyền - K16 nhom B	K16	32	FTME
+FTME-K17B	Y học cổ truyền - K17 nhom B	K17	40	FTME
+FTME-K18B	Y học cổ truyền - K18 nhom B	K18	48	FTME
+FTME-K19B	Y học cổ truyền - K19 nhom B	K19	32	FTME
+FTME-K16C	Y học cổ truyền - K16 nhom C	K16	40	FTME
+FTME-K17C	Y học cổ truyền - K17 nhom C	K17	48	FTME
+FTME-K18C	Y học cổ truyền - K18 nhom C	K18	32	FTME
+BMS-K16A	Khoa học y sinh - K16 nhom A	K16	38	BMS
+BMS-K17A	Khoa học y sinh - K17 nhom A	K17	46	BMS
+BMS-K18A	Khoa học y sinh - K18 nhom A	K18	54	BMS
+BMS-K19A	Khoa học y sinh - K19 nhom A	K19	38	BMS
+BMS-K16B	Khoa học y sinh - K16 nhom B	K16	46	BMS
+BMS-K17B	Khoa học y sinh - K17 nhom B	K17	54	BMS
+BMS-K18B	Khoa học y sinh - K18 nhom B	K18	38	BMS
+BMS-K19B	Khoa học y sinh - K19 nhom B	K19	46	BMS
+BMS-K16C	Khoa học y sinh - K16 nhom C	K16	54	BMS
+BMS-K17C	Khoa học y sinh - K17 nhom C	K17	38	BMS
+BMS-K18C	Khoa học y sinh - K18 nhom C	K18	46	BMS
+HM1-K16A	Quản lý bệnh viện - K16 nhom A	K16	52	HM1
+HM1-K17A	Quản lý bệnh viện - K17 nhom A	K17	36	HM1
+HM1-K18A	Quản lý bệnh viện - K18 nhom A	K18	44	HM1
+HM1-K19A	Quản lý bệnh viện - K19 nhom A	K19	52	HM1
+HM1-K16B	Quản lý bệnh viện - K16 nhom B	K16	36	HM1
+HM1-K17B	Quản lý bệnh viện - K17 nhom B	K17	44	HM1
+HM1-K18B	Quản lý bệnh viện - K18 nhom B	K18	52	HM1
+HM1-K19B	Quản lý bệnh viện - K19 nhom B	K19	36	HM1
+HM1-K16C	Quản lý bệnh viện - K16 nhom C	K16	44	HM1
+HM1-K17C	Quản lý bệnh viện - K17 nhom C	K17	52	HM1
+ICT1-K16A	Công nghệ thông tin - K16 nhom A	K16	41	ICT1
+ICT1-K17A	Công nghệ thông tin - K17 nhom A	K17	49	ICT1
+ICT1-K18A	Công nghệ thông tin - K18 nhom A	K18	33	ICT1
+ICT1-K19A	Công nghệ thông tin - K19 nhom A	K19	41	ICT1
+ICT1-K16B	Công nghệ thông tin - K16 nhom B	K16	49	ICT1
+ICT1-K17B	Công nghệ thông tin - K17 nhom B	K17	33	ICT1
+ICT1-K18B	Công nghệ thông tin - K18 nhom B	K18	41	ICT1
+ICT1-K19B	Công nghệ thông tin - K19 nhom B	K19	49	ICT1
+ICT1-K16C	Công nghệ thông tin - K16 nhom C	K16	33	ICT1
+ICT1-K17C	Công nghệ thông tin - K17 nhom C	K17	41	ICT1
+ICT2-K16A	Kỹ thuật phần mềm - K16 nhom A	K16	54	ICT2
+ICT2-K17A	Kỹ thuật phần mềm - K17 nhom A	K17	38	ICT2
+ICT2-K18A	Kỹ thuật phần mềm - K18 nhom A	K18	46	ICT2
+ICT2-K19A	Kỹ thuật phần mềm - K19 nhom A	K19	54	ICT2
+ICT2-K16B	Kỹ thuật phần mềm - K16 nhom B	K16	38	ICT2
+ICT2-K17B	Kỹ thuật phần mềm - K17 nhom B	K17	46	ICT2
+ICT2-K18B	Kỹ thuật phần mềm - K18 nhom B	K18	54	ICT2
+ICT2-K19B	Kỹ thuật phần mềm - K19 nhom B	K19	38	ICT2
+ICT2-K16C	Kỹ thuật phần mềm - K16 nhom C	K16	46	ICT2
+ICT2-K17C	Kỹ thuật phần mềm - K17 nhom C	K17	54	ICT2
+ICT3-K16A	Khoa học máy tính - K16 nhom A	K16	43	ICT3
+ICT3-K17A	Khoa học máy tính - K17 nhom A	K17	51	ICT3
+ICT3-K18A	Khoa học máy tính - K18 nhom A	K18	35	ICT3
+ICT3-K19A	Khoa học máy tính - K19 nhom A	K19	43	ICT3
+ICT3-K16B	Khoa học máy tính - K16 nhom B	K16	51	ICT3
+ICT3-K17B	Khoa học máy tính - K17 nhom B	K17	35	ICT3
+ICT3-K18B	Khoa học máy tính - K18 nhom B	K18	43	ICT3
+ICT3-K19B	Khoa học máy tính - K19 nhom B	K19	51	ICT3
+ICT3-K16C	Khoa học máy tính - K16 nhom C	K16	35	ICT3
+ICT3-K17C	Khoa học máy tính - K17 nhom C	K17	43	ICT3
+ICT4-K16A	An toàn thông tin - K16 nhom A	K16	32	ICT4
+ICT4-K17A	An toàn thông tin - K17 nhom A	K17	40	ICT4
+ICT4-K18A	An toàn thông tin - K18 nhom A	K18	48	ICT4
+ICT4-K19A	An toàn thông tin - K19 nhom A	K19	32	ICT4
+ICT4-K16B	An toàn thông tin - K16 nhom B	K16	40	ICT4
+ICT4-K17B	An toàn thông tin - K17 nhom B	K17	48	ICT4
+ICT4-K18B	An toàn thông tin - K18 nhom B	K18	32	ICT4
+ICT4-K19B	An toàn thông tin - K19 nhom B	K19	40	ICT4
+ICT4-K16C	An toàn thông tin - K16 nhom C	K16	48	ICT4
+ICT4-K17C	An toàn thông tin - K17 nhom C	K17	32	ICT4
+ICT5-K16A	Trí tuệ nhân tạo - K16 nhom A	K16	45	ICT5
+ICT5-K17A	Trí tuệ nhân tạo - K17 nhom A	K17	53	ICT5
+ICT5-K18A	Trí tuệ nhân tạo - K18 nhom A	K18	37	ICT5
+ICT5-K19A	Trí tuệ nhân tạo - K19 nhom A	K19	45	ICT5
+ICT5-K16B	Trí tuệ nhân tạo - K16 nhom B	K16	53	ICT5
+ICT5-K17B	Trí tuệ nhân tạo - K17 nhom B	K17	37	ICT5
+ICT5-K18B	Trí tuệ nhân tạo - K18 nhom B	K18	45	ICT5
+ICT5-K19B	Trí tuệ nhân tạo - K19 nhom B	K19	53	ICT5
+ICT5-K16C	Trí tuệ nhân tạo - K16 nhom C	K16	37	ICT5
+ICT5-K17C	Trí tuệ nhân tạo - K17 nhom C	K17	45	ICT5
+FIDT1-K16A	Kinh tế số - K16 nhom A	K16	34	FIDT1
+FIDT1-K17A	Kinh tế số - K17 nhom A	K17	42	FIDT1
+FIDT1-K18A	Kinh tế số - K18 nhom A	K18	50	FIDT1
+FIDT1-K19A	Kinh tế số - K19 nhom A	K19	34	FIDT1
+FIDT1-K16B	Kinh tế số - K16 nhom B	K16	42	FIDT1
+FIDT1-K17B	Kinh tế số - K17 nhom B	K17	50	FIDT1
+FIDT1-K18B	Kinh tế số - K18 nhom B	K18	34	FIDT1
+FIDT1-K19B	Kinh tế số - K19 nhom B	K19	42	FIDT1
+FIDT1-K16C	Kinh tế số - K16 nhom C	K16	50	FIDT1
+FIDT1-K17C	Kinh tế số - K17 nhom C	K17	34	FIDT1
+FIDT2-K16A	Kinh doanh số - K16 nhom A	K16	47	FIDT2
+FIDT2-K17A	Kinh doanh số - K17 nhom A	K17	55	FIDT2
+FIDT2-K18A	Kinh doanh số - K18 nhom A	K18	39	FIDT2
+FIDT2-K19A	Kinh doanh số - K19 nhom A	K19	47	FIDT2
+FIDT2-K16B	Kinh doanh số - K16 nhom B	K16	55	FIDT2
+FIDT2-K17B	Kinh doanh số - K17 nhom B	K17	39	FIDT2
+FIDT2-K18B	Kinh doanh số - K18 nhom B	K18	47	FIDT2
+FIDT2-K19B	Kinh doanh số - K19 nhom B	K19	55	FIDT2
+FIDT2-K16C	Kinh doanh số - K16 nhom C	K16	39	FIDT2
+FIDT2-K17C	Kinh doanh số - K17 nhom C	K17	47	FIDT2
+FIDT3-K16A	Thương mại điện tử - K16 nhom A	K16	36	FIDT3
+FIDT3-K17A	Thương mại điện tử - K17 nhom A	K17	44	FIDT3
+FIDT3-K18A	Thương mại điện tử - K18 nhom A	K18	52	FIDT3
+FIDT3-K19A	Thương mại điện tử - K19 nhom A	K19	36	FIDT3
+FIDT3-K16B	Thương mại điện tử - K16 nhom B	K16	44	FIDT3
+FIDT3-K17B	Thương mại điện tử - K17 nhom B	K17	52	FIDT3
+FIDT3-K18B	Thương mại điện tử - K18 nhom B	K18	36	FIDT3
+FIDT3-K19B	Thương mại điện tử - K19 nhom B	K19	44	FIDT3
+FIDT3-K16C	Thương mại điện tử - K16 nhom C	K16	52	FIDT3
+FIDT3-K17C	Thương mại điện tử - K17 nhom C	K17	36	FIDT3
+FIDT4-K16A	Logistics số - K16 nhom A	K16	49	FIDT4
+FIDT4-K17A	Logistics số - K17 nhom A	K17	33	FIDT4
+FIDT4-K18A	Logistics số - K18 nhom A	K18	41	FIDT4
+FIDT4-K19A	Logistics số - K19 nhom A	K19	49	FIDT4
+FIDT4-K16B	Logistics số - K16 nhom B	K16	33	FIDT4
+FIDT4-K17B	Logistics số - K17 nhom B	K17	41	FIDT4
+FIDT4-K18B	Logistics số - K18 nhom B	K18	49	FIDT4
+FIDT4-K19B	Logistics số - K19 nhom B	K19	33	FIDT4
+FIDT4-K16C	Logistics số - K16 nhom C	K16	41	FIDT4
+FIDT4-K17C	Logistics số - K17 nhom C	K17	49	FIDT4
+FIDT5-K16A	Công nghệ Marketing (Martech) - K16 nhom A	K16	38	FIDT5
+FIDT5-K17A	Công nghệ Marketing (Martech) - K17 nhom A	K17	46	FIDT5
+FIDT5-K18A	Công nghệ Marketing (Martech) - K18 nhom A	K18	54	FIDT5
+FIDT5-K19A	Công nghệ Marketing (Martech) - K19 nhom A	K19	38	FIDT5
+FIDT5-K16B	Công nghệ Marketing (Martech) - K16 nhom B	K16	46	FIDT5
+FIDT5-K17B	Công nghệ Marketing (Martech) - K17 nhom B	K17	54	FIDT5
+FIDT5-K18B	Công nghệ Marketing (Martech) - K18 nhom B	K18	38	FIDT5
+FIDT5-K19B	Công nghệ Marketing (Martech) - K19 nhom B	K19	46	FIDT5
+FIDT5-K16C	Công nghệ Marketing (Martech) - K16 nhom C	K16	54	FIDT5
+FIDT5-K17C	Công nghệ Marketing (Martech) - K17 nhom C	K17	38	FIDT5
+FIDT6-K16A	Truyền thông đa phương tiện - K16 nhom A	K16	51	FIDT6
+FIDT6-K17A	Truyền thông đa phương tiện - K17 nhom A	K17	35	FIDT6
+FIDT6-K18A	Truyền thông đa phương tiện - K18 nhom A	K18	43	FIDT6
+FIDT6-K19A	Truyền thông đa phương tiện - K19 nhom A	K19	51	FIDT6
+FIDT6-K16B	Truyền thông đa phương tiện - K16 nhom B	K16	35	FIDT6
+FIDT6-K17B	Truyền thông đa phương tiện - K17 nhom B	K17	43	FIDT6
+FIDT6-K18B	Truyền thông đa phương tiện - K18 nhom B	K18	51	FIDT6
+FIDT6-K19B	Truyền thông đa phương tiện - K19 nhom B	K19	35	FIDT6
+FIDT6-K16C	Truyền thông đa phương tiện - K16 nhom C	K16	43	FIDT6
+FIDT6-K17C	Truyền thông đa phương tiện - K17 nhom C	K17	51	FIDT6
+EEE1-K16A	Kỹ thuật điều khiển và tự động hóa - K16 nhom A	K16	40	EEE1
+EEE1-K17A	Kỹ thuật điều khiển và tự động hóa - K17 nhom A	K17	48	EEE1
+EEE1-K18A	Kỹ thuật điều khiển và tự động hóa - K18 nhom A	K18	32	EEE1
+EEE1-K19A	Kỹ thuật điều khiển và tự động hóa - K19 nhom A	K19	40	EEE1
+EEE1-K16B	Kỹ thuật điều khiển và tự động hóa - K16 nhom B	K16	48	EEE1
+EEE1-K17B	Kỹ thuật điều khiển và tự động hóa - K17 nhom B	K17	32	EEE1
+EEE1-K18B	Kỹ thuật điều khiển và tự động hóa - K18 nhom B	K18	40	EEE1
+EEE1-K19B	Kỹ thuật điều khiển và tự động hóa - K19 nhom B	K19	48	EEE1
+EEE1-K16C	Kỹ thuật điều khiển và tự động hóa - K16 nhom C	K16	32	EEE1
+EEE1-K17C	Kỹ thuật điều khiển và tự động hóa - K17 nhom C	K17	40	EEE1
+EEE2-K16A	Kỹ thuật y sinh (Điện tử y sinh) - K16 nhom A	K16	53	EEE2
+EEE2-K17A	Kỹ thuật y sinh (Điện tử y sinh) - K17 nhom A	K17	37	EEE2
+EEE2-K18A	Kỹ thuật y sinh (Điện tử y sinh) - K18 nhom A	K18	45	EEE2
+EEE2-K19A	Kỹ thuật y sinh (Điện tử y sinh) - K19 nhom A	K19	53	EEE2
+EEE2-K16B	Kỹ thuật y sinh (Điện tử y sinh) - K16 nhom B	K16	37	EEE2
+EEE2-K17B	Kỹ thuật y sinh (Điện tử y sinh) - K17 nhom B	K17	45	EEE2
+EEE2-K18B	Kỹ thuật y sinh (Điện tử y sinh) - K18 nhom B	K18	53	EEE2
+EEE2-K19B	Kỹ thuật y sinh (Điện tử y sinh) - K19 nhom B	K19	37	EEE2
+EEE2-K16C	Kỹ thuật y sinh (Điện tử y sinh) - K16 nhom C	K16	45	EEE2
+EEE2-K17C	Kỹ thuật y sinh (Điện tử y sinh) - K17 nhom C	K17	53	EEE2
+EEE3-K16A	Kỹ thuật điện tử - viễn thông (Nhúng & IoT) - K16 nhom A	K16	42	EEE3
+EEE3-K17A	Kỹ thuật điện tử - viễn thông (Nhúng & IoT) - K17 nhom A	K17	50	EEE3
+EEE3-K18A	Kỹ thuật điện tử - viễn thông (Nhúng & IoT) - K18 nhom A	K18	34	EEE3
+EEE3-K19A	Kỹ thuật điện tử - viễn thông (Nhúng & IoT) - K19 nhom A	K19	42	EEE3
+EEE3-K16B	Kỹ thuật điện tử - viễn thông (Nhúng & IoT) - K16 nhom B	K16	50	EEE3
+EEE3-K17B	Kỹ thuật điện tử - viễn thông (Nhúng & IoT) - K17 nhom B	K17	34	EEE3
+EEE3-K18B	Kỹ thuật điện tử - viễn thông (Nhúng & IoT) - K18 nhom B	K18	42	EEE3
+EEE3-K19B	Kỹ thuật điện tử - viễn thông (Nhúng & IoT) - K19 nhom B	K19	50	EEE3
+EEE3-K16C	Kỹ thuật điện tử - viễn thông (Nhúng & IoT) - K16 nhom C	K16	34	EEE3
+EEE3-K17C	Kỹ thuật điện tử - viễn thông (Nhúng & IoT) - K17 nhom C	K17	42	EEE3
+EEE4-K16A	Kỹ thuật điện tử - viễn thông (Vi mạch bán dẫn) - K16 nhom A	K16	55	EEE4
+EEE4-K17A	Kỹ thuật điện tử - viễn thông (Vi mạch bán dẫn) - K17 nhom A	K17	39	EEE4
+EEE4-K18A	Kỹ thuật điện tử - viễn thông (Vi mạch bán dẫn) - K18 nhom A	K18	47	EEE4
+EEE4-K19A	Kỹ thuật điện tử - viễn thông (Vi mạch bán dẫn) - K19 nhom A	K19	55	EEE4
+EEE4-K16B	Kỹ thuật điện tử - viễn thông (Vi mạch bán dẫn) - K16 nhom B	K16	39	EEE4
+EEE4-K17B	Kỹ thuật điện tử - viễn thông (Vi mạch bán dẫn) - K17 nhom B	K17	47	EEE4
+EEE4-K18B	Kỹ thuật điện tử - viễn thông (Vi mạch bán dẫn) - K18 nhom B	K18	55	EEE4
+EEE4-K19B	Kỹ thuật điện tử - viễn thông (Vi mạch bán dẫn) - K19 nhom B	K19	39	EEE4
+EEE4-K16C	Kỹ thuật điện tử - viễn thông (Vi mạch bán dẫn) - K16 nhom C	K16	47	EEE4
+EEE4-K17C	Kỹ thuật điện tử - viễn thông (Vi mạch bán dẫn) - K17 nhom C	K17	55	EEE4
+EEE-AI-K16A	Kỹ thuật Robot và Trí tuệ nhân tạo - K16 nhom A	K16	44	EEE-AI
+EEE-AI-K17A	Kỹ thuật Robot và Trí tuệ nhân tạo - K17 nhom A	K17	52	EEE-AI
+EEE-AI-K18A	Kỹ thuật Robot và Trí tuệ nhân tạo - K18 nhom A	K18	36	EEE-AI
+EEE-AI-K19A	Kỹ thuật Robot và Trí tuệ nhân tạo - K19 nhom A	K19	44	EEE-AI
+EEE-AI-K16B	Kỹ thuật Robot và Trí tuệ nhân tạo - K16 nhom B	K16	52	EEE-AI
+EEE-AI-K17B	Kỹ thuật Robot và Trí tuệ nhân tạo - K17 nhom B	K17	36	EEE-AI
+EEE-AI-K18B	Kỹ thuật Robot và Trí tuệ nhân tạo - K18 nhom B	K18	44	EEE-AI
+EEE-AI-K19B	Kỹ thuật Robot và Trí tuệ nhân tạo - K19 nhom B	K19	52	EEE-AI
+EEE-AI-K16C	Kỹ thuật Robot và Trí tuệ nhân tạo - K16 nhom C	K16	36	EEE-AI
+EEE-AI-K17C	Kỹ thuật Robot và Trí tuệ nhân tạo - K17 nhom C	K17	44	EEE-AI
+MEM1-K16A	Kỹ thuật cơ điện tử - K16 nhom A	K16	33	MEM1
+MEM1-K17A	Kỹ thuật cơ điện tử - K17 nhom A	K17	41	MEM1
+MEM1-K18A	Kỹ thuật cơ điện tử - K18 nhom A	K18	49	MEM1
+MEM1-K19A	Kỹ thuật cơ điện tử - K19 nhom A	K19	33	MEM1
+MEM1-K16B	Kỹ thuật cơ điện tử - K16 nhom B	K16	41	MEM1
+MEM1-K17B	Kỹ thuật cơ điện tử - K17 nhom B	K17	49	MEM1
+MEM1-K18B	Kỹ thuật cơ điện tử - K18 nhom B	K18	33	MEM1
+MEM1-K19B	Kỹ thuật cơ điện tử - K19 nhom B	K19	41	MEM1
+MEM1-K16C	Kỹ thuật cơ điện tử - K16 nhom C	K16	49	MEM1
+MEM1-K17C	Kỹ thuật cơ điện tử - K17 nhom C	K17	33	MEM1
+MEM2-K16A	Kỹ thuật cơ khí - K16 nhom A	K16	46	MEM2
+MEM2-K17A	Kỹ thuật cơ khí - K17 nhom A	K17	54	MEM2
+MEM2-K18A	Kỹ thuật cơ khí - K18 nhom A	K18	38	MEM2
+MEM2-K19A	Kỹ thuật cơ khí - K19 nhom A	K19	46	MEM2
+MEM2-K16B	Kỹ thuật cơ khí - K16 nhom B	K16	54	MEM2
+MEM2-K17B	Kỹ thuật cơ khí - K17 nhom B	K17	38	MEM2
+MEM2-K18B	Kỹ thuật cơ khí - K18 nhom B	K18	46	MEM2
+MEM2-K19B	Kỹ thuật cơ khí - K19 nhom B	K19	54	MEM2
+MEM2-K16C	Kỹ thuật cơ khí - K16 nhom C	K16	38	MEM2
+MEM2-K17C	Kỹ thuật cơ khí - K17 nhom C	K17	46	MEM2
+VEE1-K16A	Kỹ thuật ô tô - K16 nhom A	K16	35	VEE1
+VEE1-K17A	Kỹ thuật ô tô - K17 nhom A	K17	43	VEE1
+VEE1-K18A	Kỹ thuật ô tô - K18 nhom A	K18	51	VEE1
+VEE1-K19A	Kỹ thuật ô tô - K19 nhom A	K19	35	VEE1
+VEE1-K16B	Kỹ thuật ô tô - K16 nhom B	K16	43	VEE1
+VEE1-K17B	Kỹ thuật ô tô - K17 nhom B	K17	51	VEE1
+VEE1-K18B	Kỹ thuật ô tô - K18 nhom B	K18	35	VEE1
+VEE1-K19B	Kỹ thuật ô tô - K19 nhom B	K19	43	VEE1
+VEE1-K16C	Kỹ thuật ô tô - K16 nhom C	K16	51	VEE1
+VEE1-K17C	Kỹ thuật ô tô - K17 nhom C	K17	35	VEE1
+VEE2-K16A	Cơ điện tử ô tô - K16 nhom A	K16	48	VEE2
+VEE2-K17A	Cơ điện tử ô tô - K17 nhom A	K17	32	VEE2
+VEE2-K18A	Cơ điện tử ô tô - K18 nhom A	K18	40	VEE2
+VEE2-K19A	Cơ điện tử ô tô - K19 nhom A	K19	48	VEE2
+VEE2-K16B	Cơ điện tử ô tô - K16 nhom B	K16	32	VEE2
+VEE2-K17B	Cơ điện tử ô tô - K17 nhom B	K17	40	VEE2
+VEE2-K18B	Cơ điện tử ô tô - K18 nhom B	K18	48	VEE2
+VEE2-K19B	Cơ điện tử ô tô - K19 nhom B	K19	32	VEE2
+VEE2-K16C	Cơ điện tử ô tô - K16 nhom C	K16	40	VEE2
+VEE2-K17C	Cơ điện tử ô tô - K17 nhom C	K17	48	VEE2
+VEE3-K16A	Kỹ thuật phần mềm ô tô - K16 nhom A	K16	37	VEE3
+VEE3-K17A	Kỹ thuật phần mềm ô tô - K17 nhom A	K17	45	VEE3
+VEE3-K18A	Kỹ thuật phần mềm ô tô - K18 nhom A	K18	53	VEE3
+VEE3-K19A	Kỹ thuật phần mềm ô tô - K19 nhom A	K19	37	VEE3
+VEE3-K16B	Kỹ thuật phần mềm ô tô - K16 nhom B	K16	45	VEE3
+VEE3-K17B	Kỹ thuật phần mềm ô tô - K17 nhom B	K17	53	VEE3
+VEE3-K18B	Kỹ thuật phần mềm ô tô - K18 nhom B	K18	37	VEE3
+VEE3-K19B	Kỹ thuật phần mềm ô tô - K19 nhom B	K19	45	VEE3
+VEE3-K16C	Kỹ thuật phần mềm ô tô - K16 nhom C	K16	53	VEE3
+VEE3-K17C	Kỹ thuật phần mềm ô tô - K17 nhom C	K17	37	VEE3
+MSE1-K16A	Vật liệu tiên tiến và công nghệ nano - K16 nhom A	K16	50	MSE1
+MSE1-K17A	Vật liệu tiên tiến và công nghệ nano - K17 nhom A	K17	34	MSE1
+MSE1-K18A	Vật liệu tiên tiến và công nghệ nano - K18 nhom A	K18	42	MSE1
+MSE1-K19A	Vật liệu tiên tiến và công nghệ nano - K19 nhom A	K19	50	MSE1
+MSE1-K16B	Vật liệu tiên tiến và công nghệ nano - K16 nhom B	K16	34	MSE1
+MSE1-K17B	Vật liệu tiên tiến và công nghệ nano - K17 nhom B	K17	42	MSE1
+MSE1-K18B	Vật liệu tiên tiến và công nghệ nano - K18 nhom B	K18	50	MSE1
+MSE1-K19B	Vật liệu tiên tiến và công nghệ nano - K19 nhom B	K19	34	MSE1
+MSE1-K16C	Vật liệu tiên tiến và công nghệ nano - K16 nhom C	K16	42	MSE1
+MSE1-K17C	Vật liệu tiên tiến và công nghệ nano - K17 nhom C	K17	50	MSE1
+MSE-AI-K16A	Vật liệu thông minh và trí tuệ nhân tạo - K16 nhom A	K16	39	MSE-AI
+MSE-AI-K17A	Vật liệu thông minh và trí tuệ nhân tạo - K17 nhom A	K17	47	MSE-AI
+MSE-AI-K18A	Vật liệu thông minh và trí tuệ nhân tạo - K18 nhom A	K18	55	MSE-AI
+MSE-AI-K19A	Vật liệu thông minh và trí tuệ nhân tạo - K19 nhom A	K19	39	MSE-AI
+MSE-AI-K16B	Vật liệu thông minh và trí tuệ nhân tạo - K16 nhom B	K16	47	MSE-AI
+MSE-AI-K17B	Vật liệu thông minh và trí tuệ nhân tạo - K17 nhom B	K17	55	MSE-AI
+MSE-AI-K18B	Vật liệu thông minh và trí tuệ nhân tạo - K18 nhom B	K18	39	MSE-AI
+MSE-AI-K19B	Vật liệu thông minh và trí tuệ nhân tạo - K19 nhom B	K19	47	MSE-AI
+MSE-AI-K16C	Vật liệu thông minh và trí tuệ nhân tạo - K16 nhom C	K16	55	MSE-AI
+MSE-AI-K17C	Vật liệu thông minh và trí tuệ nhân tạo - K17 nhom C	K17	39	MSE-AI
+MSE-IC-K16A	Chip bán dẫn và công nghệ đóng gói - K16 nhom A	K16	52	MSE-IC
+MSE-IC-K17A	Chip bán dẫn và công nghệ đóng gói - K17 nhom A	K17	36	MSE-IC
+MSE-IC-K18A	Chip bán dẫn và công nghệ đóng gói - K18 nhom A	K18	44	MSE-IC
+MSE-IC-K19A	Chip bán dẫn và công nghệ đóng gói - K19 nhom A	K19	52	MSE-IC
+MSE-IC-K16B	Chip bán dẫn và công nghệ đóng gói - K16 nhom B	K16	36	MSE-IC
+MSE-IC-K17B	Chip bán dẫn và công nghệ đóng gói - K17 nhom B	K17	44	MSE-IC
+MSE-IC-K18B	Chip bán dẫn và công nghệ đóng gói - K18 nhom B	K18	52	MSE-IC
+MSE-IC-K19B	Chip bán dẫn và công nghệ đóng gói - K19 nhom B	K19	36	MSE-IC
+MSE-IC-K16C	Chip bán dẫn và công nghệ đóng gói - K16 nhom C	K16	44	MSE-IC
+MSE-IC-K17C	Chip bán dẫn và công nghệ đóng gói - K17 nhom C	K17	52	MSE-IC
+BIO1-K16A	Công nghệ sinh học - K16 nhom A	K16	41	BIO1
+BIO1-K17A	Công nghệ sinh học - K17 nhom A	K17	49	BIO1
+BIO1-K18A	Công nghệ sinh học - K18 nhom A	K18	33	BIO1
+BIO1-K19A	Công nghệ sinh học - K19 nhom A	K19	41	BIO1
+BIO1-K16B	Công nghệ sinh học - K16 nhom B	K16	49	BIO1
+BIO1-K17B	Công nghệ sinh học - K17 nhom B	K17	33	BIO1
+BIO1-K18B	Công nghệ sinh học - K18 nhom B	K18	41	BIO1
+BIO1-K19B	Công nghệ sinh học - K19 nhom B	K19	49	BIO1
+BIO1-K16C	Công nghệ sinh học - K16 nhom C	K16	33	BIO1
+BIO1-K17C	Công nghệ sinh học - K17 nhom C	K17	41	BIO1
+CHE1-K16A	Kỹ thuật hóa học - K16 nhom A	K16	54	CHE1
+CHE1-K17A	Kỹ thuật hóa học - K17 nhom A	K17	38	CHE1
+CHE1-K18A	Kỹ thuật hóa học - K18 nhom A	K18	46	CHE1
+CHE1-K19A	Kỹ thuật hóa học - K19 nhom A	K19	54	CHE1
+CHE1-K16B	Kỹ thuật hóa học - K16 nhom B	K16	38	CHE1
+CHE1-K17B	Kỹ thuật hóa học - K17 nhom B	K17	46	CHE1
+CHE1-K18B	Kỹ thuật hóa học - K18 nhom B	K18	54	CHE1
+CHE1-K19B	Kỹ thuật hóa học - K19 nhom B	K19	38	CHE1
+CHE1-K16C	Kỹ thuật hóa học - K16 nhom C	K16	46	CHE1
+CHE1-K17C	Kỹ thuật hóa học - K17 nhom C	K17	54	CHE1
+FBE1-K16A	Quản trị kinh doanh - K16 nhom A	K16	43	FBE1
+FBE1-K17A	Quản trị kinh doanh - K17 nhom A	K17	51	FBE1
+FBE1-K18A	Quản trị kinh doanh - K18 nhom A	K18	35	FBE1
+FBE1-K19A	Quản trị kinh doanh - K19 nhom A	K19	43	FBE1
+FBE1-K16B	Quản trị kinh doanh - K16 nhom B	K16	51	FBE1
+FBE1-K17B	Quản trị kinh doanh - K17 nhom B	K17	35	FBE1
+FBE1-K18B	Quản trị kinh doanh - K18 nhom B	K18	43	FBE1
+FBE1-K19B	Quản trị kinh doanh - K19 nhom B	K19	51	FBE1
+FBE1-K16C	Quản trị kinh doanh - K16 nhom C	K16	35	FBE1
+FBE1-K17C	Quản trị kinh doanh - K17 nhom C	K17	43	FBE1
+FBE4-K16A	Quản trị nhân lực - K16 nhom A	K16	32	FBE4
+FBE4-K17A	Quản trị nhân lực - K17 nhom A	K17	40	FBE4
+FBE4-K18A	Quản trị nhân lực - K18 nhom A	K18	48	FBE4
+FBE4-K19A	Quản trị nhân lực - K19 nhom A	K19	32	FBE4
+FBE4-K16B	Quản trị nhân lực - K16 nhom B	K16	40	FBE4
+FBE4-K17B	Quản trị nhân lực - K17 nhom B	K17	48	FBE4
+FBE4-K18B	Quản trị nhân lực - K18 nhom B	K18	32	FBE4
+FBE4-K19B	Quản trị nhân lực - K19 nhom B	K19	40	FBE4
+FBE4-K16C	Quản trị nhân lực - K16 nhom C	K16	48	FBE4
+FBE4-K17C	Quản trị nhân lực - K17 nhom C	K17	32	FBE4
+FBE8-K16A	Marketing - K16 nhom A	K16	45	FBE8
+FBE8-K17A	Marketing - K17 nhom A	K17	53	FBE8
+FBE8-K18A	Marketing - K18 nhom A	K18	37	FBE8
+FBE8-K19A	Marketing - K19 nhom A	K19	45	FBE8
+FBE8-K16B	Marketing - K16 nhom B	K16	53	FBE8
+FBE8-K17B	Marketing - K17 nhom B	K17	37	FBE8
+FBE8-K18B	Marketing - K18 nhom B	K18	45	FBE8
+FBE8-K19B	Marketing - K19 nhom B	K19	53	FBE8
+FBE8-K16C	Marketing - K16 nhom C	K16	37	FBE8
+FBE8-K17C	Marketing - K17 nhom C	K17	45	FBE8
+FBE2-K16A	Kế toán - K16 nhom A	K16	34	FBE2
+FBE2-K17A	Kế toán - K17 nhom A	K17	42	FBE2
+FBE2-K18A	Kế toán - K18 nhom A	K18	50	FBE2
+FBE2-K19A	Kế toán - K19 nhom A	K19	34	FBE2
+FBE2-K16B	Kế toán - K16 nhom B	K16	42	FBE2
+FBE2-K17B	Kế toán - K17 nhom B	K17	50	FBE2
+FBE2-K18B	Kế toán - K18 nhom B	K18	34	FBE2
+FBE2-K19B	Kế toán - K19 nhom B	K19	42	FBE2
+FBE2-K16C	Kế toán - K16 nhom C	K16	50	FBE2
+FBE2-K17C	Kế toán - K17 nhom C	K17	34	FBE2
+FBE3-K16A	Tài chính - Ngân hàng - K16 nhom A	K16	47	FBE3
+FBE3-K17A	Tài chính - Ngân hàng - K17 nhom A	K17	55	FBE3
+FBE3-K18A	Tài chính - Ngân hàng - K18 nhom A	K18	39	FBE3
+FBE3-K19A	Tài chính - Ngân hàng - K19 nhom A	K19	47	FBE3
+FBE3-K16B	Tài chính - Ngân hàng - K16 nhom B	K16	55	FBE3
+FBE3-K17B	Tài chính - Ngân hàng - K17 nhom B	K17	39	FBE3
+FBE3-K18B	Tài chính - Ngân hàng - K18 nhom B	K18	47	FBE3
+FBE3-K19B	Tài chính - Ngân hàng - K19 nhom B	K19	55	FBE3
+FBE3-K16C	Tài chính - Ngân hàng - K16 nhom C	K16	39	FBE3
+FBE3-K17C	Tài chính - Ngân hàng - K17 nhom C	K17	47	FBE3
+FBE5-K16A	Kiểm toán - K16 nhom A	K16	36	FBE5
+FBE5-K17A	Kiểm toán - K17 nhom A	K17	44	FBE5
+FBE5-K18A	Kiểm toán - K18 nhom A	K18	52	FBE5
+FBE5-K19A	Kiểm toán - K19 nhom A	K19	36	FBE5
+FBE5-K16B	Kiểm toán - K16 nhom B	K16	44	FBE5
+FBE5-K17B	Kiểm toán - K17 nhom B	K17	52	FBE5
+FBE5-K18B	Kiểm toán - K18 nhom B	K18	36	FBE5
+FBE5-K19B	Kiểm toán - K19 nhom B	K19	44	FBE5
+FBE5-K16C	Kiểm toán - K16 nhom C	K16	52	FBE5
+FBE5-K17C	Kiểm toán - K17 nhom C	K17	36	FBE5
+FBE9-K16A	Công nghệ tài chính (Fintech) - K16 nhom A	K16	49	FBE9
+FBE9-K17A	Công nghệ tài chính (Fintech) - K17 nhom A	K17	33	FBE9
+FBE9-K18A	Công nghệ tài chính (Fintech) - K18 nhom A	K18	41	FBE9
+FBE9-K19A	Công nghệ tài chính (Fintech) - K19 nhom A	K19	49	FBE9
+FBE9-K16B	Công nghệ tài chính (Fintech) - K16 nhom B	K16	33	FBE9
+FBE9-K17B	Công nghệ tài chính (Fintech) - K17 nhom B	K17	41	FBE9
+FBE9-K18B	Công nghệ tài chính (Fintech) - K18 nhom B	K18	49	FBE9
+FBE9-K19B	Công nghệ tài chính (Fintech) - K19 nhom B	K19	33	FBE9
+FBE9-K16C	Công nghệ tài chính (Fintech) - K16 nhom C	K16	41	FBE9
+FBE9-K17C	Công nghệ tài chính (Fintech) - K17 nhom C	K17	49	FBE9
+FBE6-K16A	Kinh doanh quốc tế - K16 nhom A	K16	38	FBE6
+FBE6-K17A	Kinh doanh quốc tế - K17 nhom A	K17	46	FBE6
+FBE6-K18A	Kinh doanh quốc tế - K18 nhom A	K18	54	FBE6
+FBE6-K19A	Kinh doanh quốc tế - K19 nhom A	K19	38	FBE6
+FBE6-K16B	Kinh doanh quốc tế - K16 nhom B	K16	46	FBE6
+FBE6-K17B	Kinh doanh quốc tế - K17 nhom B	K17	54	FBE6
+FBE6-K18B	Kinh doanh quốc tế - K18 nhom B	K18	38	FBE6
+FBE6-K19B	Kinh doanh quốc tế - K19 nhom B	K19	46	FBE6
+FBE6-K16C	Kinh doanh quốc tế - K16 nhom C	K16	54	FBE6
+FBE6-K17C	Kinh doanh quốc tế - K17 nhom C	K17	38	FBE6
+FBE7-K16A	Logistics và Quản lý chuỗi cung ứng - K16 nhom A	K16	51	FBE7
+FBE7-K17A	Logistics và Quản lý chuỗi cung ứng - K17 nhom A	K17	35	FBE7
+FBE7-K18A	Logistics và Quản lý chuỗi cung ứng - K18 nhom A	K18	43	FBE7
+FBE7-K19A	Logistics và Quản lý chuỗi cung ứng - K19 nhom A	K19	51	FBE7
+FBE7-K16B	Logistics và Quản lý chuỗi cung ứng - K16 nhom B	K16	35	FBE7
+FBE7-K17B	Logistics và Quản lý chuỗi cung ứng - K17 nhom B	K17	43	FBE7
+FBE7-K18B	Logistics và Quản lý chuỗi cung ứng - K18 nhom B	K18	51	FBE7
+FBE7-K19B	Logistics và Quản lý chuỗi cung ứng - K19 nhom B	K19	35	FBE7
+FBE7-K16C	Logistics và Quản lý chuỗi cung ứng - K16 nhom C	K16	43	FBE7
+FBE7-K17C	Logistics và Quản lý chuỗi cung ứng - K17 nhom C	K17	51	FBE7
+FTS1-K16A	Du lịch (Quản trị du lịch) - K16 nhom A	K16	40	FTS1
+FTS1-K17A	Du lịch (Quản trị du lịch) - K17 nhom A	K17	48	FTS1
+FTS1-K18A	Du lịch (Quản trị du lịch) - K18 nhom A	K18	32	FTS1
+FTS1-K19A	Du lịch (Quản trị du lịch) - K19 nhom A	K19	40	FTS1
+FTS1-K16B	Du lịch (Quản trị du lịch) - K16 nhom B	K16	48	FTS1
+FTS1-K17B	Du lịch (Quản trị du lịch) - K17 nhom B	K17	32	FTS1
+FTS1-K18B	Du lịch (Quản trị du lịch) - K18 nhom B	K18	40	FTS1
+FTS1-K19B	Du lịch (Quản trị du lịch) - K19 nhom B	K19	48	FTS1
+FTS1-K16C	Du lịch (Quản trị du lịch) - K16 nhom C	K16	32	FTS1
+FTS1-K17C	Du lịch (Quản trị du lịch) - K17 nhom C	K17	40	FTS1
+FTS2-K16A	Quản trị khách sạn - K16 nhom A	K16	53	FTS2
+FTS2-K17A	Quản trị khách sạn - K17 nhom A	K17	37	FTS2
+FTS2-K18A	Quản trị khách sạn - K18 nhom A	K18	45	FTS2
+FTS2-K19A	Quản trị khách sạn - K19 nhom A	K19	53	FTS2
+FTS2-K16B	Quản trị khách sạn - K16 nhom B	K16	37	FTS2
+FTS2-K17B	Quản trị khách sạn - K17 nhom B	K17	45	FTS2
+FTS2-K18B	Quản trị khách sạn - K18 nhom B	K18	53	FTS2
+FTS2-K19B	Quản trị khách sạn - K19 nhom B	K19	37	FTS2
+FTS2-K16C	Quản trị khách sạn - K16 nhom C	K16	45	FTS2
+FTS2-K17C	Quản trị khách sạn - K17 nhom C	K17	53	FTS2
+FTS3-K16A	Kinh doanh du lịch số - K16 nhom A	K16	42	FTS3
+FTS3-K17A	Kinh doanh du lịch số - K17 nhom A	K17	50	FTS3
+FTS3-K18A	Kinh doanh du lịch số - K18 nhom A	K18	34	FTS3
+FTS3-K19A	Kinh doanh du lịch số - K19 nhom A	K19	42	FTS3
+FTS3-K16B	Kinh doanh du lịch số - K16 nhom B	K16	50	FTS3
+FTS3-K17B	Kinh doanh du lịch số - K17 nhom B	K17	34	FTS3
+FTS3-K18B	Kinh doanh du lịch số - K18 nhom B	K18	42	FTS3
+FTS3-K19B	Kinh doanh du lịch số - K19 nhom B	K19	50	FTS3
+FTS3-K16C	Kinh doanh du lịch số - K16 nhom C	K16	34	FTS3
+FTS3-K17C	Kinh doanh du lịch số - K17 nhom C	K17	42	FTS3
+FTS4-K16A	Hướng dẫn du lịch quốc tế - K16 nhom A	K16	55	FTS4
+FTS4-K17A	Hướng dẫn du lịch quốc tế - K17 nhom A	K17	39	FTS4
+FTS4-K18A	Hướng dẫn du lịch quốc tế - K18 nhom A	K18	47	FTS4
+FTS4-K19A	Hướng dẫn du lịch quốc tế - K19 nhom A	K19	55	FTS4
+FTS4-K16B	Hướng dẫn du lịch quốc tế - K16 nhom B	K16	39	FTS4
+FTS4-K17B	Hướng dẫn du lịch quốc tế - K17 nhom B	K17	47	FTS4
+FTS4-K18B	Hướng dẫn du lịch quốc tế - K18 nhom B	K18	55	FTS4
+FTS4-K19B	Hướng dẫn du lịch quốc tế - K19 nhom B	K19	39	FTS4
+FTS4-K16C	Hướng dẫn du lịch quốc tế - K16 nhom C	K16	47	FTS4
+FTS4-K17C	Hướng dẫn du lịch quốc tế - K17 nhom C	K17	55	FTS4
+FLE1-K16A	Ngôn ngữ Anh - K16 nhom A	K16	44	FLE1
+FLE1-K17A	Ngôn ngữ Anh - K17 nhom A	K17	52	FLE1
+FLE1-K18A	Ngôn ngữ Anh - K18 nhom A	K18	36	FLE1
+FLE1-K19A	Ngôn ngữ Anh - K19 nhom A	K19	44	FLE1
+FLE1-K16B	Ngôn ngữ Anh - K16 nhom B	K16	52	FLE1
+FLE1-K17B	Ngôn ngữ Anh - K17 nhom B	K17	36	FLE1
+FLE1-K18B	Ngôn ngữ Anh - K18 nhom B	K18	44	FLE1
+FLE1-K19B	Ngôn ngữ Anh - K19 nhom B	K19	52	FLE1
+FLE1-K16C	Ngôn ngữ Anh - K16 nhom C	K16	36	FLE1
+FLE1-K17C	Ngôn ngữ Anh - K17 nhom C	K17	44	FLE1
+FLK1-K16A	Ngôn ngữ Hàn Quốc - K16 nhom A	K16	33	FLK1
+FLK1-K17A	Ngôn ngữ Hàn Quốc - K17 nhom A	K17	41	FLK1
+FLK1-K18A	Ngôn ngữ Hàn Quốc - K18 nhom A	K18	49	FLK1
+FLK1-K19A	Ngôn ngữ Hàn Quốc - K19 nhom A	K19	33	FLK1
+FLK1-K16B	Ngôn ngữ Hàn Quốc - K16 nhom B	K16	41	FLK1
+FLK1-K17B	Ngôn ngữ Hàn Quốc - K17 nhom B	K17	49	FLK1
+FLK1-K18B	Ngôn ngữ Hàn Quốc - K18 nhom B	K18	33	FLK1
+FLK1-K19B	Ngôn ngữ Hàn Quốc - K19 nhom B	K19	41	FLK1
+FLK1-K16C	Ngôn ngữ Hàn Quốc - K16 nhom C	K16	49	FLK1
+FLK1-K17C	Ngôn ngữ Hàn Quốc - K17 nhom C	K17	33	FLK1
+FLC1-K16A	Ngôn ngữ Trung Quốc - K16 nhom A	K16	46	FLC1
+FLC1-K17A	Ngôn ngữ Trung Quốc - K17 nhom A	K17	54	FLC1
+FLC1-K18A	Ngôn ngữ Trung Quốc - K18 nhom A	K18	38	FLC1
+FLC1-K19A	Ngôn ngữ Trung Quốc - K19 nhom A	K19	46	FLC1
+FLC1-K16B	Ngôn ngữ Trung Quốc - K16 nhom B	K16	54	FLC1
+FLC1-K17B	Ngôn ngữ Trung Quốc - K17 nhom B	K17	38	FLC1
+FLC1-K18B	Ngôn ngữ Trung Quốc - K18 nhom B	K18	46	FLC1
+FLC1-K19B	Ngôn ngữ Trung Quốc - K19 nhom B	K19	54	FLC1
+FLC1-K16C	Ngôn ngữ Trung Quốc - K16 nhom C	K16	38	FLC1
+FLC1-K17C	Ngôn ngữ Trung Quốc - K17 nhom C	K17	46	FLC1
+FLJ1-K16A	Ngôn ngữ Nhật Bản - K16 nhom A	K16	35	FLJ1
+FLJ1-K17A	Ngôn ngữ Nhật Bản - K17 nhom A	K17	43	FLJ1
+FLJ1-K18A	Ngôn ngữ Nhật Bản - K18 nhom A	K18	51	FLJ1
+FLJ1-K19A	Ngôn ngữ Nhật Bản - K19 nhom A	K19	35	FLJ1
+FLJ1-K16B	Ngôn ngữ Nhật Bản - K16 nhom B	K16	43	FLJ1
+FLJ1-K17B	Ngôn ngữ Nhật Bản - K17 nhom B	K17	51	FLJ1
+FLJ1-K18B	Ngôn ngữ Nhật Bản - K18 nhom B	K18	35	FLJ1
+FLJ1-K19B	Ngôn ngữ Nhật Bản - K19 nhom B	K19	43	FLJ1
+FLJ1-K16C	Ngôn ngữ Nhật Bản - K16 nhom C	K16	51	FLJ1
+FLJ1-K17C	Ngôn ngữ Nhật Bản - K17 nhom C	K17	35	FLJ1
+FLF1-K16A	Ngôn ngữ Pháp - K16 nhom A	K16	48	FLF1
+FLF1-K17A	Ngôn ngữ Pháp - K17 nhom A	K17	32	FLF1
+FLF1-K18A	Ngôn ngữ Pháp - K18 nhom A	K18	40	FLF1
+FLF1-K19A	Ngôn ngữ Pháp - K19 nhom A	K19	48	FLF1
+FLF1-K16B	Ngôn ngữ Pháp - K16 nhom B	K16	32	FLF1
+FLF1-K17B	Ngôn ngữ Pháp - K17 nhom B	K17	40	FLF1
+FLF1-K18B	Ngôn ngữ Pháp - K18 nhom B	K18	48	FLF1
+FLF1-K19B	Ngôn ngữ Pháp - K19 nhom B	K19	32	FLF1
+FLF1-K16C	Ngôn ngữ Pháp - K16 nhom C	K16	40	FLF1
+FLF1-K17C	Ngôn ngữ Pháp - K17 nhom C	K17	48	FLF1
+FOS1-K16A	Đông phương học - K16 nhom A	K16	37	FOS1
+FOS1-K17A	Đông phương học - K17 nhom A	K17	45	FOS1
+FOS1-K18A	Đông phương học - K18 nhom A	K18	53	FOS1
+FOS1-K19A	Đông phương học - K19 nhom A	K19	37	FOS1
+FOS1-K16B	Đông phương học - K16 nhom B	K16	45	FOS1
+FOS1-K17B	Đông phương học - K17 nhom B	K17	53	FOS1
+FOS1-K18B	Đông phương học - K18 nhom B	K18	37	FOS1
+FOS1-K19B	Đông phương học - K19 nhom B	K19	45	FOS1
+FOS1-K16C	Đông phương học - K16 nhom C	K16	53	FOS1
+FOS1-K17C	Đông phương học - K17 nhom C	K17	37	FOS1
+FOL1-K16A	Luật kinh tế - K16 nhom A	K16	50	FOL1
+FOL1-K17A	Luật kinh tế - K17 nhom A	K17	34	FOL1
+FOL1-K18A	Luật kinh tế - K18 nhom A	K18	42	FOL1
+FOL1-K19A	Luật kinh tế - K19 nhom A	K19	50	FOL1
+FOL1-K16B	Luật kinh tế - K16 nhom B	K16	34	FOL1
+FOL1-K17B	Luật kinh tế - K17 nhom B	K17	42	FOL1
+FOL1-K18B	Luật kinh tế - K18 nhom B	K18	50	FOL1
+FOL1-K19B	Luật kinh tế - K19 nhom B	K19	34	FOL1
+FOL1-K16C	Luật kinh tế - K16 nhom C	K16	42	FOL1
+FOL1-K17C	Luật kinh tế - K17 nhom C	K17	50	FOL1

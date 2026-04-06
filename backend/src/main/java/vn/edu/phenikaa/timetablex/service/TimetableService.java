@@ -10,20 +10,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.phenikaa.timetablex.algorithm.GeneticTimetableScheduler;
 import vn.edu.phenikaa.timetablex.algorithm.SimulatedAnnealingTimetableScheduler;
+import vn.edu.phenikaa.timetablex.algorithm.TimetableRegulationConfig;
+import vn.edu.phenikaa.timetablex.algorithm.TimetableRegulationHelper;
 import vn.edu.phenikaa.timetablex.entity.*;
 import vn.edu.phenikaa.timetablex.repository.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class TimetableService {
 
-        private static final Set<String> VALID_TH_ROOM_TYPES =
-                Set.of("PM", "TN", "SB", "XT", "BV", "DN", "ONLINE");
         private static final Map<Integer, String> DAY_NAMES = Map.of(
                 2, "Thứ 2", 3, "Thứ 3", 4, "Thứ 4", 5, "Thứ 5", 6, "Thứ 6", 7, "Thứ 7");
         private static final Map<String, String> LEARNING_METHOD_NAMES = Map.of(
@@ -47,10 +48,25 @@ public class TimetableService {
 
         @Value("${timetable.evening-shift.start-period-from:13}")
         private int eveningShiftStartPeriodFrom;
+        /** Nhận diện ca tối thêm theo tên ca (vd. Ca 5) — danh sách cách nhau bởi dấu phẩy. */
+        @Value("${timetable.evening-shift.name-markers:Ca 5}")
+        private String eveningShiftNameMarkers;
         @Value("${timetable.ga.max-runtime-ms:240000}")
         private long gaMaxRuntimeMs;
         @Value("${timetable.ga.max-generations:500}")
         private int gaMaxGenerations;
+
+        /** Quy chế: tối đa giờ định mức/tuần và/ngày (50 phút = 1 giờ định mức) */
+        @Value("${timetable.regulation.max-weekly-hours:15}")
+        private double regulationMaxWeeklyHours;
+        @Value("${timetable.regulation.max-daily-hours:4}")
+        private double regulationMaxDailyHours;
+        @Value("${timetable.regulation.teaching-window-start:06:00}")
+        private String regulationTeachingWindowStart;
+        @Value("${timetable.regulation.teaching-window-end:20:00}")
+        private String regulationTeachingWindowEnd;
+        @Value("${timetable.regulation.enforce-student-workload:true}")
+        private boolean regulationEnforceStudentWorkload;
 
         /**
          * Thuật toán xếp TKB tự động cho một học kỳ.
@@ -77,6 +93,16 @@ public class TimetableService {
                 List<TimeSlot> timeSlots = timeSlotRepo.findAll().stream()
                                 .sorted(Comparator.comparing(TimeSlot::getPeriodIndex))
                                 .collect(Collectors.toList());
+
+                int semesterWeeks = TimetableRegulationHelper.semesterWeeksFromDates(
+                                semester.getStartDate(), semester.getEndDate());
+                TimetableRegulationConfig regulationConfig = new TimetableRegulationConfig(
+                                semesterWeeks,
+                                regulationMaxWeeklyHours,
+                                regulationMaxDailyHours,
+                                LocalTime.parse(regulationTeachingWindowStart),
+                                LocalTime.parse(regulationTeachingWindowEnd),
+                                regulationEnforceStudentWorkload);
 
                 if (sections.isEmpty()) {
                         throw new IllegalStateException(
@@ -111,7 +137,8 @@ public class TimetableService {
                                 continue;
                         String name = s.getLecturer().getName();
                         Long lid = s.getLecturer().getId();
-                        int sessionsNeeded = GeneticTimetableScheduler.calcSessionsPerWeek(s);
+                        int sessionsNeeded = GeneticTimetableScheduler.calcSessionsPerWeek(s, semesterWeeks, timeSlots,
+                                        shifts);
                         int available = lecturerAvailableById.getOrDefault(lid, totalShiftSlotsPerWeek);
                         lecturerLoad.computeIfAbsent(name, k -> new int[] { 0, available })[0] += sessionsNeeded;
                         if (s.getSectionType() == ClassSection.SectionType.TH)
@@ -161,17 +188,21 @@ public class TimetableService {
                 Set<String> blockedRoomShifts = new HashSet<>();
                 Set<String> blockedLecturerShifts = new HashSet<>();
 
+                List<String> eveningMarkers = TimetableRegulationHelper
+                                .parseCommaSeparatedMarkers(eveningShiftNameMarkers);
+
                 GeneticTimetableScheduler.GeneticResult result;
                 if ("GA".equals(algo)) {
                         GeneticTimetableScheduler gaScheduler = new GeneticTimetableScheduler(
                                         sections, rooms, shifts, timeSlots, blockedRoomShifts, blockedLecturerShifts,
-                                        eveningShiftStartPeriodFrom, gaMaxRuntimeMs, gaMaxGenerations);
+                                        eveningShiftStartPeriodFrom, eveningMarkers, gaMaxRuntimeMs, gaMaxGenerations,
+                                        regulationConfig);
                         gaScheduler.setProgressCallback((generation, maxGenerations, bestFitness, conflicts) -> {});
                         result = gaScheduler.run();
                 } else {
                         SimulatedAnnealingTimetableScheduler saScheduler = new SimulatedAnnealingTimetableScheduler(
                                         sections, rooms, shifts, timeSlots, blockedRoomShifts, blockedLecturerShifts,
-                                        eveningShiftStartPeriodFrom);
+                                        eveningShiftStartPeriodFrom, eveningMarkers, regulationConfig);
                         saScheduler.setProgressCallback((generation, maxGenerations, bestFitness, conflicts) -> {});
                         result = saScheduler.run();
                 }
@@ -351,21 +382,11 @@ public class TimetableService {
         private Object[] findAlternativeSlot(ClassSection section, List<Room> rooms, List<Shift> shifts,
                         Set<String> usedRoomShifts, Set<String> usedLecturerShifts, Set<String> sectionUsedDayShifts) {
                 Course course = section.getCourseOffering().getCourse();
-                List<Room> suitableRooms;
-                if (section.getSectionType() == ClassSection.SectionType.TH) {
-                        String preferred = (course.getRequiredRoomType() != null && VALID_TH_ROOM_TYPES.contains(course.getRequiredRoomType()))
-                                        ? course.getRequiredRoomType() : "PM";
-                        // CHỈ dùng đúng loại: PM=phòng máy (lập trình), TN=thí nghiệm Hóa/Lý — không trộn
-                        suitableRooms = rooms.stream().filter(r -> preferred.equals(r.getType())).collect(Collectors.toList());
-                } else {
-                        boolean isOnlineOnly = course.getLearningMethod() == Course.LearningMethod.ONLINE_ELEARNING;
-                        String requiredRoomType = (isOnlineOnly && "ONLINE".equals(course.getRequiredRoomType())) ? "ONLINE" : "LT";
-                        suitableRooms = rooms.stream().filter(r -> requiredRoomType.equals(r.getType())).collect(Collectors.toList());
-                        if (suitableRooms.isEmpty())
-                                suitableRooms = new ArrayList<>(rooms);
-                }
+                String requiredRt = TimetableRegulationHelper.determineRequiredRoomType(section, course);
+                List<Room> suitableRooms = rooms.stream()
+                                .filter(r -> requiredRt.equalsIgnoreCase(r.getType()))
+                                .collect(Collectors.toList());
 
-                // Ca tối chỉ cho ONLINE_ELEARNING và ONLINE_COURSERA
                 boolean eveningAllowed = isEveningAllowedForCourse(course);
                 List<Shift> allowedShifts = shifts.stream()
                                 .filter(s -> !isEveningShift(s) || eveningAllowed)
@@ -388,7 +409,11 @@ public class TimetableService {
                                 String lk = lecturerId != null ? lecturerId + "-" + day + "-" + shift.getId() : null;
                                 if (lk != null && usedLecturerShifts.contains(lk))
                                         continue;
-                                for (Room room : suitableRooms) {
+                                List<Room> forShift = (isEveningShift(shift) && eveningAllowed)
+                                                ? rooms.stream().filter(r -> "ONLINE".equalsIgnoreCase(r.getType()))
+                                                                .collect(Collectors.toList())
+                                                : suitableRooms;
+                                for (Room room : forShift) {
                                         String rk = room.getId() + "-" + day + "-" + shift.getId();
                                         if (usedRoomShifts.contains(rk))
                                                 continue;
@@ -435,6 +460,21 @@ public class TimetableService {
 
                 Long semesterId = entry.getSemester().getId();
                 Long currentEntryId = entry.getId();
+
+                ClassSection secForRule = entry.getClassSection();
+                Course courseForRule = secForRule.getCourseOffering() != null ? secForRule.getCourseOffering().getCourse()
+                                : null;
+                if (isEveningShift(shift)) {
+                        if (courseForRule != null
+                                        && !TimetableRegulationHelper.isEveningAllowedForCourse(courseForRule)) {
+                                throw new IllegalStateException(
+                                                "Ca tối chỉ dành cho học phần E-learning 100% online hoặc Coursera hybrid. Không xếp học trực tiếp vào ca này.");
+                        }
+                        if (!"ONLINE".equalsIgnoreCase(room.getType())) {
+                                throw new IllegalStateException(
+                                                "Ca tối chỉ được dùng phòng loại ONLINE (học trực tuyến), không dùng phòng tại trường.");
+                        }
+                }
 
                 if (timetableRepo.existsByRoomAndShiftAndDay(roomId, dayOfWeek, shiftId, semesterId, currentEntryId)) {
                         throw new IllegalStateException(
@@ -492,10 +532,11 @@ public class TimetableService {
 
                 ClassSection section = entry.getClassSection();
                 Course course = section.getCourseOffering().getCourse();
-                String requiredRoomType = determineRequiredRoomType(section, course);
+                String requiredRoomType = TimetableRegulationHelper.determineRequiredRoomType(section, course);
 
-                List<Room> suitableRooms = roomRepo.findAll().stream()
-                                .filter(r -> requiredRoomType.equals(r.getType()))
+                List<Room> allRooms = roomRepo.findAll();
+                List<Room> suitableRooms = allRooms.stream()
+                                .filter(r -> requiredRoomType.equalsIgnoreCase(r.getType()))
                                 .collect(Collectors.toList());
 
                 boolean eveningAllowed = isEveningAllowedForCourse(course);
@@ -508,8 +549,12 @@ public class TimetableService {
                 Long lecturerId = section.getLecturer() != null ? section.getLecturer().getId() : null;
 
                 List<Map<String, Object>> suggestions = new ArrayList<>();
-                for (Room room : suitableRooms) {
-                        for (Shift shift : allowedShifts) {
+                for (Shift shift : allowedShifts) {
+                        List<Room> roomCand = (isEveningShift(shift) && eveningAllowed)
+                                        ? allRooms.stream().filter(r -> "ONLINE".equalsIgnoreCase(r.getType()))
+                                                        .collect(Collectors.toList())
+                                        : suitableRooms;
+                        for (Room room : roomCand) {
                                 for (Integer day : days) {
                                         if (timetableRepo.existsByRoomAndShiftAndDay(
                                                         room.getId(), day, shift.getId(), semesterId, entryId))
@@ -907,23 +952,13 @@ public class TimetableService {
                                 || course.getLearningMethod() == Course.LearningMethod.ONLINE_COURSERA;
         }
 
-        /** Ca tối chỉ cho học phần ONLINE / E-learning / Coursera */
         private static boolean isEveningAllowedForCourse(Course course) {
-                return course.getLearningMethod() == Course.LearningMethod.ONLINE_ELEARNING
-                                || course.getLearningMethod() == Course.LearningMethod.ONLINE_COURSERA;
+                return TimetableRegulationHelper.isEveningAllowedForCourse(course);
         }
 
-        /** Ca tối: startPeriod >= cấu hình (mặc định 13). Chỉ ONLINE_ELEARNING, ONLINE_COURSERA được xếp ca tối. */
+        /** Ca tối: theo tiết (application.properties) và/hoặc tên ca chứa chuỗi cấu hình (vd. Ca 5). */
         private boolean isEveningShift(Shift shift) {
-                return shift.getStartPeriod() != null && shift.getStartPeriod() >= eveningShiftStartPeriodFrom;
-        }
-
-        private static String determineRequiredRoomType(ClassSection section, Course course) {
-                String rt = course.getRequiredRoomType();
-                if (section.getSectionType() == ClassSection.SectionType.TH) {
-                        return (rt != null && VALID_TH_ROOM_TYPES.contains(rt)) ? rt : "PM";
-                }
-                boolean isOnlineOnly = course.getLearningMethod() == Course.LearningMethod.ONLINE_ELEARNING;
-                return (isOnlineOnly && "ONLINE".equals(rt)) ? "ONLINE" : "LT";
+                return TimetableRegulationHelper.isEveningShift(shift, eveningShiftStartPeriodFrom,
+                                TimetableRegulationHelper.parseCommaSeparatedMarkers(eveningShiftNameMarkers));
         }
 }

@@ -31,14 +31,20 @@ public interface TimetableEntryRepository extends JpaRepository<TimetableEntry, 
   List<TimetableEntry> findBySemesterId(Long semesterId);
 
   /**
-   * Lấy TKB của một lớp học phần.
+   * Lấy TKB của một lớp học phần (đủ fetch để serialize JSON, tránh LazyInitializationException
+   * trên ClassSection.administrativeClasses và quan hệ offering/course).
    */
   @Query("""
-      SELECT t FROM TimetableEntry t
+      SELECT DISTINCT t FROM TimetableEntry t
+      JOIN FETCH t.classSection cs
+      JOIN FETCH cs.courseOffering o
+      JOIN FETCH o.course
+      LEFT JOIN FETCH cs.lecturer
+      LEFT JOIN FETCH cs.administrativeClasses
       JOIN FETCH t.room
       JOIN FETCH t.shift
       LEFT JOIN FETCH t.timeSlot
-      WHERE t.classSection.id = :sectionId
+      WHERE cs.id = :sectionId
       ORDER BY t.dayOfWeek, t.shift.startPeriod
       """)
   List<TimetableEntry> findByClassSectionId(Long sectionId);

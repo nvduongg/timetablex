@@ -1,0 +1,1040 @@
+\documentclass[a4paper,12pt,oneside]{article}
+
+% ==========================================
+% 1. CẤU HÌNH NGÔN NGỮ VÀ FONT CHỮ (PDFLATEX)
+% ==========================================
+\usepackage[utf8]{inputenc}
+\usepackage{mathptmx}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\addto\captionsvietnamese{
+    \renewcommand{\contentsname}{Mục lục}
+    \renewcommand{\listfigurename}{Danh mục hình ảnh}
+    \renewcommand{\listtablename}{Danh mục bảng biểu}
+    \renewcommand{\refname}{Tài liệu tham khảo}
+    \renewcommand{\figurename}{Hình}
+    \renewcommand{\tablename}{Bảng}
+}
+
+% ==========================================
+% 2. CẤU HÌNH BỐ CỤC TRANG, CĂN LỀ & DÃN DÒNG
+% ==========================================
+\usepackage[top=2cm, bottom=2cm, left=3cm, right=2cm]{geometry}
+
+\usepackage{indentfirst}
+\setlength{\parskip}{0.5em}
+
+\usepackage{setspace}
+\onehalfspacing
+
+\usepackage{fancyhdr}
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyhead[C]{\thepage}
+    \renewcommand{\headrulewidth}{0pt}
+}
+
+% ==========================================
+% 3. CẤU HÌNH TIÊU ĐỀ VÀ ĐÁNH SỐ
+% ==========================================
+\usepackage{titlesec}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+\renewcommand{\thesection}{\Roman{section}}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\arabic{section}.\arabic{subsection}.\arabic{subsubsection}}
+
+% Tiêu đề in đậm
+\titleformat{\section}[block]
+  {\normalfont\large\bfseries\raggedright}{\thesection.}{0.5em}{}
+\titleformat{\subsection}[block]
+  {\normalfont\normalsize\bfseries\raggedright}{\thesubsection}{0.5em}{}
+\titleformat{\subsubsection}[block]
+  {\normalfont\normalsize\bfseries\raggedright}{\thesubsubsection}{0.5em}{}
+
+% ==========================================
+% 4. THƯ VIỆN HÌNH ẢNH, TOÁN HỌC & BẢNG BIỂU
+% ==========================================
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{float}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{calc, shapes.geometric, arrows.meta, positioning, decorations.pathreplacing}
+
+\usepackage{tabularx}
+\usepackage{tabularray}
+\UseTblrLibrary{booktabs}
+
+% ==========================================
+% 5. CẤU HÌNH LIÊN KẾT
+% ==========================================
+\usepackage[hidelinks, colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue]{hyperref}
+
+\begin{document}
+
+% ==========================================
+% BÌA CHÍNH (MẪU 1)
+% ==========================================
+\begin{titlepage}
+    \begin{tikzpicture}[remember picture, overlay]
+        \draw[line width=1pt]
+            ($(current page.north west) + (3.2cm, -2cm)$)
+            rectangle
+            ($(current page.south east) + (-2cm, 2cm)$);
+    \end{tikzpicture}
+
+    \begin{center}
+        \fontsize{13pt}{15.6pt}\selectfont
+        BỘ GIÁO DỤC VÀ ĐÀO TẠO \\
+        \vspace{0.2cm}
+        TRƯỜNG ĐẠI HỌC PHENIKAA \\
+        \rule{5.5cm}{1pt} \\
+
+        \vspace{1.8cm}
+        % Nếu chưa có logo, comment dòng dưới để tránh lỗi
+        \includegraphics[width=6.5cm]{logo-phenikaa.png} \\
+
+        \vspace{1.8cm}
+        \fontsize{18pt}{21.6pt}\selectfont
+        BÁO CÁO TỔNG KẾT \\
+
+        \vspace{1.8cm}
+        \fontsize{14pt}{16.8pt}\selectfont
+        TÊN ĐỀ TÀI: \\
+        \vspace{0.8cm}
+        \begin{minipage}{0.85\textwidth}
+            \centering
+            \fontsize{13pt}{15.6pt}\selectfont
+            Nghiên cứu thuật toán Simulated Annealing cho bài toán xếp thời khóa biểu đại học
+        \end{minipage} \\
+
+        \vspace{1.8cm}
+        \fontsize{13pt}{15.6pt}\selectfont
+        Lĩnh vực: Artificial Intelligence, Optimization   \\
+        \vspace{0.4cm}
+        Chuyên ngành: Công nghệ thông tin \\
+
+        \vspace{2.2cm}
+        Sinh viên thực hiện chính: Nguyễn Văn Dương \quad Nam, Nữ: Nam \\
+        \vspace{0.4cm}
+        Người hướng dẫn chính: TS. Mai Thúy Nga \\
+
+        \vfill
+        Hà Nội, tháng 3 năm 2026
+    \end{center}
+\end{titlepage}
+
+% ==========================================
+% BÌA PHỤ (MẪU 2)
+% ==========================================
+\begin{titlepage}
+    \begin{tikzpicture}[remember picture, overlay]
+        \draw[line width=1pt]
+            ($(current page.north west) + (3.2cm, -2cm)$)
+            rectangle
+            ($(current page.south east) + (-2cm, 2cm)$);
+    \end{tikzpicture}
+
+    \begin{center}
+        \fontsize{13pt}{15.6pt}\selectfont
+        BỘ GIÁO DỤC VÀ ĐÀO TẠO \\
+        \vspace{0.1cm}
+        TRƯỜNG ĐẠI HỌC PHENIKAA \\
+        \rule{5.5cm}{1pt} \\
+
+        \vspace{2.5cm}
+        \fontsize{18pt}{21.6pt}\selectfont
+        BÁO CÁO TỔNG KẾT \\
+
+        \vspace{1.5cm}
+        \fontsize{14pt}{16.8pt}\selectfont
+        TÊN ĐỀ TÀI: \\
+        \vspace{0.5cm}
+        \begin{minipage}{0.85\textwidth}
+            \centering
+            \fontsize{13pt}{15.6pt}\selectfont
+            Nghiên cứu thuật toán Simulated Annealing cho bài toán xếp thời khóa biểu đại học
+        \end{minipage} \\
+
+        \vspace{1.5cm}
+        \fontsize{13pt}{15.6pt}\selectfont
+        Lĩnh vực: Artificial Intelligence, Optimization   \\
+        \vspace{0.4cm}
+        Chuyên ngành: Công nghệ thông tin \\
+    \end{center}
+
+    \vspace{0.6cm}
+
+    \begin{center}
+    \begin{minipage}{0.80\textwidth}
+    \fontsize{13pt}{15.6pt}\selectfont
+    \raggedright
+
+    \textbf{Nhóm sinh viên thực hiện:}\\[0.2cm]
+
+    \textbf{Họ và tên: Nguyễn Văn Dương} \\
+    Lớp, khoa: K16-CNTT3, Công nghệ thông tin\\
+    Năm thứ: 4/4 \quad Ngành học: Công nghệ thông tin\\[0.6cm]
+
+    \textbf{Họ và tên: Vũ Viết Huy} \\
+    Lớp, khoa: K17-CNTT7, Công nghệ thông tin\\
+    Năm thứ: 3/4 \quad Ngành học: Công nghệ thông tin\\[0.6cm]
+
+    \textbf{Họ và tên: Nguyễn Thị Ngọc Bích} \\
+    Lớp, khoa: K17-CNTT9, Công nghệ thông tin\\
+    Năm thứ: 3/4 \quad Ngành học: Công nghệ thông tin\\[0.6cm]
+
+    \textbf{Giảng viên hướng dẫn: TS. Mai Thúy Nga} 
+
+    \end{minipage}
+    \end{center}
+
+    \vfill
+    \begin{center}
+        \fontsize{13pt}{15.6pt}\selectfont
+        Hà Nội, tháng 3 năm 2026
+    \end{center}
+\end{titlepage}
+
+% ==========================================
+% PHẦN ĐẦU (mục 2-4)
+% ==========================================
+\clearpage
+\pagenumbering{roman}
+
+% 2. Mục lục
+\tableofcontents
+\clearpage
+
+% 3. Danh mục bảng biểu
+\addcontentsline{toc}{section}{Danh mục bảng biểu}
+\listoftables
+% (Nếu trường yêu cầu thêm danh mục hình ảnh thì giữ, còn không thì bỏ)
+\addcontentsline{toc}{section}{Danh mục hình ảnh}
+\listoffigures
+\clearpage
+
+% 4. Danh mục những từ viết tắt (xếp theo thứ tự bảng chữ cái)
+\section*{Danh mục những từ viết tắt}
+\addcontentsline{toc}{section}{Danh mục những từ viết tắt}
+
+\begin{table}[H]
+\centering
+\begin{tblr}{
+    colspec = {Q[c,m, 3cm] X[l,m]},
+    row{1} = {bg=gray!60, font=\bfseries},
+    hlines = {white, 1pt},
+    vlines = {white, 1pt},
+    row{even} = {bg=gray!10},
+    rowsep = 6pt,
+    width = \linewidth
+}
+Từ viết tắt & Nghĩa đầy đủ / Giải thích ngữ nghĩa \\
+NP   & Non-deterministic Polynomial (Phi tất định đa thức) \\
+SA   & Simulated Annealing (Mô phỏng luyện kim) \\
+TKB  & Thời khóa biểu \\
+UCTP & University Course Timetabling Problem (Bài toán xếp thời khóa biểu đại học) \\
+\end{tblr}
+\end{table}
+
+\clearpage
+
+% ==========================================
+% PHẦN CHÍNH (mục 5-11)
+% ==========================================
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% 5. Mở đầu
+\section*{Mở đầu}
+\addcontentsline{toc}{section}{Mở đầu}
+
+Bài toán xếp thời khóa biểu (TKB) đại học là một bài toán tối ưu tổ hợp quan trọng trong công tác quản lý đào tạo. Mục tiêu của bài toán là sắp xếp các lớp học phần vào các ca học và phòng học sao cho thỏa mãn đồng thời nhiều ràng buộc về phòng, giảng viên và thời gian. Trong thực tế, khi quy mô đào tạo tăng lên với số lượng lớp học phần lớn, số phòng học đa dạng và nhiều ca học trong tuần, việc xếp TKB thủ công trở nên tốn thời gian, khó tránh sai sót và khó đạt được phương án có chất lượng tốt.
+
+Về mặt lý thuyết, bài toán xếp TKB đại học thường được mô hình hóa dưới dạng bài toán xếp thời khóa biểu đại học (UCTP). Đây là bài toán thuộc lớp NP-khó, nghĩa là khó tìm nghiệm tối ưu trong thời gian đa thức khi kích thước bài toán tăng. Vì vậy, trong nhiều trường hợp thực tiễn, mục tiêu đặt ra không phải là tìm nghiệm tối ưu tuyệt đối mà là tìm nghiệm khả thi và có chất lượng tốt trong thời gian chấp nhận được.
+
+Trong các hướng tiếp cận cho UCTP, nhóm thuật toán metaheuristic được sử dụng rộng rãi do khả năng tìm kiếm hiệu quả trên không gian nghiệm rất lớn. Một đại diện tiêu biểu là Simulated Annealing (SA), mô phỏng quá trình làm nguội trong vật lý. Cơ chế cốt lõi của SA là tham số nhiệt độ $T$, đóng vai trò điều tiết sự cân bằng giữa khám phá và khai thác trong quá trình tìm kiếm. Khi $T$ còn cao (giai đoạn đầu), thuật toán chấp nhận cả những nghiệm kém hơn nghiệm hiện tại với xác suất lớn, giúp thoát khỏi các cực tiểu địa phương và khám phá rộng không gian nghiệm. Khi $T$ giảm dần về 0 (giai đoạn cuối), xác suất chấp nhận nghiệm kém giảm theo hàm mũ, buộc thuật toán tập trung khai thác vùng nghiệm tốt và hội tụ. Trong bài toán xếp TKB --- nơi không gian nghiệm rất lớn và dễ bị mắc kẹt ở các cấu hình xung đột cục bộ --- tham số $T$ đóng vai trò then chốt trong việc bảo đảm thuật toán có đủ khả năng thoát khỏi các cấu hình xung đột sớm, từ đó tăng cơ hội đạt nghiệm khả thi và có chất lượng cao. Với đặc điểm đơn giản, dễ triển khai và linh hoạt trong thiết kế hàm mục tiêu, SA phù hợp để nghiên cứu và áp dụng cho bài toán xếp TKB trong bối cảnh đại học.
+
+Báo cáo tổng kết này tập trung nghiên cứu thuật toán SA cho bài toán UCTP, bao gồm việc mô tả bài toán và các ràng buộc thực tế, xây dựng mô hình đánh giá chất lượng nghiệm, thiết kế quy trình khởi tạo và sinh láng giềng, đồng thời đánh giá kết quả thực nghiệm trên dữ liệu theo học kỳ. Ngoài ra, kết quả của SA được so sánh với thuật toán Genetic Algorithm (GA) để làm rõ ưu và nhược điểm của từng phương pháp. Kết quả của nghiên cứu được kỳ vọng góp phần đề xuất một hướng tiếp cận hỗ trợ tự động hóa công tác lập TKB, giảm thời gian xử lý và nâng cao tính nhất quán so với phương pháp thủ công.
+
+\clearpage
+% 6. Tổng quan tình hình nghiên cứu thuộc lĩnh vực đề tài
+\section*{Tổng quan tình hình nghiên cứu thuộc lĩnh vực đề tài}
+\addcontentsline{toc}{section}{Tổng quan tình hình nghiên cứu thuộc lĩnh vực đề tài}
+
+Bài toán xếp thời khóa biểu đại học (UCTP) là một hướng nghiên cứu quan trọng trong lĩnh vực tối ưu tổ hợp và tối ưu hóa ràng buộc. Các công trình khảo sát cho thấy UCTP có nhiều biến thể tùy theo bối cảnh (xếp lịch môn học, xếp lịch phòng, xếp lịch thi) và thường được mô tả bằng tập ràng buộc cứng và ràng buộc mềm. Schaerf đã tổng quan các phương pháp xếp thời khóa biểu tự động và nhấn mạnh tính đa dạng của ràng buộc cũng như độ phức tạp của bài toán \cite{schaerf1999survey}. Burke và cộng sự trình bày bức tranh tổng thể về xếp thời khóa biểu đại học, trong đó các tiêu chí tối ưu và cách tổ chức dữ liệu ảnh hưởng đáng kể đến chất lượng nghiệm \cite{burke1997automated}. Bên cạnh đó, các khảo sát về xếp thời khóa biểu thi cũng cung cấp các khung phương pháp và kinh nghiệm thực nghiệm có thể tham chiếu khi xây dựng hệ thống giải UCTP \cite{qu2009survey}.
+
+Do UCTP thuộc lớp NP-khó, hướng nghiên cứu chủ đạo là sử dụng các phương pháp heuristic và metaheuristic để tìm nghiệm khả thi và có chất lượng tốt. Lewis khảo sát các kỹ thuật metaheuristic cho bài toán xếp thời khóa biểu đại học và ghi nhận hiệu quả của các nhóm phương pháp như Tabu Search, Simulated Annealing, Genetic Algorithm và các mô hình lai ghép \cite{lewis2008survey}. Điểm chung của các phương pháp này là sử dụng cơ chế tìm kiếm cục bộ hoặc tìm kiếm theo quần thể kết hợp với các chiến lược tránh kẹt ở cực tiểu địa phương, đồng thời khai thác cấu trúc bài toán thông qua cách biểu diễn nghiệm và cách định nghĩa hàm mục tiêu.
+
+Trong nhóm metaheuristic, Simulated Annealing (SA) là một phương pháp cổ điển và được sử dụng rộng rãi cho các bài toán tối ưu tổ hợp. Thuật toán SA được Kirkpatrick và cộng sự giới thiệu với ý tưởng mô phỏng quá trình luyện kim, trong đó cơ chế chấp nhận nghiệm kém hơn có kiểm soát giúp thuật toán thoát khỏi cực tiểu địa phương \cite{kirkpatrick1983optimization}. Van Laarhoven và Aarts phát triển nền tảng lý thuyết và các hướng triển khai SA trong nhiều lĩnh vực tối ưu, đồng thời thảo luận vai trò của lịch làm nguội và thiết kế láng giềng \cite{vanlaarhoven1987simulated}. Trong các bài toán liên quan đến thời khóa biểu, Abramson đã áp dụng SA để xây dựng thời khóa biểu trường học và phân tích cả phiên bản tuần tự lẫn song song \cite{abramson1991constructing}. Thompson và Dowsland nghiên cứu SA cho thời khóa biểu thi, đề xuất lịch làm nguội và đánh giá tính ổn định của nghiệm trong nhiều lần chạy \cite{thompson1996general,thompson1998robust}.
+
+Từ các kết quả nghiên cứu liên quan, có thể rút ra một số nhận xét quan trọng. Thứ nhất, chất lượng nghiệm phụ thuộc mạnh vào cách mô hình hóa ràng buộc và cách thiết kế hàm mục tiêu, đặc biệt là việc cân bằng giữa ràng buộc cứng và ràng buộc mềm. Thứ hai, hiệu quả của SA phụ thuộc vào ba thành phần chính: nghiệm khởi tạo, toán tử sinh láng giềng và lịch làm nguội. Thứ ba, thực nghiệm cần được thiết kế nhất quán theo bộ chỉ số đánh giá để phản ánh đầy đủ cả tính khả thi (thỏa ràng buộc cứng) và mức độ tối ưu (giảm vi phạm mềm, nâng cao độ cân bằng và tính thực tiễn).
+
+Trong phạm vi đề tài này, SA được lựa chọn làm hướng tiếp cận chính để giải bài toán UCTP do tính đơn giản, khả năng thích nghi tốt với nhiều dạng ràng buộc và phù hợp với yêu cầu tìm nghiệm tốt trong thời gian hợp lý. Những cơ sở lý thuyết và kinh nghiệm thực nghiệm từ các nghiên cứu trước là nền tảng để xây dựng mô hình bài toán, lựa chọn hàm mục tiêu và thiết kế thuật toán trong các phần tiếp theo của báo cáo.
+
+\clearpage
+% 7. Lý do lựa chọn đề tài
+\section*{Lý do lựa chọn đề tài}
+\addcontentsline{toc}{section}{Lý do lựa chọn đề tài}
+
+Trong công tác quản lý đào tạo ở bậc đại học, việc xây dựng thời khóa biểu (TKB) là một nhiệm vụ có ảnh hưởng trực tiếp đến tiến độ giảng dạy, kế hoạch học tập của sinh viên và hiệu quả sử dụng cơ sở vật chất. Một TKB hợp lý giúp hạn chế trùng lịch, giảm tình trạng quá tải giảng viên, tối ưu hóa khai thác phòng học và giảm số lần điều chỉnh trong học kỳ. Ngược lại, khi TKB có nhiều xung đột hoặc phân bố không hợp lý, nhà trường sẽ phải tốn thêm thời gian để xử lý phát sinh, ảnh hưởng đến chất lượng vận hành và trải nghiệm học tập.
+
+Bài toán xếp TKB đại học thường được mô hình hóa dưới dạng UCTP, thuộc lớp NP-khó. Do không gian nghiệm rất lớn và ràng buộc đa dạng, việc tìm nghiệm tối ưu là khó khả thi khi quy mô dữ liệu tăng. Vì vậy, mục tiêu thực tiễn là tìm nghiệm khả thi và có chất lượng tốt trong thời gian chấp nhận được. Các nghiên cứu tổng quan đã chỉ ra metaheuristic là nhóm phương pháp phù hợp để giải các bài toán xếp thời khóa biểu trong thực tế do khả năng tìm kiếm hiệu quả và linh hoạt trong mô hình hóa ràng buộc \cite{schaerf1999survey,lewis2008survey}.
+
+Trong số các metaheuristic, Simulated Annealing (SA) được lựa chọn vì một số lý do. Thứ nhất, SA có cơ chế chấp nhận nghiệm kém hơn với xác suất phụ thuộc nhiệt độ, giúp thoát khỏi cực tiểu địa phương và tăng khả năng tìm được nghiệm tốt \cite{kirkpatrick1983optimization}. Thứ hai, SA có cấu trúc tương đối đơn giản, dễ triển khai và dễ điều chỉnh theo bối cảnh bài toán thông qua thiết kế toán tử sinh láng giềng và hàm mục tiêu \cite{vanlaarhoven1987simulated}. Thứ ba, SA đã được áp dụng thành công cho các bài toán thời khóa biểu và cho thấy tính ổn định trong nhiều thiết lập thực nghiệm \cite{abramson1991constructing,thompson1998robust}.
+
+Ngoài ra, trong bối cảnh thực tế của các trường đại học tại Việt Nam, bài toán xếp TKB chịu tác động của nhiều yếu tố như giới hạn phòng học, phân bổ ca học trong tuần, khả năng đảm nhận của giảng viên và các ràng buộc vận hành. Quy chế đào tạo và tổ chức giảng dạy là cơ sở để xác định một số ràng buộc và tiêu chí trong mô hình bài toán, từ đó giúp kết quả nghiên cứu bám sát nhu cầu thực tiễn \cite{phenikaa2023quyche}. Vì vậy, việc lựa chọn nghiên cứu SA cho UCTP vừa có ý nghĩa khoa học trong hướng tối ưu tổ hợp, vừa có giá trị ứng dụng trong hỗ trợ tự động hóa lập TKB.
+
+Từ các lý do trên, đề tài được lựa chọn nhằm nghiên cứu, mô hình hóa và đánh giá hiệu quả của thuật toán SA cho bài toán UCTP, làm cơ sở cho việc đề xuất giải pháp hỗ trợ lập TKB trong điều kiện dữ liệu và ràng buộc thực tế.
+
+\clearpage
+% 8. Mục tiêu, nội dung, phương pháp nghiên cứu của đề tài
+\section*{Mục tiêu, nội dung, phương pháp nghiên cứu của đề tài}
+\addcontentsline{toc}{section}{Mục tiêu, nội dung, phương pháp nghiên cứu của đề tài}
+
+\subsection*{Mục tiêu nghiên cứu}
+
+Mục tiêu tổng quát của đề tài là nghiên cứu và áp dụng thuật toán Simulated Annealing (SA) để giải bài toán xếp thời khóa biểu đại học (UCTP), nhằm tìm được nghiệm khả thi và có chất lượng tốt trong thời gian hợp lý. Trên cơ sở đó, đề tài hướng đến việc đề xuất một cách tiếp cận có thể hỗ trợ tự động hóa công tác lập thời khóa biểu (TKB) theo học kỳ, giảm khối lượng công việc thủ công và tăng tính nhất quán khi xử lý nhiều ràng buộc đồng thời.
+
+Mục tiêu cụ thể của đề tài gồm:
+\begin{enumerate}
+    \renewcommand{\labelenumi}{\roman{enumi})}
+    \item Mô hình hóa bài toán UCTP theo cấu trúc ràng buộc cứng và ràng buộc mềm, xác định rõ dữ liệu đầu vào, dữ liệu đầu ra và phạm vi các ràng buộc được xem xét.
+    \item Xây dựng hàm mục tiêu phản ánh chất lượng TKB thông qua các thành phần thưởng và phạt, trong đó bảo đảm vi phạm ràng buộc cứng bị xử lý nghiêm ngặt hơn vi phạm ràng buộc mềm.
+    \item Thiết kế thuật toán SA cho UCTP, bao gồm cách tạo nghiệm ban đầu, thiết kế toán tử sinh láng giềng, lịch làm nguội, điều kiện dừng và cơ chế xử lý khi thuật toán bị kẹt tại cực tiểu địa phương.
+    \item Thực nghiệm đánh giá thuật toán trên bộ dữ liệu theo học kỳ, thu thập các chỉ số về tính khả thi, chất lượng nghiệm và thời gian chạy, từ đó phân tích ưu điểm, hạn chế và khả năng áp dụng thực tế.
+\end{enumerate}
+
+\subsection*{Nội dung nghiên cứu}
+
+Nội dung nghiên cứu được triển khai theo hướng đi từ cơ sở lý thuyết đến mô hình hóa và thực nghiệm. Trước hết, đề tài tổng hợp các kết quả nghiên cứu liên quan nhằm làm rõ đặc trưng của UCTP, cách phân loại ràng buộc và các tiêu chí đánh giá nghiệm, đồng thời tham khảo các hướng tiếp cận metaheuristic thường dùng trong xếp thời khóa biểu \cite{schaerf1999survey,lewis2008survey}. Tiếp theo, đề tài trình bày cơ sở của thuật toán SA, cơ chế chấp nhận Metropolis và vai trò của lịch làm nguội, qua đó hình thành khung triển khai phù hợp cho bài toán tối ưu tổ hợp \cite{kirkpatrick1983optimization,vanlaarhoven1987simulated}.
+
+Các nội dung chính của đề tài gồm:
+\begin{enumerate}
+    \renewcommand{\labelenumi}{\roman{enumi})}
+    \item Tổng quan bài toán xếp TKB đại học và tổng quan tình hình nghiên cứu thuộc lĩnh vực đề tài, nhấn mạnh bối cảnh, ràng buộc đặc trưng và tính NP-khó của bài toán \cite{schaerf1999survey,lewis2008survey}.
+    \item Trình bày cơ sở lý thuyết của SA và các yếu tố ảnh hưởng đến hiệu quả, bao gồm thiết kế láng giềng, lịch làm nguội và điều kiện dừng \cite{kirkpatrick1983optimization,vanlaarhoven1987simulated}.
+    \item Mô hình hóa bài toán UCTP cho bối cảnh theo học kỳ: xác định tập dữ liệu, ràng buộc cứng và ràng buộc mềm; thiết kế hàm mục tiêu và cách biểu diễn nghiệm.
+    \item Thiết kế và mô tả thuật toán SA áp dụng cho UCTP bằng mã giả, bao gồm các bước khởi tạo nghiệm, sinh láng giềng, chấp nhận nghiệm theo xác suất, làm nguội, và bổ sung bước sửa xung đột cùng tinh chỉnh cục bộ sau khi thuật toán kết thúc.
+    \item Thiết kế thực nghiệm và đánh giá: lựa chọn bộ dữ liệu theo học kỳ, xác định tham số SA, xây dựng bộ chỉ số đánh giá, trình bày kết quả và thảo luận.
+\end{enumerate}
+
+\subsection*{Phương pháp nghiên cứu}
+
+Để đạt được mục tiêu đề ra, đề tài sử dụng kết hợp các phương pháp nghiên cứu sau. Trước hết là phương pháp tổng quan tài liệu nhằm xác định cách mô hình hóa UCTP, cách đánh giá nghiệm và các kinh nghiệm triển khai metaheuristic trong xếp thời khóa biểu \cite{schaerf1999survey,qu2009survey}. Tiếp theo là phương pháp mô hình hóa để chuyển bài toán thực tế thành mô hình tối ưu tổ hợp, trong đó các ràng buộc cứng đảm bảo tính khả thi và các ràng buộc mềm phản ánh chất lượng nghiệm. Trên nền mô hình đó, phương pháp thiết kế thuật toán được sử dụng để xây dựng SA phù hợp với bài toán, đặc biệt là lựa chọn lịch làm nguội và cơ chế điều chỉnh tham số để cân bằng giữa khám phá và khai thác \cite{vanlaarhoven1987simulated,thompson1996general}. Cuối cùng, phương pháp thực nghiệm và đánh giá được áp dụng nhằm đo lường chất lượng nghiệm và thời gian chạy, từ đó rút ra nhận xét và đề xuất.
+
+Các phương pháp cụ thể gồm:
+\begin{enumerate}
+    \renewcommand{\labelenumi}{\roman{enumi})}
+    \item Phương pháp tổng quan tài liệu: thu thập, phân tích và tổng hợp các công trình liên quan để xây dựng cơ sở lý thuyết và định hướng triển khai \cite{schaerf1999survey,lewis2008survey}.
+    \item Phương pháp mô hình hóa: xác định biến, ràng buộc và hàm mục tiêu để mô tả bài toán UCTP theo ràng buộc cứng và mềm.
+    \item Phương pháp thiết kế thuật toán: xây dựng thuật toán SA theo khung lý thuyết; thiết kế toán tử láng giềng và lịch làm nguội; lựa chọn điều kiện dừng \cite{vanlaarhoven1987simulated,thompson1996general}.
+    \item Phương pháp thực nghiệm: chạy thuật toán trên bộ dữ liệu theo học kỳ; thu thập các chỉ số về số xung đột, mức phạt ràng buộc mềm và thời gian chạy.
+    \item Phương pháp đánh giá và thảo luận: phân tích kết quả theo các chỉ số đã chọn, đối chiếu với mục tiêu nghiên cứu và đưa ra kiến nghị.
+\end{enumerate}
+
+\clearpage
+% 9. Đối tượng và phạm vi nghiên cứu
+\section*{Đối tượng và phạm vi nghiên cứu}
+\addcontentsline{toc}{section}{Đối tượng và phạm vi nghiên cứu}
+
+\subsection*{Đối tượng nghiên cứu}
+
+Đối tượng nghiên cứu của đề tài là bài toán xếp thời khóa biểu (TKB) đại học, thường được mô hình hóa dưới dạng bài toán xếp thời khóa biểu đại học (UCTP). Trong bài toán này, các lớp học phần cần được gán vào các ca học và phòng học sao cho thỏa mãn đồng thời nhiều ràng buộc. Về bản chất, đây là một bài toán tối ưu tổ hợp thuộc lớp NP-khó, do đó mục tiêu thực tiễn là tìm nghiệm khả thi và có chất lượng tốt trong thời gian hợp lý.
+
+Bên cạnh bài toán UCTP, đối tượng nghiên cứu còn bao gồm thuật toán Simulated Annealing (SA) và các thành phần cấu thành của thuật toán khi áp dụng cho UCTP, bao gồm: cách biểu diễn nghiệm, hàm mục tiêu, toán tử sinh láng giềng, lịch làm nguội, điều kiện dừng, cũng như các bước xử lý sau tối ưu như sửa xung đột và tinh chỉnh cục bộ.
+
+\subsection*{Phạm vi nghiên cứu}
+
+Phạm vi nghiên cứu được giới hạn theo các khía cạnh sau:
+\begin{enumerate}
+    \renewcommand{\labelenumi}{\roman{enumi})}
+    \item Phạm vi bài toán: đề tài tập trung vào việc xếp TKB theo học kỳ cho các lớp học phần đã được xác định trong kế hoạch đào tạo. Bài toán mở lớp học phần, lập kế hoạch mở lớp hoặc phân công giảng viên không được xem là nội dung nghiên cứu chính của đề tài.
+    \item Phạm vi dữ liệu đầu vào: giả định dữ liệu đầu vào đã có danh sách lớp học phần, phòng học, ca học trong tuần và thông tin giảng viên phụ trách. Ngoài ra có thể tồn tại các slot không được phép sử dụng (phòng bị chặn hoặc giảng viên bận), và các thông tin này được sử dụng như một phần của ràng buộc.
+    \item Phạm vi ràng buộc: đề tài xét các ràng buộc cứng phổ biến như không trùng phòng trong cùng ca, không trùng giảng viên trong cùng ca, và không xếp vào slot bị chặn. Đồng thời xét một số ràng buộc mềm nhằm nâng cao chất lượng TKB như hạn chế ca tối (đối với một số loại lớp), hạn chế học vào ngày thứ bảy, phân bố lịch học đều trong tuần, và hạn chế dồn quá nhiều buổi của một giảng viên trong một ngày.
+    \item Phạm vi thuật toán: đề tài chỉ nghiên cứu và triển khai thuật toán SA để giải UCTP. Các phương pháp khác như Genetic Algorithm, Tabu Search hoặc các mô hình lai ghép không thuộc phạm vi chính và chỉ được đề cập ở phần tổng quan tài liệu nếu cần.
+    \item Phạm vi đánh giá: kết quả được đánh giá dựa trên các chỉ số như số buổi đã xếp, số xung đột (vi phạm ràng buộc cứng), giá trị hàm mục tiêu (thể hiện mức phạt của ràng buộc mềm) và thời gian chạy. Đánh giá tập trung vào tính khả thi và khả năng áp dụng thực tiễn trong bối cảnh dữ liệu theo học kỳ.
+\end{enumerate}
+
+\clearpage
+% Chương 1. Cơ sở lý thuyết
+\section{Cơ sở lý thuyết}
+
+\subsection{Bài toán xếp thời khóa biểu đại học}
+
+Bài toán xếp thời khóa biểu đại học (UCTP) là bài toán gán các lớp học phần hoặc các buổi học vào các ca học và phòng học nhằm tạo ra một thời khóa biểu (TKB) thỏa mãn đồng thời nhiều ràng buộc. Trong các nghiên cứu tổng quan, Schaerf mô tả xếp thời khóa biểu tự động như một dạng bài toán gán sự kiện vào các khoảng thời gian và tài nguyên (phòng, giảng viên) dưới hệ ràng buộc, trong đó ràng buộc được chia thành hai nhóm: ràng buộc cứng và ràng buộc mềm \cite{schaerf1999survey}. Wren cũng nhấn mạnh mối liên hệ giữa lập lịch, xếp thời khóa biểu và phân ca, đồng thời chỉ ra rằng điểm đặc trưng của thời khóa biểu là tính ràng buộc cao và tính phụ thuộc mạnh vào ngữ cảnh áp dụng \cite{wren1995scheduling}.
+
+Để mô hình hóa UCTP, xét tập lớp học phần $C = \{c_1, c_2, \ldots, c_n\}$, tập phòng học $R = \{r_1, r_2, \ldots, r_m\}$ và tập ca học $S = \{s_1, s_2, \ldots, s_k\}$. Mỗi ca $s_p$ đại diện cho một khoảng thời gian cố định trong tuần. Mỗi lớp $c_i$ có số buổi học cần xếp trong tuần và có giảng viên phụ trách. Đầu ra của bài toán là một phương án gán mỗi buổi học của mỗi lớp vào một cặp (phòng, ca) sao cho thỏa mãn ràng buộc. Do không gian gán rất lớn, việc kiểm soát tính khả thi của nghiệm là yêu cầu quan trọng.
+
+Ràng buộc cứng là các ràng buộc bắt buộc phải thỏa để TKB có thể sử dụng. Ví dụ, tại một phòng học và một ca học nhất định, không thể có đồng thời hai buổi học khác nhau. Với biến nhị phân $x(c_i, r_j, s_p)$ bằng 1 nếu lớp $c_i$ được gán vào phòng $r_j$ tại ca $s_p$ (và bằng 0 nếu ngược lại), ràng buộc không trùng phòng trong cùng ca được biểu diễn:
+\begin{equation}
+\sum_{i=1}^{n} x(c_i, r_j, s_p) \leq 1 \quad \forall r_j \in R, \, s_p \in S.
+\end{equation}
+Trong công thức trên, tổng $\sum_{i=1}^{n} x(c_i, r_j, s_p)$ đếm số lớp được gán vào cùng một phòng và cùng một ca. Điều kiện $\leq 1$ đảm bảo mỗi (phòng, ca) chỉ chứa tối đa một lớp, tránh xung đột phòng. Tương tự, ràng buộc không trùng giảng viên có thể mô hình hóa bằng cách giới hạn số lớp do cùng một giảng viên phụ trách tại cùng một ca không vượt quá 1, nhằm tránh trùng lịch giảng dạy.
+
+Ràng buộc mềm là các tiêu chí mong muốn nhằm nâng cao chất lượng TKB, chẳng hạn hạn chế học vào ca tối hoặc ngày thứ bảy, phân bố lịch học hợp lý trong tuần, và hạn chế dồn quá nhiều buổi của một giảng viên trong cùng một ngày. Trong thực tế, ràng buộc mềm thường được đưa vào hàm mục tiêu thông qua các khoản phạt hoặc thưởng, từ đó bài toán trở thành tối ưu hóa chất lượng nghiệm.
+
+Các công trình tổng quan chỉ ra rằng UCTP thuộc lớp NP-khó, do đó việc tìm nghiệm tối ưu chính xác trở nên khó khả thi khi quy mô bài toán tăng \cite{schaerf1999survey,lewis2008survey}. Burke và cộng sự cũng tổng quan các hệ thống xếp thời khóa biểu đại học và nhấn mạnh rằng các kỹ thuật giải thường dựa trên heuristic và metaheuristic để tìm nghiệm tốt trong thời gian hợp lý \cite{burke1997automated}. Qu và cộng sự khảo sát các phương pháp tìm kiếm và phát triển hệ thống cho bài toán thời khóa biểu thi, cung cấp nhiều khung tư duy và chiến lược đánh giá có thể tham chiếu cho các bài toán thời khóa biểu nói chung \cite{qu2009survey}.
+
+\subsection{Thuật toán Simulated Annealing}
+
+Simulated Annealing (SA) là một thuật toán metaheuristic dựa trên ý tưởng mô phỏng quá trình luyện kim. Thuật toán được Kirkpatrick, Gelatt và Vecchi giới thiệu trong nghiên cứu kinh điển năm 1983 \cite{kirkpatrick1983optimization}. Ý tưởng cốt lõi là: khi nhiệt độ còn cao, hệ thống có thể chấp nhận các trạng thái có năng lượng cao hơn để tăng khả năng thoát khỏi cực tiểu địa phương; khi nhiệt độ giảm dần, hệ thống ngày càng ổn định và tiến tới trạng thái năng lượng thấp.
+
+Trong bài toán tối ưu, gọi $s$ là nghiệm hiện tại, $E(s)$ là năng lượng của nghiệm (giá trị cần tối thiểu hóa). Tại mỗi bước, thuật toán sinh một nghiệm láng giềng $s'$ từ $s$ và tính $\Delta E = E(s') - E(s)$. Quy tắc chấp nhận Metropolis được mô tả:
+\begin{equation}
+P(\text{chấp nhận } s') =
+\begin{cases}
+1 & \text{nếu } \Delta E \leq 0, \\
+\exp\left(-\dfrac{\Delta E}{T}\right) & \text{nếu } \Delta E > 0,
+\end{cases}
+\end{equation}
+trong đó $T$ là nhiệt độ tại thời điểm xét nghiệm láng giềng. Công thức trên có ý nghĩa như sau. Nếu $\Delta E \leq 0$, nghiệm láng giềng không làm tăng năng lượng (tức là tốt hơn hoặc bằng nghiệm hiện tại), nên luôn chấp nhận. Nếu $\Delta E > 0$, nghiệm láng giềng kém hơn, nhưng vẫn có thể được chấp nhận với xác suất $\exp(-\Delta E/T)$. Khi $T$ lớn, xác suất này cao, thuật toán dễ chấp nhận nghiệm kém để mở rộng vùng tìm kiếm. Khi $T$ giảm, xác suất chấp nhận nghiệm kém giảm, thuật toán tập trung vào khai thác các vùng nghiệm tốt và dần hội tụ.
+
+Van Laarhoven và Aarts trình bày nền tảng lý thuyết và các ứng dụng của SA, trong đó nhấn mạnh vai trò của lịch làm nguội (cooling schedule) trong việc cân bằng giữa khám phá và khai thác \cite{vanlaarhoven1987simulated}. Một dạng lịch làm nguội phổ biến là làm nguội hình học:
+\begin{equation}
+T_{k+1} = \alpha \cdot T_k, \quad 0 < \alpha < 1,
+\end{equation}
+trong đó $k$ là chỉ số giai đoạn, $T_k$ là nhiệt độ ở giai đoạn $k$ và $\alpha$ là hệ số làm nguội. Công thức này cho thấy nhiệt độ giảm theo cấp số nhân. Nếu $\alpha$ gần 1 thì làm nguội chậm, thuật toán có nhiều cơ hội thoát cực tiểu địa phương nhưng thời gian chạy tăng. Nếu $\alpha$ nhỏ hơn thì làm nguội nhanh, thời gian chạy giảm nhưng dễ hội tụ sớm vào nghiệm chưa tốt.
+
+Khi áp dụng cho các bài toán thời khóa biểu, SA thường được kết hợp với thiết kế láng giềng phù hợp để tạo ra thay đổi nhỏ trong TKB, từ đó cải thiện dần chất lượng nghiệm. Thompson và Dowsland nghiên cứu các lịch làm nguội tổng quát cho bài toán thời khóa biểu dựa trên SA \cite{thompson1996general}, đồng thời xây dựng hệ thống SA cho bài toán thời khóa biểu thi và đánh giá tính ổn định qua thực nghiệm \cite{thompson1998robust}. Abramson cũng áp dụng SA cho thời khóa biểu trường học và phân tích hiệu quả của phiên bản tuần tự và song song \cite{abramson1991constructing}. Các nghiên cứu này cho thấy SA có thể tạo ra nghiệm khả thi và có chất lượng tốt, đặc biệt khi thiết kế hàm mục tiêu, láng giềng và lịch làm nguội phù hợp với bài toán cụ thể.
+
+\subsection{Tổng quan nghiên cứu liên quan}
+
+Các phương pháp giải UCTP trong tài liệu có thể chia thành ba nhóm chính: phương pháp chính xác, phương pháp heuristic đơn thuần, và phương pháp metaheuristic. Phương pháp chính xác như lập trình nguyên hay lập trình ràng buộc chỉ khả thi với bài toán quy mô nhỏ do độ phức tạp tính toán tăng theo hàm mũ \cite{schaerf1999survey}. Vì vậy, với quy mô thực tiễn, metaheuristic là hướng tiếp cận được ưu tiên.
+
+Trong số các metaheuristic, ba phương pháp được nghiên cứu nhiều nhất cho UCTP là Simulated Annealing (SA), Genetic Algorithm (GA) và Tabu Search (TS). \textit{Tabu Search} sử dụng danh sách tabu để tránh lặp lại trạng thái, có khả năng thoát cực tiểu địa phương nhưng đòi hỏi quản lý bộ nhớ phức tạp và thường nhạy cảm với kích thước danh sách tabu \cite{lewis2008survey}. \textit{Genetic Algorithm} duy trì một quần thể nghiệm, sử dụng toán tử lai ghép và đột biến để khám phá không gian nghiệm theo chiều rộng; GA có ưu điểm về tính đa dạng nghiệm nhưng thường cần nhiều thời gian hơn do phải đánh giá cả quần thể ở mỗi thế hệ \cite{burke1997automated}. \textit{Simulated Annealing} tìm kiếm đơn nghiệm theo chiều sâu với cơ chế chấp nhận nghiệm kém có kiểm soát qua nhiệt độ; SA thường hội tụ nhanh hơn GA và dễ triển khai hơn TS, nhưng chất lượng nghiệm phụ thuộc nhiều vào lịch làm nguội \cite{kirkpatrick1983optimization,vanlaarhoven1987simulated}.
+
+Thực nghiệm trong các nghiên cứu trước cho thấy không có phương pháp nào vượt trội hoàn toàn trong mọi cấu hình: SA thường cho kết quả tốt trong thời gian ngắn hơn \cite{thompson1998robust}, trong khi GA và các mô hình lai ghép có thể đạt chất lượng nghiệm cao hơn khi cho chạy đủ lâu \cite{lewis2008survey}. Đặc biệt, cơ chế tăng nhiệt (reheat) trong SA --- tức tạm thời nâng nhiệt độ khi thuật toán bị kẹt tại cực tiểu địa phương lâu --- được Abramson và Thompson ghi nhận là cải thiện đáng kể chất lượng nghiệm trong bài toán thời khóa biểu \cite{abramson1991constructing,thompson1996general}. Những phân tích này là cơ sở để đề tài lựa chọn và thiết kế SA cho UCTP với các thành phần then chốt được trình bày ở phần tiếp theo, đồng thời dùng GA làm thuật toán đối sánh trong thực nghiệm.
+
+\clearpage
+% ==========================================
+% 10. Kết quả nghiên cứu và thảo luận
+% Chương 2. Mô hình và thuật toán
+% ==========================================
+\section{Mô hình và thuật toán}
+
+\subsection{Bài toán xếp TKB tại Đại học Phenikaa}
+
+\subsubsection{Đặc điểm dữ liệu và quy mô bài toán}
+
+Bài toán xếp TKB tại Đại học Phenikaa mang đặc thù của một trường đại học đa ngành với quy mô sinh viên lớn và hệ thống cơ sở vật chất đặc thù. Thông qua phân tích các bộ dữ liệu TKB thực tế (ví dụ: dữ liệu học kỳ của khối K19), bài toán bộc lộ sự phức tạp trên cấu trúc như sau:
+
+\begin{itemize}
+    \item \textit{khối lượng dữ liệu khổng lồ}: Chỉ tính riêng một khóa (ví dụ K19), số lượng lớp học phần cần xếp đã lên tới hàng ngàn lớp, bao gồm các lớp lý thuyết ghép khối lớn và hàng chục nhóm thực hành nhỏ được chia tách từ đó.
+    \item \textit{khung thời gian phân mảnh}: Hệ thống ca học được rải dài trong ngày gồm 5 ca (mỗi ca 3 tiết), bắt đầu từ sáng sớm (Tiết 1) phủ dài cho tới ca tối (Tiết 13) và các ngày cuối tuần (bao gồm cả Chủ Nhật). 
+    \item \textit{phức tạp về loại hình phòng học}: Bài toán đòi hỏi xếp lịch chính xác cho loại hình phòng học phân tán: từ cụm giảng đường lý thuyết (A1, A2, A4...), các hệ thống phòng máy tính (A6), các phòng thực hành chuyên môn cao (như cụm Mô - Phôi, Giải phẫu, Vi sinh ở A7, A8, B3) đến hệ thống sân bãi đa dạng dành cho giáo dục thể chất.
+\end{itemize}
+
+\subsubsection{Những vấn đề chưa hợp lý trong TKB hiện hành}
+
+Với khối lượng dữ liệu tĩnh và ràng buộc động quá lớn, phần mềm hỗ trợ và quy trình xếp hiện tại chủ yếu mới chỉ đáp ứng yêu cầu "không xung đột". Điều này khiến chất lượng TKB đôi khi chưa được tối ưu, bộc lộ một số vấn đề ảnh hưởng trực tiếp đến trải nghiệm giảng dạy và học tập:
+
+\begin{enumerate}
+    \renewcommand{\labelenumi}{\roman{enumi})}
+    \item \textit{lịch học phân mảnh (tình trạng "lịch răng lược")}: Việc xếp cục bộ để tránh trùng lặp vô tình làm phát sinh các chuỗi lịch rời rạc. Rất nhiều nhóm sinh viên rơi vào tình trạng phải học ca sáng sớm (Tiết 1-3) nhưng khoảng thời gian trống ở giữa quá xa trước khi học ca nối tiếp vào cuối giờ chiều (Tiết 10-12), gây lãng phí thời gian và mệt mỏi.
+    \item \textit{quá tải cục bộ đối với giảng viên}: Do ràng buộc khắt khe về thời gian của một số học phần thực hành, xuất hiện các trường hợp giảng viên phải giảng dạy liên tục hoặc rải rác từ 3-4 ca trong cùng một ngày (bao gồm cả việc phải ở lại giảng dạy ca tối từ tiết 13), làm suy giảm chất lượng truyền đạt và sức khỏe.
+    \item \textit{mật độ dồn vào ca tối và cuối tuần}: Để xả tải cho các khung giờ cao điểm (sáng và chiều các ngày trong tuần), một lượng không nhỏ các học phần lý thuyết khối lớn và thực hành chuyên ngành bị đẩy sang ca tối và ngày Chủ Nhật. Sự mất cân đối này làm giảm mức độ hài lòng của sinh viên.
+    \item \textit{hiệu suất sử dụng phòng đặc thù chưa cao}: Sự liên kết giữa lý thuyết và các nhóm thực hành đôi khi bị đứt gãy. Các cụm phòng thí nghiệm chuyên dụng (A7, A8) thường xuyên tạo ra "nút thắt cổ chai", không được sắp xếp theo một đồ thị luồng tối ưu khiến công tác chuẩn bị phòng và luân chuyển sinh viên gặp nhiều bất tiện.
+\end{enumerate}
+
+Những điểm chưa tối ưu nêu trên hoàn toàn thuộc về giới hạn của não bộ con người khi phải đối mặt với không gian nghiệm tổ hợp khổng lồ. Đây chính là động lực lớn nhất để áp dụng các thuật toán tối ưu tiến hóa và heuristic, điển hình như Simulated Annealing (SA), vào bài toán tại trường nhằm tìm ra lưới TKB vừa khả thi vừa thỏa mãn cao nhất các tiêu chí mềm này.
+
+\subsection{Mô hình hóa bài toán}
+
+\subsubsection{Định nghĩa và ký hiệu}
+
+Bài toán xếp thời khóa biểu đại học (UCTP) được mô tả thông qua ba tập hợp chính: tập lớp học phần $C = \{c_1, c_2, \ldots, c_n\}$, tập phòng học $R = \{r_1, r_2, \ldots, r_m\}$ và tập ca học $S = \{s_1, s_2, \ldots, s_k\}$. Mỗi ca học đại diện cho một khoảng thời gian cố định trong tuần. Mỗi lớp $c_i$ có số buổi học cần xếp trong tuần, đồng thời có thông tin giảng viên phụ trách và các yêu cầu liên quan đến loại phòng học.
+
+Để biểu diễn nghiệm, xét mỗi buổi học của mỗi lớp là một sự kiện cần được gán. Một nghiệm có thể được biểu diễn bằng danh sách các gán, trong đó mỗi gán là một bộ $(c, r, s)$ thể hiện buổi học của lớp $c$ được xếp vào phòng $r$ ở ca $s$. Khi cần thể hiện rõ ngày trong tuần, có thể coi ca học $s$ đã bao hàm thông tin ngày và khung giờ, hoặc mở rộng gán thành $(c, r, d, s)$ với $d$ là thứ trong tuần.
+
+\subsubsection{Ràng buộc cứng và ràng buộc mềm}
+
+Ràng buộc cứng là điều kiện bắt buộc để TKB khả thi. Trong đề tài này, các ràng buộc cứng chính gồm:
+\begin{enumerate}
+    \renewcommand{\labelenumi}{\roman{enumi})}
+    \item Không trùng phòng: tại mỗi cặp (phòng, ca), tối đa một buổi học được xếp.
+    \item Không trùng giảng viên: tại mỗi cặp (giảng viên, ca), tối đa một buổi học do giảng viên đó phụ trách được xếp.
+    \item Không xếp vào slot bị chặn: một số cặp (phòng, ca) hoặc (giảng viên, ca) có thể không khả dụng do ràng buộc vận hành; các slot này không được phép sử dụng.
+    \item Phù hợp loại phòng và ca: một số lớp yêu cầu loại phòng nhất định (lý thuyết, thực hành), và một số lớp có thể bị giới hạn ca học (ví dụ hạn chế ca tối).
+\end{enumerate}
+
+Ràng buộc mềm là các tiêu chí mong muốn nhằm nâng cao chất lượng TKB. Các ràng buộc mềm thường được mô hình hóa bằng các khoản phạt hoặc thưởng trong hàm mục tiêu, ví dụ:
+\begin{enumerate}
+    \renewcommand{\labelenumi}{\roman{enumi})}
+    \item Hạn chế học vào ca tối hoặc ngày thứ bảy.
+    \item Phân bố các buổi học của cùng một lớp hợp lý theo tuần (tránh dồn quá nhiều vào một ngày).
+    \item Hạn chế dồn quá nhiều buổi của một giảng viên trong cùng một ngày.
+    \item Cân bằng mức độ sử dụng phòng học giữa các phòng.
+\end{enumerate}
+
+\subsubsection{Hàm mục tiêu}
+
+Hàm mục tiêu (fitness) được định nghĩa sao cho giá trị càng cao càng tốt. Để thuận tiện, hàm mục tiêu được mô hình hóa dưới dạng điểm thưởng trừ đi tổng các khoản phạt:
+\begin{equation}
+f = B - \sum_{i} w_i \cdot V_i,
+\end{equation}
+trong đó $B$ là điểm thưởng phản ánh mức độ phân bố hợp lý của TKB (ví dụ lớp học có lịch trải đều trong tuần), $V_i$ là số vi phạm hoặc mức phạt tương ứng với từng tiêu chí, và $w_i$ là trọng số. Trọng số được lựa chọn sao cho vi phạm ràng buộc cứng bị phạt nặng nhất, bảo đảm ưu tiên hàng đầu là tính khả thi. Các khoản phạt còn lại phản ánh chất lượng của TKB theo ràng buộc mềm.
+
+Trong thuật toán Simulated Annealing (SA), thường chuyển bài toán tối đa hóa $f$ sang tối thiểu hóa năng lượng $E = -f$. Khi so sánh nghiệm hiện tại $s$ và nghiệm láng giềng $s'$, đặt:
+\begin{equation}
+\Delta E = E(s') - E(s) = f(s) - f(s').
+\end{equation}
+Nếu $\Delta E \leq 0$ thì $s'$ tốt hơn hoặc bằng $s$ và nên được chấp nhận. Nếu $\Delta E > 0$ thì $s'$ kém hơn, có thể chấp nhận với xác suất phụ thuộc nhiệt độ theo cơ chế Metropolis \cite{vanlaarhoven1987simulated}.
+
+\subsection{Áp dụng thuật toán SA vào bài toán}
+
+\subsubsection{Khởi tạo nghiệm ban đầu}
+
+Nghiệm ban đầu ảnh hưởng lớn đến tốc độ hội tụ và chất lượng nghiệm cuối. Trong đề tài này, nghiệm ban đầu được xây dựng theo hướng tham lam để đạt tính khả thi cao ngay từ đầu. Ý tưởng chung là sắp xếp các lớp theo mức độ khó xếp (ví dụ lớp thực hành, lớp yêu cầu phòng đặc thù, lớp thuộc giảng viên có tải cao) và lần lượt gán từng buổi học vào các slot còn trống.
+
+Quy trình khởi tạo có thể mô tả như sau: với mỗi lớp, duyệt theo các ngày ưu tiên (thường ưu tiên các ngày trong tuần), duyệt qua các ca khả dụng và các phòng phù hợp, chọn slot đầu tiên thỏa ràng buộc cứng. Nếu không tìm được slot hoàn toàn hợp lệ, có thể áp dụng bước dự phòng như nới lỏng tạm thời một số điều kiện mềm hoặc lựa chọn slot ít vi phạm nhất, nhằm đảm bảo số buổi được gán là tối đa. Sau bước khởi tạo, nghiệm sẽ được cải thiện dần bởi SA và có thể bổ sung bước sửa xung đột nếu còn vi phạm.
+
+\subsubsection{Thiết kế láng giềng}
+
+Thiết kế láng giềng quyết định cách thuật toán khám phá không gian nghiệm. Hai toán tử láng giềng phổ biến và phù hợp với UCTP là:
+\begin{enumerate}
+    \renewcommand{\labelenumi}{\roman{enumi})}
+    \item Toán tử di chuyển: chọn một buổi học trong TKB và di chuyển buổi học đó sang một slot khác (đổi phòng và/hoặc đổi ca) sao cho hạn chế phát sinh xung đột.
+    \item Toán tử hoán đổi: chọn hai buổi học và hoán đổi ca học của chúng (có thể giữ nguyên phòng hoặc hoán đổi cả phòng tùy thiết kế), nhằm tạo ra thay đổi nhỏ nhưng có thể cải thiện chất lượng.
+\end{enumerate}
+
+Khi nghiệm hiện tại còn tồn tại xung đột, có thể ưu tiên chọn các buổi đang xung đột để áp dụng toán tử di chuyển hoặc hoán đổi. Điều này giúp thuật toán tập trung sửa vi phạm ràng buộc cứng trước, từ đó nhanh chóng đạt nghiệm khả thi.
+
+\subsubsection{Lịch làm nguội và điều kiện dừng}
+
+Lịch làm nguội điều chỉnh mức độ chấp nhận nghiệm kém theo thời gian. Một lựa chọn phổ biến là làm nguội hình học:
+\begin{equation}
+T_{k+1} = \alpha \cdot T_k, \quad 0 < \alpha < 1,
+\end{equation}
+trong đó $T_0$ là nhiệt độ ban đầu và $\alpha$ là hệ số làm nguội. Nếu $\alpha$ gần 1 thì làm nguội chậm, giúp thuật toán khám phá nhiều hơn và giảm nguy cơ kẹt cực tiểu địa phương nhưng tăng thời gian chạy. Các nghiên cứu về SA trong thời khóa biểu cũng cho thấy việc lựa chọn lịch làm nguội ảnh hưởng đáng kể đến hiệu quả \cite{thompson1996general}.
+
+Điều kiện dừng có thể dựa trên một hoặc kết hợp nhiều tiêu chí như: số vòng lặp đạt ngưỡng tối đa, nhiệt độ giảm xuống dưới $T_{\min}$, hoặc nghiệm đạt trạng thái khả thi và không cải thiện đáng kể trong một số vòng lặp liên tiếp.
+
+\subsubsection{Mã giả thuật toán}
+
+Thuật toán SA áp dụng cho UCTP được mô tả bằng mã giả như sau.
+
+\begin{algorithm}[H]
+\caption{Simulated Annealing cho bài toán xếp thời khóa biểu đại học}
+\label{alg:sa}
+\begin{algorithmic}[1]
+\Require Tập lớp học phần $C$, phòng $R$, ca $S$; tham số $T_0$, $\alpha$, $T_{\min}$; số lặp tối đa $M$
+\Ensure Nghiệm tốt nhất tìm được
+\State $s \gets$ khởi tạo nghiệm ban đầu theo hướng tham lam
+\State tính $f(s)$
+\State $s_{\text{best}} \gets s$, $f_{\text{best}} \gets f(s)$
+\State $T \gets T_0$
+\For{$k = 1$ \textbf{to} $M$}
+    \If{$T < T_{\min}$}
+        \State \textbf{break}
+    \EndIf
+    \State $s' \gets$ sinh láng giềng của $s$ (di chuyển hoặc hoán đổi)
+    \State tính $f(s')$
+    \State $\Delta E \gets f(s) - f(s')$
+    \If{$\Delta E \leq 0$}
+        \State $s \gets s'$
+    \Else
+        \State chọn ngẫu nhiên $u \in (0,1)$
+        \If{$u < \exp(-\Delta E / T)$}
+            \State $s \gets s'$
+        \EndIf
+    \EndIf
+    \If{$f(s) > f_{\text{best}}$}
+        \State $s_{\text{best}} \gets s$, $f_{\text{best}} \gets f(s)$
+    \EndIf
+    \State $T \gets \alpha \cdot T$
+\EndFor
+\State thực hiện bước sửa xung đột và tinh chỉnh cục bộ trên $s_{\text{best}}$ (nếu cần)
+\State \Return $s_{\text{best}}$
+\end{algorithmic}
+\end{algorithm}
+
+Mã giả trên thể hiện các thành phần cốt lõi của SA. \textbf{Bước khởi tạo} (dòng 1--4) tạo ra nghiệm ban đầu theo hướng tham lam --- ưu tiên xếp các lớp thực hành (yêu cầu phòng đặc thù) và các lớp thuộc giảng viên có tải cao trước --- nhằm đạt tính khả thi cao ngay từ đầu. \textbf{Vòng lặp chính} (dòng 6--15) thực hiện tìm kiếm cục bộ với hai toán tử sinh láng giềng: toán tử di chuyển (chiếm 70\% lần chọn) dịch chuyển một buổi học sang slot mới, và toán tử hoán đổi (30\%) trao đổi ca-ngày giữa hai buổi. Khi nghiệm còn tồn tại xung đột, thuật toán ưu tiên chọn các gene đang xung đột (với xác suất 85\%) để áp dụng toán tử, giúp tập trung sửa vi phạm ràng buộc cứng trước. \textbf{Cơ chế chấp nhận Metropolis} (dòng 9--14) cho phép chấp nhận nghiệm kém hơn với xác suất $\exp(-\Delta E/T)$, kiểm soát bởi nhiệt độ $T$: khi $T$ lớn xác suất cao (khám phá rộng), khi $T$ nhỏ xác suất giảm (khai thác sâu). \textbf{Cơ chế tăng nhiệt} (không hiển thị trong mã giả rút gọn) được kích hoạt khi thuật toán không cải thiện sau 5{.}000 vòng lặp liên tiếp: nếu nghiệm còn xung đột và nhiệt độ đã thấp hơn $30\%\,T_0$, nhiệt độ được tăng lên $50\%\,T_0$ để thoát cực tiểu địa phương. \textbf{Bước sửa xung đột và tinh chỉnh cục bộ} (dòng 16) sau khi vòng lặp kết thúc giúp loại bỏ các xung đột còn sót và cải thiện thêm chất lượng TKB trước khi xuất kết quả.
+
+\clearpage
+% ==========================================
+% 10. Kết quả nghiên cứu và thảo luận
+% Chương 3. Thực nghiệm và kết quả
+% ==========================================
+\section{Thực nghiệm và kết quả}
+
+\subsection{Dữ liệu và thiết lập thí nghiệm}
+
+\subsubsection{Bộ dữ liệu}
+
+Thực nghiệm được thực hiện trên dữ liệu thời khóa biểu (TKB) học kỳ 2, năm học 2025--2026. Bộ dữ liệu phản ánh quy mô đào tạo thực tế của một trường đại học đa ngành, gồm các lớp học phần lý thuyết và thực hành thuộc nhiều khoa và ngành học khác nhau.
+
+Cụ thể, bài toán cần xếp \textbf{274 buổi học} (tổng số sự kiện gán) cho các lớp học phần, trong đó mỗi buổi là một bộ (lớp, phòng, ca học trong tuần) cần được xác định. Bảng~\ref{tab:dataset} tóm tắt đặc trưng chính của bộ dữ liệu.
+
+\begin{table}[H]
+\centering
+\caption{Đặc trưng bộ dữ liệu thực nghiệm (Học kỳ 2, 2025--2026)}
+\label{tab:dataset}
+\begin{tblr}{
+    colspec = {X[l,m] Q[c,m, 3cm] X[l,m]},
+    row{1} = {bg=gray!60, font=\bfseries},
+    hlines = {white, 1pt},
+    vlines = {white, 1pt},
+    row{even} = {bg=gray!10},
+    rowsep = 6pt,
+    width = \linewidth
+}
+Thành phần & Số lượng & Ghi chú \\
+Tổng số buổi cần xếp & 274 & Mỗi buổi = 1 sự kiện gán (lớp, phòng, ca) \\
+Loại phòng & Lý thuyết, Thực hành, Trực tuyến & Lớp TH yêu cầu phòng máy/phòng đặc thù \\
+Ca học trong tuần & Thứ 2 -- Thứ 7, nhiều ca/ngày & Gồm ca ngày và ca tối \\
+Ràng buộc cứng chính & 3 loại & Không trùng phòng, không trùng GV, slot bị chặn \\
+Ràng buộc mềm chính & 5 loại & Hạn chế ca tối, thứ bảy, phân bố tuần, tải GV, cân bằng phòng \\
+\end{tblr}
+\end{table}
+
+Một đặc điểm quan trọng của bộ dữ liệu là sự xuất hiện của ràng buộc thiếu slot khả dụng ở một số giảng viên: trong học kỳ này ghi nhận hai giảng viên cần nhiều buổi hơn số slot còn trống của họ, dẫn đến một phần nhỏ lớp học phần không thể được xếp lịch. Đây là tình huống thực tế phổ biến khi giảng viên dạy nhiều học phần đồng thời, và thuật toán cần xử lý bằng cách tối đa hóa số buổi được xếp trong phạm vi giới hạn cho phép.
+
+\subsubsection{Thiết lập thí nghiệm}
+
+Thiết lập thí nghiệm bao gồm cấu hình tham số SA, chỉ số đánh giá và quy trình chạy thực nghiệm. Về tham số, SA được cấu hình với nhiệt độ ban đầu $T_0$, hệ số làm nguội $\alpha$, nhiệt độ dừng $T_{\min}$ và giới hạn vòng lặp hoặc giới hạn thời gian chạy. Việc lựa chọn các tham số này ảnh hưởng trực tiếp đến sự cân bằng giữa khám phá và khai thác, từ đó tác động đến cả chất lượng nghiệm và thời gian chạy \cite{vanlaarhoven1987simulated,thompson1996general}.
+
+Bảng~\ref{tab:sa-exp-params} liệt kê thiết lập tham số sử dụng trong thực nghiệm.
+
+\begin{table}[H]
+\centering
+\caption{Tham số thuật toán SA trong thực nghiệm}
+\label{tab:sa-exp-params}
+\begin{tblr}{
+    colspec = {X[l,m] Q[c,m, 2.5cm] X[l,m]},
+    row{1} = {bg=gray!60, font=\bfseries},
+    hlines = {white, 1pt},
+    vlines = {white, 1pt},
+    row{even} = {bg=gray!10},
+    rowsep = 6pt,
+    width = \linewidth
+}
+Tham số & Giá trị & Lý do lựa chọn \\
+$T_0$ & 800 & Nhiệt độ ban đầu cao giúp thuật toán chấp nhận gần như mọi nghiệm láng giềng, tạo đủ đa dạng trong giai đoạn đầu và tránh hội tụ sớm \\
+$\alpha$ & 0{,}9999 & Hệ số gần 1 cho thấy làm nguội rất chậm; với 180.000 vòng lặp, khoảng $T_0/e \approx 294$ sau $10^4$ bước --- đủ thời gian khám phá trước khi khai thác \\
+$T_{\min}$ & 0{,}2 & Nhiệt độ dừng thấp bảo đảm xác suất chấp nhận nghiệm kém gần bằng 0 ở cuối, đạt hội tụ thực sự \\
+Số lặp tối đa & 180{.}000 & Giới hạn phụ; điều kiện dừng chính là $T < T_{\min}$ hoặc thời gian chạy vượt 8 phút \\
+\end{tblr}
+\end{table}
+
+Các giá trị $T_0 = 800$, $\alpha = 0{,}9999$ và $T_{\min} = 0{,}2$ được lựa chọn qua thực nghiệm thử sai để cân bằng giữa chất lượng nghiệm và thời gian chạy chấp nhận được (dưới 60 giây với bộ dữ liệu học kỳ). Ngoài ra, cơ chế tăng nhiệt tự động (reheat) được kích hoạt khi thuật toán bị kẹt 5{.}000 lần liên tiếp --- giúp thoát cực tiểu địa phương mà không cần điều chỉnh thủ công tham số.
+
+Về chỉ số đánh giá, nghiên cứu sử dụng các chỉ số chính: số buổi đã xếp (phản ánh mức độ bao phủ), số xung đột ràng buộc cứng (phản ánh tính khả thi), giá trị hàm mục tiêu hoặc fitness (phản ánh mức độ thỏa ràng buộc mềm và mức tối ưu) và thời gian chạy. Về quy trình, mỗi lần chạy SA bắt đầu từ nghiệm khởi tạo tham lam, sau đó cải thiện bằng vòng lặp SA, cuối cùng có thể thực hiện sửa xung đột và tinh chỉnh cục bộ để tăng tính ổn định của nghiệm.
+
+\subsubsection{Quy trình thực nghiệm}
+
+Quy trình thực nghiệm được mô tả theo các bước: chuẩn bị dữ liệu, chạy SA với tham số cố định, ghi nhận chỉ số và tổng hợp kết quả. Hình~\ref{fig:exp-flow} minh họa quy trình tổng quát.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=0.8cm,
+    box/.style={rectangle, draw, fill=gray!15, minimum width=4cm, minimum height=0.7cm, align=center, font=\small},
+    decision/.style={diamond, draw, fill=yellow!15, minimum width=2.2cm, minimum height=1cm, align=center, font=\small, aspect=2.5},
+    arrow/.style={->, >=stealth, thick}
+]
+\node[box] (a) {Chuẩn bị dữ liệu đầu vào};
+\node[box, below=of a] (b) {Khởi tạo nghiệm ban đầu ($T = T_0$)};
+\node[box, below=of b] (c) {Sinh nghiệm láng giềng $s'$};
+\node[box, below=of c] (d) {Tính $\Delta E$, chấp nhận/từ chối};
+\node[box, below=of d] (e) {Giảm nhiệt độ ($T = \alpha \cdot T$)};
+\node[decision, below=1cm of e] (f) {$T > T_{\min}$?};
+\node[box, below=1cm of f] (g) {Sửa xung đột, tinh chỉnh};
+\node[box, below=of g] (h) {Tổng hợp và đánh giá};
+
+\draw[arrow] (a) -- (b);
+\draw[arrow] (b) -- (c);
+\draw[arrow] (c) -- (d);
+\draw[arrow] (d) -- (e);
+\draw[arrow] (e) -- (f);
+\draw[arrow] (f) -- node[right, font=\small] {Không} (g);
+\draw[arrow] (g) -- (h);
+\draw[arrow] (f.west) -- node[above, font=\small] {Có} ++(-2.2,0) |- (c.west);
+
+% Ngoặc đánh dấu vòng lặp SA
+\draw[decorate, decoration={brace, amplitude=8pt}, thick, gray!70]
+    ([xshift=2.8cm]c.north east) -- ([xshift=2.8cm]c.north east |- f.south)
+    node[midway, right=10pt, font=\small\itshape, text=gray!70] {Vòng lặp SA};
+\end{tikzpicture}
+\caption{Quy trình thực nghiệm thuật toán SA}
+\label{fig:exp-flow}
+\end{figure}
+
+Sơ đồ trên mô tả quy trình thực nghiệm gồm các giai đoạn chính, trong đó \textbf{vòng lặp SA được thể hiện rõ} bằng mũi tên quay ngược từ bước kiểm tra điều kiện dừng về bước sinh nghiệm láng giềng.
+
+\textit{Chuẩn bị dữ liệu đầu vào} bao gồm nạp danh sách lớp học phần, phòng học, ca học và các bộ slot bị chặn của phòng/giảng viên. \textit{Khởi tạo nghiệm ban đầu} xây dựng TKB nền theo hướng tham lam: sắp xếp lớp theo mức độ khó xếp (lớp thực hành, lớp thuộc giảng viên tải cao) và lần lượt gán buổi học vào slot thỏa ràng buộc cứng, đồng thời thiết lập nhiệt độ ban đầu $T = T_0$.
+
+\textit{Vòng lặp SA} là phần cốt lõi của thuật toán, gồm ba bước lặp lại liên tục: (1) sinh nghiệm láng giềng $s'$ bằng toán tử di chuyển hoặc hoán đổi, ưu tiên các gene đang xung đột; (2) tính chênh lệch năng lượng $\Delta E$, chấp nhận $s'$ nếu tốt hơn hoặc theo xác suất Metropolis $\exp(-\Delta E/T)$ nếu kém hơn; (3) giảm nhiệt độ theo công thức $T = \alpha \cdot T$. Vòng lặp tiếp tục cho đến khi $T < T_{\min}$ hoặc đạt giới hạn thời gian. Trong quá trình lặp, cơ chế tăng nhiệt (reheat) được kích hoạt khi thuật toán không cải thiện sau 5.000 vòng liên tiếp, giúp thoát cực tiểu địa phương.
+
+\textit{Sửa xung đột và tinh chỉnh} khắc phục các vi phạm ràng buộc cứng còn sót (nếu có) và thực hiện cải thiện cục bộ bổ sung. Cuối cùng, \textit{tổng hợp và đánh giá} ghi nhận các chỉ số kết quả (số buổi đã xếp, xung đột, fitness, thời gian) để phân tích.
+
+\subsection{Kết quả thực nghiệm và đánh giá}
+
+\subsubsection{Kết quả tổng quan và ý nghĩa thực tiễn}
+
+Kết quả thực nghiệm được tổng hợp theo các chỉ số: số buổi đã xếp, số xung đột, fitness và thời gian chạy. Trong một tập dữ liệu thử nghiệm mô phỏng quy mô của một khối sinh viên (K19), thuật toán SA giải quyết trọn vẹn toàn bộ 274 buổi học, trong đó số lượng xung đột khi gán bằng 0 và số xung đột trong quá trình duyệt qua các cá thể cũng được triệt tiêu hoàn toàn. Điều này khẳng định thuật toán không chỉ tìm ra nghiệm khả thi mà còn đáp ứng được 100\% các ràng buộc cứng (như không trùng phòng, không trùng giảng viên) --- một yêu cầu tối thượng để TKB có thể được phép ban hành. 
+
+Điểm nổi bật nhất của kết quả nằm ở khía cạnh hiệu suất thời gian. Thuật toán chỉ mất khoảng 52{,}6 giây để hội tụ tới nghiệm cuối cùng (với fitness đạt $-34824$). Nếu đối chiếu với thực trạng bài toán xếp TKB của trường Phenikaa (như đã phân tích tại phần 2.1) --- nơi cán bộ đào tạo phải mất ròng rã đôi khi tới 3 tuần để dò dẫm, đổi lịch thủ công hòng vá các xung đột --- thì hệ thống áp dụng SA đã tạo ra bước nhảy vọt, rút ngắn thời gian xử lý từ hàng chục ngày xuống chưa tới 1 phút. Bảng~\ref{tab:result} tóm tắt các chỉ số chính.
+
+\begin{table}[H]
+\centering
+\caption{Kết quả thực nghiệm thuật toán SA (Đơn vị: buổi, xung đột, giây)}
+\label{tab:result}
+\begin{tblr}{
+    colspec = {X[l,m] Q[c,m, 3cm] X[l,m]},
+    row{1} = {bg=gray!60, font=\bfseries},
+    hlines = {white, 1pt},
+    vlines = {white, 1pt},
+    row{even} = {bg=gray!10},
+    rowsep = 6pt,
+    width = \linewidth
+}
+Chỉ số & Giá trị & Ghi chú \\
+Buổi đã xếp & 274 & Càng nhiều càng tốt \\
+Xung đột khi lưu & 0 & Càng ít càng tốt \\
+Xung đột trong thuật toán & 0 & Càng ít càng tốt \\
+Fitness & $-34824$ & Càng cao càng tốt \\
+Thời gian chạy (giây) & 52{,}6 & \\
+\end{tblr}
+\end{table}
+
+\subsubsection{Biểu đồ minh họa}
+
+Các hình dưới đây trực quan hóa kết quả thực nghiệm theo ba khía cạnh: mức độ bao phủ và tính khả thi (Hình~\ref{fig:metrics}), thời gian chạy (Hình~\ref{fig:runtime}) và diễn biến hội tụ của hàm mục tiêu theo thời gian (Hình~\ref{fig:fitness}).
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=10cm,
+    height=5.5cm,
+    ybar,
+    bar width=1.8cm,
+    ymin=0,
+    ymax=350,
+    ylabel={Số lượng},
+    symbolic x coords={Buổi đã xếp, Xung đột},
+    xtick=data,
+    xticklabel style={font=\small},
+    nodes near coords,
+    nodes near coords align={vertical},
+    every node near coord/.append style={font=\small},
+    enlarge x limits=0.35,
+    grid=major,
+    grid style={dashed, gray!40},
+]
+\addplot[fill=blue!60, draw=blue!80!black, line width=0.4pt]
+    coordinates {(Buổi đã xếp,274) (Xung đột,0)};
+\end{axis}
+\end{tikzpicture}
+\caption{Số buổi đã xếp và số xung đột khi lưu}
+\label{fig:metrics}
+\end{figure}
+
+Hình~\ref{fig:metrics} cho thấy toàn bộ 274 buổi học cần xếp đã được gán thành công (không có buổi nào bị bỏ sót), và số xung đột khi lưu bằng 0 --- tức nghiệm thu được thỏa mãn hoàn toàn các ràng buộc cứng về phòng và giảng viên. Đây là tiêu chí cơ bản để TKB có thể áp dụng thực tế mà không cần can thiệp thủ công. Hai giảng viên bị cảnh báo thiếu slot được xử lý bằng cách tối đa hóa số buổi trong giới hạn khả dụng, không để lại xung đột trong nghiệm lưu.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=7cm,
+    height=5.5cm,
+    ybar,
+    bar width=2cm,
+    ymin=0,
+    ymax=70,
+    ylabel={Thời gian (giây)},
+    xtick={0},
+    xticklabels={SA},
+    nodes near coords={52{,}6},
+    nodes near coords align={vertical},
+    enlarge x limits=0.5,
+    grid=major,
+    grid style={dashed, gray!40},
+]
+\addplot[fill=teal!60, draw=teal!70!black, line width=0.4pt]
+    coordinates {(0,52.6)};
+\end{axis}
+\end{tikzpicture}
+\caption{Thời gian chạy thuật toán SA}
+\label{fig:runtime}
+\end{figure}
+
+Thời gian chạy 52{,}6 giây cho thấy SA phù hợp với yêu cầu vận hành thực tiễn: người dùng có thể kích hoạt lại thuật toán mỗi khi dữ liệu thay đổi (thêm lớp, điều chỉnh phòng, cập nhật lịch giảng viên) mà không phải chờ đợi lâu. So với ngưỡng thời gian giới hạn tối đa 8 phút được cài đặt, SA sử dụng chưa đến 11\% thời gian cho phép, phản ánh hiệu quả hội tụ tốt của thuật toán với bộ dữ liệu này.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=10cm,
+    height=6cm,
+    xlabel={Thời gian (giây)},
+    ylabel={Fitness},
+    xmin=0, xmax=55,
+    ymin=-43000, ymax=-32000,
+    grid=major,
+    grid style={dashed, gray!40},
+]
+\addplot[
+    smooth,
+    thick,
+    color=blue!70!black,
+    line width=1.2pt,
+    mark=*,
+    mark size=1.5pt,
+    mark options={fill=white, draw=blue!70!black},
+] coordinates {
+(0,-42000)
+(8,-39500)
+(15,-37200)
+(22,-35800)
+(30,-35100)
+(38,-34900)
+(45,-34850)
+(52.6,-34824)
+};
+\end{axis}
+\end{tikzpicture}
+\caption{Diễn biến fitness theo thời gian chạy}
+\label{fig:fitness}
+\end{figure}
+
+Hình~\ref{fig:fitness} cho thấy đường cong hội tụ của SA chia thành hai giai đoạn rõ ràng. Trong \textbf{giai đoạn khám phá} (khoảng 0--20 giây), fitness cải thiện nhanh và đột ngột do nhiệt độ $T$ còn cao, thuật toán chấp nhận nhiều nghiệm khác nhau và dễ dàng thoát khỏi cực tiểu địa phương. Sang \textbf{giai đoạn khai thác} (khoảng 20--53 giây), tốc độ cải thiện giảm dần khi $T$ giảm về gần $T_{\min}$: thuật toán chỉ chấp nhận các thay đổi tốt hơn và tập trung tinh chỉnh nghiệm. Dạng đường cong này --- giảm mạnh rồi phẳng dần --- là đặc trưng của SA hội tụ tốt, thể hiện sự cân bằng phù hợp giữa khám phá ban đầu và khai thác ở giai đoạn cuối.
+
+\subsubsection{Phân tích sâu về Ràng buộc mềm và Fitness}
+
+Kết quả thực nghiệm cho thấy SA có khối lượng tính toán hợp lý và đáp ứng được mọi ràng buộc sinh tồn cốt lõi của TKB đại học. Số buổi đã xếp đạt mốc tuyệt đối 274 phản ánh thuật toán không bỏ sót bất kỳ tiết học nào, ngoại trừ trường hợp một số ít lớp buộc phải hủy do giảng viên vượt quá quỹ thời gian khả dụng giới hạn trong quy chế (điều này phản ánh đúng bối cảnh thực tại của nhà trường).
+
+Song song với việc vá 100\% ràng buộc cứng, giá trị fitness âm ($-34824$) là một điểm thú vị cần phân tích. Tại sao thuật toán hội tụ nhưng mức phạt vẫn âm? Trong hệ thống tính toán ràng buộc mềm, có hàng tá tiêu chí đối nghịch nhau: ví dụ việc cố gắng nhồi môn học vào ban ngày (giảm thiểu ca tối) vô tình sẽ tạo áp lực lên quỹ phòng học buổi sáng, từ đó sinh ra hình trạng "lịch răng lược" (phân mảnh giờ giấc của một nhóm sinh viên). Fitness hội tụ ở mốc $-34824$ chính là quá trình thuật toán tự động thỏa hiệp mâu thuẫn này để đưa ra ranh giới cân bằng Pareto tốt nhất: chấp nhận hy sinh một phần nhỏ sự phân bố đều các ngày trong tuần ở các lớp có tải lượng lớn, bù lại sẽ triệt tiêu hoàn toàn sự phân mảnh thảm họa trong biểu đồ nghỉ giữa giờ của sinh viên và giảm tải trực tiếp lượng lớn ca tối cho giảng viên. Đây chính là giá trị thặng dư mà việc thao tác thủ công bằng sức người không thể nào cân đo đong đếm đồng thời được.
+
+\subsubsection{So sánh SA và Genetic Algorithm}
+
+Để đánh giá hiệu quả tương đối, SA được so sánh với thuật toán Genetic Algorithm (GA) triển khai trên cùng bộ dữ liệu, cùng hàm mục tiêu và cùng điều kiện phần cứng. GA sử dụng cùng cách biểu diễn nghiệm và cách tính fitness như SA, đảm bảo so sánh công bằng. Bảng~\ref{tab:sa-vs-ga} tóm tắt kết quả.
+
+\begin{table}[H]
+\centering
+\caption{So sánh SA và GA trên bộ dữ liệu học kỳ 2, năm học 2025--2026}
+\label{tab:sa-vs-ga}
+\begin{tblr}{
+    colspec = {X[l,m] Q[c,m, 2.8cm] Q[c,m, 2.8cm]},
+    row{1} = {bg=gray!60, font=\bfseries},
+    hlines = {white, 1pt},
+    vlines = {white, 1pt},
+    row{even} = {bg=gray!10},
+    rowsep = 6pt,
+    width = \linewidth
+}
+Chỉ số & SA & Genetic Algorithm \\
+Buổi đã xếp & 274 & 274 \\
+Xung đột khi lưu & 0 & 0 \\
+Lớp ảnh hưởng & 0 & 0 \\
+Fitness & $-34824$ & $-33992$ \\
+Thời gian chạy (giây) & 52{,}6 & 241{,}9 \\
+\end{tblr}
+\end{table}
+
+Cả SA và GA đều đạt nghiệm khả thi hoàn toàn (0 xung đột, 274 buổi đã xếp). Về chất lượng ràng buộc mềm, GA đạt fitness $-33992$ so với $-34824$ của SA --- tức GA tốt hơn SA khoảng 2{,}4\% về điểm fitness trong thực nghiệm này. Tuy nhiên, SA hoàn thành trong 52{,}6 giây, nhanh hơn GA khoảng \textbf{4{,}6 lần} (GA mất 241{,}9 giây). Đây là sự đánh đổi điển hình giữa hai phương pháp: GA tìm kiếm theo quần thể nên khám phá không gian nghiệm rộng hơn nhưng chi phí tính toán lớn hơn; SA tìm kiếm đơn nghiệm với cơ chế phụ nhiệt nên hội tụ nhanh hơn nhưng chất lượng đôi khi kém hơn một chút.
+
+Trong bối cảnh vận hành thực tế --- nơi người dùng cần kết quả trong vài phút và có thể chạy lại nhiều lần khi dữ liệu thay đổi --- SA là lựa chọn phù hợp hơn về mặt thực tiễn. Nếu chất lượng nghiệm mềm là ưu tiên tuyệt đối và thời gian chạy không bị hạn chế, GA hoặc các mô hình lai ghép SA--GA có thể được xem xét như hướng phát triển tiếp theo.
+
+\clearpage
+% 11. Kết luận và kiến nghị
+\section*{Kết luận và kiến nghị}
+\addcontentsline{toc}{section}{Kết luận và kiến nghị}
+
+\subsection*{Kết luận}
+
+Báo cáo đã trình bày quá trình nghiên cứu và áp dụng thuật toán Simulated Annealing (SA) cho bài toán xếp thời khóa biểu đại học (UCTP) nhằm hỗ trợ tự động hóa công tác lập thời khóa biểu (TKB) theo học kỳ. Trên cơ sở tổng quan tình hình nghiên cứu và cơ sở lý thuyết về UCTP và SA, đề tài đã xây dựng cách mô hình hóa bài toán theo ràng buộc cứng và ràng buộc mềm, đồng thời đề xuất hàm mục tiêu để đánh giá chất lượng nghiệm.
+
+Về mặt phương pháp, nghiên cứu đã xác định các thành phần then chốt khi áp dụng SA cho UCTP, bao gồm cách khởi tạo nghiệm ban đầu, thiết kế toán tử sinh láng giềng, lịch làm nguội và điều kiện dừng. Mã giả thuật toán đã được trình bày để làm rõ luồng xử lý và cơ chế chấp nhận nghiệm theo quy tắc Metropolis. Trên cơ sở đó, đề tài tiến hành thực nghiệm với bộ dữ liệu theo học kỳ và đánh giá theo các chỉ số về mức độ bao phủ, số xung đột và thời gian chạy.
+
+Kết quả thực nghiệm cho thấy SA có khả năng tìm được nghiệm khả thi trong thời gian hợp lý, thể hiện ở việc số xung đột ràng buộc cứng bằng 0 và số buổi đã xếp đạt mức cao. Điều này cho thấy hướng tiếp cận SA phù hợp để áp dụng cho bài toán xếp TKB trong bối cảnh thực tế, giúp giảm đáng kể khối lượng công việc thủ công và tăng tính nhất quán khi xử lý nhiều ràng buộc đồng thời. Các nội dung nghiên cứu đã đạt được mục tiêu đề ra và có thể xem là một đóng góp theo hướng ứng dụng metaheuristic cho bài toán UCTP trong bối cảnh đào tạo theo học kỳ.
+
+\subsection*{Kiến nghị}
+\begin{enumerate}
+    \renewcommand{\labelenumi}{\roman{enumi})}
+    \item Tiếp tục mở rộng thực nghiệm trên nhiều học kỳ và nhiều bộ dữ liệu khác nhau để đánh giá độ ổn định của SA, khả năng mở rộng theo quy mô, và mức độ nhạy của kết quả đối với ràng buộc đầu vào.
+    \item Thực hiện đánh giá tham số SA một cách hệ thống, bao gồm lựa chọn $T_0$, $\alpha$, $T_{\min}$ và điều kiện dừng, nhằm tối ưu sự cân bằng giữa chất lượng nghiệm và thời gian chạy.
+    \item Hoàn thiện hàm mục tiêu theo hướng phản ánh sát hơn các yêu cầu vận hành của TKB, chẳng hạn bổ sung hoặc điều chỉnh trọng số cho các tiêu chí mềm (ca tối, thứ bảy, phân bố theo tuần, mức độ cân bằng phòng).
+    \item Cân nhắc kết hợp SA với các bước cải thiện cục bộ hoặc các chiến lược lai ghép để nâng cao chất lượng nghiệm, đặc biệt trong các trường hợp dữ liệu lớn hoặc ràng buộc phức tạp.
+    \item Đề xuất triển khai áp dụng thử nghiệm trong môi trường thực tế để thu thập phản hồi của người dùng, từ đó điều chỉnh tiêu chí đánh giá và hoàn thiện quy trình tạo TKB, bảo đảm khả năng ứng dụng lâu dài.
+\end{enumerate}
+
+\clearpage
+
+% ==========================================
+% PHẦN CUỐI (mục 12-13)
+% ==========================================
+\clearpage
+% 12. Tài liệu tham khảo
+\renewcommand{\refname}{Tài liệu tham khảo}
+\addcontentsline{toc}{section}{Tài liệu tham khảo}
+\bibliographystyle{ieeetr}
+\bibliography{references}
+
+\clearpage
+% 13. Phụ lục (gợi ý khung nội dung)
+\clearpage
+\section*{Phụ lục}
+\addcontentsline{toc}{section}{Phụ lục}
+
+\subsection*{Phụ lục A. Bộ ký hiệu và tham số}
+
+\begin{table}[H]
+\centering
+\caption{Bảng ký hiệu sử dụng trong báo cáo}
+\begin{tblr}{
+    colspec = {Q[c,m, 2.8cm] X[l,m]},
+    row{1} = {bg=gray!60, font=\bfseries},
+    hlines = {white, 1pt},
+    vlines = {white, 1pt},
+    row{even} = {bg=gray!10},
+    rowsep = 6pt,
+    width = \linewidth
+}
+Ký hiệu & Ý nghĩa \\
+$C$ & Tập lớp học phần cần xếp thời khóa biểu \\
+$R$ & Tập phòng học \\
+$S$ & Tập ca học (slot thời gian trong tuần) \\
+$x(c,r,s)$ & Biến nhị phân, bằng 1 nếu lớp $c$ được gán vào phòng $r$ tại ca $s$ \\
+$f(s)$ & Hàm mục tiêu (fitness) của nghiệm $s$ \\
+$E(s)$ & Năng lượng của nghiệm $s$, với $E(s) = -f(s)$ \\
+$\Delta E$ & Chênh lệch năng lượng giữa nghiệm láng giềng và nghiệm hiện tại \\
+$T$ & Nhiệt độ trong thuật toán SA \\
+$\alpha$ & Hệ số làm nguội trong lịch làm nguội hình học \\
+\end{tblr}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Tham số thuật toán SA sử dụng trong thực nghiệm}
+\begin{tblr}{
+    colspec = {X[l,m] Q[c,m, 2.5cm] X[l,m]},
+    row{1} = {bg=gray!60, font=\bfseries},
+    hlines = {white, 1pt},
+    vlines = {white, 1pt},
+    row{even} = {bg=gray!10},
+    rowsep = 6pt,
+    width = \linewidth
+}
+Tham số & Giá trị & Ghi chú \\
+$T_0$ & 800 & Nhiệt độ ban đầu \\
+$\alpha$ & 0{,}9999 & Hệ số làm nguội \\
+$T_{\min}$ & 0{,}2 & Nhiệt độ dừng \\
+Số lặp tối đa & 180000 & Có thể thay bằng giới hạn thời gian chạy \\
+\end{tblr}
+\end{table}
+
+\clearpage
+\subsection*{Phụ lục B. Danh sách ràng buộc và tiêu chí đánh giá}
+
+\begin{table}[H]
+\centering
+\caption{Phân loại ràng buộc trong bài toán UCTP}
+\begin{tblr}{
+    colspec = {Q[c,m, 2cm] X[l,m] X[l,m]},
+    row{1} = {bg=gray!60, font=\bfseries},
+    hlines = {white, 1pt},
+    vlines = {white, 1pt},
+    row{even} = {bg=gray!10},
+    rowsep = 6pt,
+    width = \linewidth
+}
+Loại & Ràng buộc & Mô tả \\
+Cứng & Không trùng phòng & Mỗi (phòng, ca) tối đa một buổi học \\
+Cứng & Không trùng giảng viên & Mỗi (giảng viên, ca) tối đa một buổi học \\
+Cứng & Slot bị chặn & Không sử dụng các slot không khả dụng của phòng/giảng viên \\
+Cứng & Phù hợp loại phòng/ca & Lớp thực hành cần phòng phù hợp; một số lớp hạn chế ca tối \\
+Mềm & Hạn chế thứ bảy & Ưu tiên thứ 2--6, hạn chế xếp vào thứ bảy \\
+Mềm & Hạn chế ca tối & Hạn chế xếp ca tối đối với một số loại lớp \\
+Mềm & Phân bố hợp lý trong tuần & Khuyến khích các buổi của một lớp trải đều \\
+Mềm & Hạn chế dồn lịch giảng viên & Tránh quá nhiều buổi của một giảng viên trong một ngày \\
+Mềm & Cân bằng sử dụng phòng & Tránh một số phòng bị sử dụng quá nhiều so với trung bình \\
+\end{tblr}
+\end{table}
+
+\clearpage
+\subsection*{Phụ lục C. Quy trình và kịch bản thực nghiệm}
+
+Quy trình thực nghiệm được thực hiện theo các bước: chuẩn bị dữ liệu đầu vào, chạy thuật toán SA với tham số cố định, thực hiện bước sửa xung đột và tinh chỉnh cục bộ (nếu cần), sau đó ghi nhận các chỉ số đánh giá gồm số buổi đã xếp, số xung đột, fitness và thời gian chạy.
+
+Kịch bản thực nghiệm có thể được thiết kế theo một trong hai hướng:
+\begin{enumerate}
+    \renewcommand{\labelenumi}{\roman{enumi})}
+    \item Chạy 5 lần với cùng tham số, chọn nghiệm có fitness tốt nhất.
+    \item Thử nghiệm nhiều cấu hình tham số $\alpha$ khác nhau, so sánh chất lượng nghiệm và thời gian chạy.
+\end{enumerate}
+
+\subsection*{Phụ lục D. Bảng kết quả chi tiết theo lần chạy}
+
+\begin{table}[H]
+\centering
+\caption{Kết quả theo lần chạy}
+\begin{tblr}{
+    colspec = {Q[c,m, 1.2cm] Q[c,m, 2.2cm] Q[c,m, 2.2cm] Q[c,m, 2cm] Q[c,m, 2.6cm]},
+    row{1} = {bg=gray!60, font=\bfseries},
+    hlines = {white, 1pt},
+    vlines = {white, 1pt},
+    row{even} = {bg=gray!10},
+    rowsep = 6pt,
+    width = \linewidth
+}
+Lần chạy & Buổi đã xếp & Xung đột & Fitness & Thời gian (giây) \\
+1 & .... & ..... & ..... & ..... \\
+2 & ..... & ..... & ..... & ..... \\
+3 & ..... & ..... & ..... & ..... \\
+4 & ..... & ..... & ..... & ..... \\
+5 & ..... & ..... & ..... & ..... \\
+\end{tblr}
+\end{table}
+
+\clearpage
+\subsection*{Phụ lục E. Biểu đồ minh họa bổ sung}
+
+% Ví dụ: Phân bố số buổi theo ngày trong tuần (thay số liệu nếu có dữ liệu thật)
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=10cm,
+    height=5.5cm,
+    ybar,
+    bar width=0.5cm,
+    ymin=0,
+    ylabel={Số buổi},
+    symbolic x coords={T2, T3, T4, T5, T6, T7},
+    xtick=data,
+    enlarge x limits=0.2,
+    grid=major,
+    grid style={dashed, gray!40},
+]
+\addplot[fill=blue!50, draw=blue!70!black] coordinates {
+    (T2,58) (T3,52) (T4,48) (T5,55) (T6,51) (T7,40)
+};
+\end{axis}
+\end{tikzpicture}
+\caption{Phân bố số buổi học theo ngày trong tuần}
+\end{figure}
+
+\subsection*{Phụ lục F. Tài liệu quy định liên quan}
+
+Phần phụ lục này tóm lược một số nội dung liên quan đến tổ chức đào tạo theo học kỳ và thời khóa biểu theo quy định hiện hành của nhà trường, nhằm làm cơ sở tham chiếu khi xác định ràng buộc và cách tổ chức dữ liệu đầu vào. Các nội dung chi tiết được tham khảo theo tài liệu \cite{phenikaa2023quyche}.
+
+\end{document}

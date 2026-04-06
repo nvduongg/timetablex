@@ -1,0 +1,37 @@
+KHUNG CTĐT — Gợi ý triển khai (khớp backend TimetableX)
+====================================================
+
+1) Import học phần (nếu chưa có trong CSDL)
+   - Import file: data/hoc_phan_mau.tsv (danh mục đầy đủ: gộp mẫu gốc + bổ sung + môn tốt nghiệp/đồ án theo khoa; theo template Môn học / Course).
+   - hoc_phan_mau_550.tsv chỉ còn là nguồn legacy cho script build_hoc_phan_mau.ps1; không cần import riêng nếu đã import hoc_phan_mau.tsv.
+
+2) Tạo CTĐT trên UI (Quản lý CTĐT)
+   - Chọn đúng Ngành (Major), Khóa (Cohort), Xác nhận năm nhập học.
+   - Đặt tên gợi ý theo bảng khung_ctdt_meta.tsv.
+
+3) Import lộ trình (Roadmap) cho từng CTĐT vừa tạo
+   - API / Excel mẫu: 3 cột — (0) Học kỳ chỉ số 1,2,3… (1) Mã học phần (2) Tên học phần (cột 2 chỉ để đọc, backend bỏ qua).
+   - Mỗi dòng: một học kỳ + một mã môn. Có thể gộp nhiều kỳ một môn bằng dấu phẩy ở cột 1 (vd: "1,2") nhưng các file .tsv gửi kèm đã tách theo kỳ cho dễ kiểm tra tín chỉ.
+   - Đổi đuôi .tsv → mở bằng Excel → Lưu dạng .xlsx (sheet đầu) nếu hệ thống chỉ nhận xlsx.
+   - File lộ trình (TSV, 3 cột tab — mở Excel → Lưu .xlsx nếu cần), nhãn khóa K19:
+     • roadmap_ICT2_K19_Ky_thuat_phan_mem.tsv
+     • roadmap_ICT5_K19_Tri_tue_nhan_tao.tsv
+     • roadmap_EEE1_K19_Dieu_khien_tu_dong_hoa.tsv
+     • roadmap_VEE1_K19_Ky_thuat_oto.tsv
+     • roadmap_FBE1_K19_Quan_tri_kinh_doanh.tsv
+     • roadmap_FIDT1_K19_Kinh_te_so.tsv
+     • roadmap_FLE1_K19_Ngon_ngu_Anh.tsv
+     • roadmap_BIO1_K19_Cong_nghe_sinh_hoc.tsv
+     • roadmap_PHA1_K19_Duoc_hoc.tsv
+     • roadmap_MED1_K19_Y_khoa_15_ky.tsv
+
+Ràng buộc thiết kế đã áp dụng
+- Các CTĐT 12 kỳ: mỗi kỳ gắn số môn sao cho tổng tín chỉ gần trong khoảng 8–16 (đã cân khi soạn); **tổng chương trình (theo bảng tín chỉ trong hoc_phan_mau.tsv) đã được kéo về khoảng ~130–150 TC** bằng cách lược bớt các học phần tự chọn/đè chồng (CNTT, kinh tế số, du lịch, v.v.) — trước đây nhiều lộ trình ~170–200 TC vì gom quá nhiều khối kiến thức ngoài ngành.
+- CTĐT Y khoa (MED1): 15 học kỳ; **tổng TC cao hơn đại trà** (~190 TC sau khi giữ khối lâm sàng cốt lõi); import vẫn chấp nhận học kỳ >12.
+
+Kiểm tra sau import: mở “Lộ trình” trên UI và đối chiếu tổng TC theo từng kỳ nếu cần chỉnh nhẹ.
+
+4) Giảng viên và ma trận môn dạy được
+   - Pool họ tên gốc (ưu tiên nguồn công khai Phenikaa): data/giang_vien_cong_khai_pool.tsv
+   - Sinh file import (~430 hồ sơ, mỗi học phần ~4 GV trong khoa): chạy data/build_giang_vien_mau.ps1 → data/giang_vien_import_mau.tsv
+   - Mở .tsv bằng Excel, lưu .xlsx, import trên UI Quản lý giảng viên (đúng template 5 cột như mẫu backend).

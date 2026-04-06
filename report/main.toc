@@ -1,0 +1,39 @@
+\babel@toc {vietnamese}{}\relax 
+\contentsline {section}{Danh mục bảng biểu}{iii}{Doc-Start}%
+\contentsline {section}{Danh mục hình ảnh}{iii}{Doc-Start}%
+\contentsline {section}{Danh mục những từ viết tắt}{iv}{Doc-Start}%
+\contentsline {section}{Mở đầu}{1}{table.caption.1}%
+\contentsline {section}{Tổng quan tình hình nghiên cứu thuộc lĩnh vực đề tài}{2}{table.caption.1}%
+\contentsline {section}{Lý do lựa chọn đề tài}{3}{table.caption.1}%
+\contentsline {section}{Mục tiêu, nội dung, phương pháp nghiên cứu của đề tài}{4}{table.caption.1}%
+\contentsline {section}{Đối tượng và phạm vi nghiên cứu}{6}{Item.14}%
+\contentsline {section}{\numberline {I}Cơ sở lý thuyết}{7}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Bài toán xếp thời khóa biểu đại học}{7}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Thuật toán Simulated Annealing}{8}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Tổng quan nghiên cứu liên quan}{9}{subsection.1.3}%
+\contentsline {section}{\numberline {II}Mô hình và thuật toán}{10}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Bài toán xếp TKB tại Đại học Phenikaa}{10}{subsection.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.1}Quy trình xếp TKB hiện tại}{10}{subsubsection.2.1.1}%
+\contentsline {subsubsection}{\numberline {2.1.2}Đặc điểm và những hạn chế khi xếp TKB thủ công}{10}{subsubsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.2}Mô hình hóa bài toán}{11}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.1}Định nghĩa và ký hiệu}{11}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}Ràng buộc cứng và ràng buộc mềm}{11}{subsubsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.3}Hàm mục tiêu}{12}{subsubsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.3}Áp dụng thuật toán SA vào bài toán}{13}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}Khởi tạo nghiệm ban đầu}{13}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}Thiết kế láng giềng}{13}{subsubsection.2.3.2}%
+\contentsline {subsubsection}{\numberline {2.3.3}Lịch làm nguội và điều kiện dừng}{13}{subsubsection.2.3.3}%
+\contentsline {subsubsection}{\numberline {2.3.4}Mã giả thuật toán}{14}{subsubsection.2.3.4}%
+\contentsline {section}{\numberline {III}Thực nghiệm và kết quả}{16}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Dữ liệu và thiết lập thí nghiệm}{16}{subsection.3.1}%
+\contentsline {subsubsection}{\numberline {3.1.1}Bộ dữ liệu}{16}{subsubsection.3.1.1}%
+\contentsline {subsubsection}{\numberline {3.1.2}Thiết lập thí nghiệm}{16}{subsubsection.3.1.2}%
+\contentsline {subsubsection}{\numberline {3.1.3}Quy trình thực nghiệm}{17}{subsubsection.3.1.3}%
+\contentsline {subsection}{\numberline {3.2}Kết quả thực nghiệm và đánh giá}{19}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}Kết quả chính}{19}{subsubsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2}Biểu đồ minh họa}{19}{subsubsection.3.2.2}%
+\contentsline {subsubsection}{\numberline {3.2.3}Phân tích và thảo luận}{21}{subsubsection.3.2.3}%
+\contentsline {subsubsection}{\numberline {3.2.4}So sánh SA và Genetic Algorithm}{21}{subsubsection.3.2.4}%
+\contentsline {section}{Kết luận và kiến nghị}{23}{table.caption.9}%
+\contentsline {section}{Tài liệu tham khảo}{24}{Item.44}%
+\contentsline {section}{Phụ lục}{25}{Item.44}%

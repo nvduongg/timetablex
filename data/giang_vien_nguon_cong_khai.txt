@@ -1,0 +1,13 @@
+Danh sách họ tên ban đầu trong giang_vien_cong_khai_pool.tsv được trích từ trang công khai ĐH Phenikaa (Phenikaa School of Computing: leadership, people), tin tức PSEB/FP, tài liệu đội ngũ FBE/FP, và giới thiệu công khai đơn vị.
+
+Sinh ma trận GV ↔ học phần (mỗi môn ~4 GV trong khoa). Email demo ngắn: {mã_khoa}.{slot}@gv.phenikaa.vn (vd: fcs.003@gv.phenikaa.vn).
+  powershell -File data/build_giang_vien_mau.ps1
+  hoặc: python data/gen_giang_vien_mau.py (cần openpyxl để có thêm .xlsx)
+
+Nhập vào hệ thống: UI Quản lý giảng viên → Import Excel. Mở giang_vien_import_mau.tsv bằng Excel → Lưu dạng .xlsx (sheet đầu đúng 5 cột như mẫu API).
+
+Quy ước bổ sung pool: ưu tiên trang đơn vị Phenikaa; không dùng tên hư cấu kiểu Nguyễn Văn A. Các khoa ít hồ sơ trong pool được lấp bằng cách lặp họ tên đã xác minh từ khoa nguồn (kiểu kiêm nhiệm trong dữ liệu demo — khác email, cùng khoa đích).
+
+Kiểm tra tự động (đối chiếu hoc_phan_mau.tsv): email không trùng; mọi mã môn trong cột ma trận đều tồn tại và đúng khoa chủ quản với cột Mã Khoa của dòng GV. Tiêu đề UTF-8 lấy từ giang_vien_import_header.txt để tránh lỗi mojibake khi build bằng PowerShell.
+
+Lưu ý import backend: LecturerService chỉ đọc ô Excel kiểu chuỗi (STRING). Trong Excel, nên định dạng cột Email/Mã môn là Text; nếu lưu số scientific notation có thể làm hỏng email.

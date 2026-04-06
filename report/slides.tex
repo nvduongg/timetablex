@@ -1,0 +1,569 @@
+% ============================================================================
+% SLIDE BẢO VỆ ĐỀ TÀI NGHIÊN CỨU KHOA HỌC
+% Nghiên cứu thuật toán Simulated Annealing cho bài toán xếp TKB đại học
+% ============================================================================
+\documentclass[aspectratio=169,10pt]{beamer}
+
+% --- Ngôn ngữ và font ---
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+
+% --- Toán & thuật toán ---
+\usepackage{amsmath,amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% --- Đồ thị ---
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{calc, shapes.geometric, arrows.meta, positioning, decorations.pathreplacing}
+
+% --- Bảng biểu đẹp ---
+\usepackage{booktabs}
+
+% --- Theme ---
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% Tùy chỉnh màu sắc chuyên nghiệp
+\definecolor{phenikaa}{RGB}{0, 128, 128}   % Teal
+\definecolor{phenikaa2}{RGB}{0, 100, 100}
+\definecolor{lightbg}{RGB}{245, 250, 250}
+\definecolor{accentred}{RGB}{180, 50, 50}
+
+\setbeamercolor{palette primary}{bg=phenikaa,fg=white}
+\setbeamercolor{palette secondary}{bg=phenikaa2,fg=white}
+\setbeamercolor{palette tertiary}{bg=phenikaa2,fg=white}
+\setbeamercolor{structure}{fg=phenikaa}
+\setbeamercolor{title}{fg=white,bg=phenikaa}
+\setbeamercolor{frametitle}{fg=white,bg=phenikaa}
+\setbeamercolor{block title}{fg=white,bg=phenikaa}
+\setbeamercolor{block body}{bg=lightbg}
+\setbeamercolor{block title alerted}{fg=white,bg=accentred}
+\setbeamercolor{block body alerted}{bg=accentred!8}
+\setbeamercolor{item}{fg=phenikaa}
+
+% Thanh footer
+\setbeamertemplate{footline}{%
+  \leavevmode\hbox{%
+    \begin{beamercolorbox}[wd=.33\paperwidth,ht=2.5ex,dp=1.1ex,leftskip=.3cm]{author in head/foot}%
+      \usebeamerfont{author in head/foot}\insertshortauthor
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.34\paperwidth,ht=2.5ex,dp=1.1ex,center]{title in head/foot}%
+      \usebeamerfont{title in head/foot}\insertshorttitle
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.33\paperwidth,ht=2.5ex,dp=1.1ex,rightskip=.3cm plus1fil]{date in head/foot}%
+      \hfill\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}%
+  }\vskip0pt%
+}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{caption}[numbered]
+
+% --- Meta ---
+\title[SA cho bài toán xếp TKB]{Nghiên cứu thuật toán Simulated Annealing\\cho bài toán xếp thời khóa biểu đại học}
+\author[Nguyễn Văn Dương]{%
+  Nguyễn Văn Dương \quad Vũ Viết Huy \quad Nguyễn Thị Ngọc Bích\\[6pt]
+  {\small GVHD: TS. Mai Thúy Nga}%
+}
+\institute[Phenikaa]{Trường Đại học Phenikaa\\Khoa Công nghệ thông tin}
+\date{Tháng 3, 2026}
+
+\begin{document}
+
+% ==========================================================
+% TRANG BÌA
+% ==========================================================
+\begin{frame}[plain]
+\titlepage
+\end{frame}
+
+% ==========================================================
+% NỘI DUNG TRÌNH BÀY
+% ==========================================================
+\begin{frame}{Nội dung trình bày}
+\tableofcontents
+\end{frame}
+
+% ==========================================================
+\section{Giới thiệu bài toán}
+% ==========================================================
+
+\begin{frame}{Bài toán xếp thời khóa biểu đại học (UCTP)}
+\begin{columns}[T]
+\column{0.55\textwidth}
+\begin{block}{Mô tả bài toán}
+Gán các \textbf{lớp học phần} vào các \textbf{ca học} và \textbf{phòng học} sao cho thỏa mãn đồng thời nhiều ràng buộc.
+\end{block}
+
+\vspace{0.3cm}
+\textbf{Đặc điểm:}
+\begin{itemize}
+  \item Bài toán tối ưu tổ hợp thuộc lớp \textbf{NP-khó}
+  \item Không gian nghiệm rất lớn --- khó tìm tối ưu chính xác
+  \item Mục tiêu: tìm nghiệm \textbf{khả thi} và \textbf{chất lượng tốt} trong thời gian hợp lý
+\end{itemize}
+
+\column{0.42\textwidth}
+\begin{block}{Mô hình hóa}
+\begin{itemize}
+  \item $C = \{c_1, \ldots, c_n\}$ --- lớp học phần
+  \item $R = \{r_1, \ldots, r_m\}$ --- phòng học
+  \item $S = \{s_1, \ldots, s_k\}$ --- ca học
+\end{itemize}
+\vspace{0.2cm}
+Nghiệm: danh sách gán $(c, r, d, s)$
+\end{block}
+\end{columns}
+\end{frame}
+
+% ----------------------------------------------------------
+\begin{frame}{Hệ thống ràng buộc}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{alertblock}{Ràng buộc cứng (bắt buộc)}
+\begin{enumerate}
+  \item Không trùng phòng trong cùng ca
+  $$\sum_{i=1}^{n} x(c_i, r_j, s_p) \leq 1$$
+  \item Không trùng giảng viên trong cùng ca
+  \item Không xếp vào slot bị chặn
+  \item Phù hợp loại phòng (LT, TH, Online)
+\end{enumerate}
+\end{alertblock}
+
+\column{0.48\textwidth}
+\begin{block}{Ràng buộc mềm (mong muốn)}
+\begin{enumerate}
+  \item Hạn chế ca tối (offline)
+  \item Hạn chế thứ bảy
+  \item Phân bố đều trong tuần
+  \item Giới hạn tải GV/ngày
+  \item Cân bằng sử dụng phòng
+\end{enumerate}
+\end{block}
+\end{columns}
+
+\vspace{0.4cm}
+\begin{center}
+\small\textit{Vi phạm ràng buộc cứng $\Rightarrow$ TKB không dùng được.
+Vi phạm mềm $\Rightarrow$ TKB kém chất lượng.}
+\end{center}
+\end{frame}
+
+% ==========================================================
+\section{Cơ sở lý thuyết}
+% ==========================================================
+
+\begin{frame}{Thuật toán Simulated Annealing (SA)}
+\begin{columns}[T]
+\column{0.55\textwidth}
+\begin{block}{Ý tưởng cốt lõi}
+Mô phỏng quá trình \textbf{luyện kim}: kim loại nóng chảy được làm nguội chậm để đạt cấu trúc tinh thể ổn định nhất.
+\end{block}
+
+\vspace{0.2cm}
+\textbf{Quy tắc chấp nhận Metropolis:}
+$$P(\text{chấp nhận } s') = \begin{cases} 1 & \text{nếu } \Delta E \leq 0 \\ e^{-\Delta E / T} & \text{nếu } \Delta E > 0 \end{cases}$$
+
+\vspace{0.2cm}
+\textbf{Lịch làm nguội hình học:}
+$$T_{k+1} = \alpha \cdot T_k, \quad 0 < \alpha < 1$$
+
+\column{0.42\textwidth}
+\begin{block}{Vai trò nhiệt độ $T$}
+\begin{itemize}
+  \item $T$ \textbf{cao} $\Rightarrow$ chấp nhận nghiệm kém dễ dàng\\
+  $\rightarrow$ \textit{khám phá rộng}, thoát cực tiểu địa phương
+  \item $T$ \textbf{thấp} $\Rightarrow$ xác suất chấp nhận giảm\\
+  $\rightarrow$ \textit{khai thác sâu}, hội tụ
+\end{itemize}
+\end{block}
+
+\vspace{0.2cm}
+\begin{exampleblock}{Phù hợp với UCTP}
+Không gian nghiệm lớn, dễ kẹt ở các cấu hình xung đột cục bộ $\Rightarrow$ cần cả khám phá lẫn khai thác.
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+% ----------------------------------------------------------
+\begin{frame}{So sánh các phương pháp metaheuristic cho UCTP}
+\begin{table}
+\centering
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Tiêu chí} & \textbf{SA} & \textbf{GA} & \textbf{Tabu Search} \\
+\midrule
+Tìm kiếm & Đơn nghiệm & Quần thể & Đơn nghiệm \\
+Thoát cực tiểu & Nhiệt độ $T$ & Lai ghép + đột biến & Danh sách tabu \\
+Độ phức tạp cài đặt & Thấp & Trung bình & Trung bình--Cao \\
+Tốc độ hội tụ & Nhanh & Chậm hơn & Trung bình \\
+Chi phí tính toán & Thấp & Cao (cả quần thể) & Trung bình \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.3cm}
+\begin{block}{Lựa chọn của đề tài}
+\begin{itemize}
+  \item SA làm thuật toán \textbf{chính} --- đơn giản, hội tụ nhanh, dễ tùy chỉnh
+  \item GA làm thuật toán \textbf{đối sánh} trong thực nghiệm
+\end{itemize}
+\end{block}
+\end{frame}
+
+% ==========================================================
+\section{Mô hình và thuật toán}
+% ==========================================================
+
+\begin{frame}{Hàm mục tiêu (Fitness)}
+\begin{columns}[T]
+\column{0.45\textwidth}
+\begin{block}{Cấu trúc hàm mục tiêu}
+$$f = B - \sum_{i} w_i \cdot V_i$$
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item $B$: điểm thưởng (phân bố đều)
+  \item $V_i$: mức vi phạm tiêu chí $i$
+  \item $w_i$: trọng số
+\end{itemize}
+\end{block}
+Vi phạm cứng bị \textbf{phạt nặng nhất}, đảm bảo ưu tiên tính khả thi.
+
+\column{0.52\textwidth}
+\begin{table}
+\centering
+\footnotesize
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Thành phần} & \textbf{Trọng số} \\
+\midrule
+Xung đột ràng buộc cứng & $-1000$ \\
+Buổi bị thiếu & $-800$ \\
+Ca tối (lớp offline) & $-500$ \\
+Quá tải giảng viên & $-300$ \\
+Dồn lịch GV/ngày ($>2$) & $-100$ \\
+Xếp thứ bảy & $-40$ \\
+Phân bố đều theo tuần & $+15$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{columns}
+\end{frame}
+
+% ----------------------------------------------------------
+\begin{frame}{Thiết kế thuật toán SA cho UCTP}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{block}{1. Khởi tạo tham lam}
+\begin{itemize}
+  \item Sắp xếp lớp theo mức độ khó xếp
+  \item Lớp TH, GV tải cao $\Rightarrow$ xếp trước
+  \item Gán lần lượt vào slot thỏa ràng buộc cứng
+\end{itemize}
+\end{block}
+
+\vspace{0.3cm}
+\begin{block}{2. Toán tử sinh láng giềng}
+\begin{itemize}
+  \item \textbf{Di chuyển} (70\%): dời 1 buổi sang slot mới
+  \item \textbf{Hoán đổi} (30\%): tráo ca-ngày giữa 2 buổi
+  \item Ưu tiên gene xung đột (85\%) khi còn conflict
+\end{itemize}
+\end{block}
+
+\column{0.48\textwidth}
+\begin{block}{3. Cơ chế tăng nhiệt (Reheat)}
+Khi không cải thiện sau \textbf{5.000 vòng} liên tiếp:
+\begin{itemize}
+  \item Nếu còn xung đột và $T < 0{,}3\,T_0$:\\
+  $\Rightarrow$ tăng $T$ lên $0{,}5\,T_0$
+  \item Giúp thoát cực tiểu địa phương
+\end{itemize}
+\end{block}
+
+\vspace{0.3cm}
+\begin{block}{4. Hậu xử lý}
+\begin{itemize}
+  \item Sửa xung đột: tìm slot an toàn cho gene đang conflict
+  \item Tinh chỉnh cục bộ: thử dời từng buổi để tăng fitness
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+% ----------------------------------------------------------
+\begin{frame}{Quy trình tổng quát}
+\begin{center}
+\begin{tikzpicture}[
+    node distance=0.5cm and 0.8cm,
+    box/.style={rectangle, draw=phenikaa, fill=phenikaa!10, minimum width=2.4cm, minimum height=0.6cm, align=center, font=\footnotesize, rounded corners=3pt, line width=0.8pt},
+    arrow/.style={->, >=stealth, thick, phenikaa}
+]
+\node[box] (a) {Chuẩn bị\\dữ liệu};
+\node[box, right=of a] (b) {Khởi tạo\\tham lam};
+\node[box, right=of b] (c) {Vòng lặp\\SA};
+\node[box, right=of c] (d) {Reheat nếu\\bị kẹt};
+\node[box, right=of d] (e) {Sửa xung đột\\+ Tinh chỉnh};
+\draw[arrow] (a) -- (b);
+\draw[arrow] (b) -- (c);
+\draw[arrow] (c) -- (d);
+\draw[arrow] (d) -- (e);
+\draw[arrow, dashed, phenikaa!60] (d.south) -- ++(0,-0.45) -| (c.south);
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.15cm}
+\begin{table}
+\centering
+\footnotesize
+\begin{tabular}{@{}lrl@{}}
+\toprule
+\textbf{Tham số} & \textbf{Giá trị} & \textbf{Lý do} \\
+\midrule
+$T_0$ & 800 & Khám phá rộng ban đầu \\
+$\alpha$ & 0,9999 & Nguội chậm, tránh hội tụ sớm \\
+$T_{\min}$ & 0,2 & Xác suất chấp nhận $\approx 0$ \\
+Số lặp tối đa & 180.000 & Dừng chính: $T < T_{\min}$ \\
+Thời gian tối đa & 8 phút & Vận hành thực tế \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+% ==========================================================
+\section{Thực nghiệm và kết quả}
+% ==========================================================
+
+\begin{frame}{Bộ dữ liệu thực nghiệm}
+\begin{block}{Học kỳ 2, Năm học 2025--2026}
+Dữ liệu thực tế của trường đại học đa ngành, gồm lớp lý thuyết và thực hành thuộc nhiều khoa.
+\end{block}
+
+\vspace{0.2cm}
+\begin{table}
+\centering
+\footnotesize
+\begin{tabular}{@{}lrl@{}}
+\toprule
+\textbf{Thành phần} & \textbf{Giá trị} & \textbf{Ghi chú} \\
+\midrule
+Tổng buổi cần xếp & 274 & Mỗi buổi = 1 sự kiện gán $(c, r, d, s)$ \\
+Loại phòng & 3 & Lý thuyết, Thực hành, Trực tuyến \\
+Ca học & T2--T7 & Nhiều ca/ngày, gồm ca tối \\
+Ràng buộc cứng & 3 loại & Phòng, giảng viên, slot chặn \\
+Ràng buộc mềm & 5 loại & Ca tối, T7, phân bố, tải GV, cân bằng phòng \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.15cm}
+\begin{exampleblock}{Đặc điểm đáng chú ý}
+2 GV cần nhiều buổi hơn slot khả dụng $\Rightarrow$ thuật toán \textbf{tối đa hóa} buổi xếp được.
+\end{exampleblock}
+\end{frame}
+
+% ----------------------------------------------------------
+\begin{frame}{Kết quả SA}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{table}
+\centering
+\small
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Chỉ số} & \textbf{Giá trị} \\
+\midrule
+Buổi đã xếp & \textbf{274} \\
+Xung đột khi lưu & \textbf{0} \\
+Lớp ảnh hưởng & 0 \\
+Fitness & $-34\,824$ \\
+Thời gian chạy & \textbf{52,6 giây} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.3cm}
+\begin{exampleblock}{Nhận xét}
+\begin{itemize}
+  \item Nghiệm \textbf{khả thi hoàn toàn} (0 xung đột)
+  \item Dùng chưa đến 11\% thời gian cho phép (8 phút)
+\end{itemize}
+\end{exampleblock}
+
+\column{0.48\textwidth}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+    width=6cm, height=4.2cm,
+    xlabel={\footnotesize Thời gian (s)},
+    ylabel={\footnotesize Fitness},
+    xmin=0, xmax=55, ymin=-43000, ymax=-32000,
+    grid=major, grid style={dashed, gray!40},
+    title style={font=\footnotesize\bfseries},
+    title={Diễn biến Fitness},
+    label style={font=\footnotesize},
+    tick label style={font=\tiny},
+]
+\addplot[smooth, thick, color=phenikaa, line width=1.2pt,
+    mark=*, mark size=1.2pt,
+    mark options={fill=white, draw=phenikaa},
+] coordinates {
+    (0,-42000) (8,-39500) (15,-37200) (22,-35800)
+    (30,-35100) (38,-34900) (45,-34850) (52.6,-34824)
+};
+
+% Annotation
+\draw[dashed, gray, thin] (axis cs:20,-43000) -- (axis cs:20,-32000);
+\node[font=\tiny, rotate=90, anchor=south] at (axis cs:10,-33500) {Khám phá};
+\node[font=\tiny, rotate=90, anchor=south] at (axis cs:37,-33500) {Khai thác};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\end{columns}
+\end{frame}
+
+% ----------------------------------------------------------
+\begin{frame}{So sánh SA và Genetic Algorithm}
+\begin{table}
+\centering
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Chỉ số} & \textbf{SA} & \textbf{GA} \\
+\midrule
+Buổi đã xếp & 274 & 274 \\
+Xung đột khi lưu & 0 & 0 \\
+Lớp ảnh hưởng & 0 & 0 \\
+Fitness & $-34\,824$ & $\mathbf{-33\,992}$ \\
+Thời gian chạy & $\mathbf{52{,}6\text{s}}$ & $241{,}9\text{s}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.4cm}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{block}{GA tốt hơn về chất lượng mềm}
+\begin{itemize}
+  \item Fitness cao hơn SA khoảng \textbf{2,4\%}
+  \item Quần thể → khám phá rộng hơn
+\end{itemize}
+\end{block}
+
+\column{0.48\textwidth}
+\begin{alertblock}{SA nhanh hơn \textbf{4,6 lần}}
+\begin{itemize}
+  \item 52,6s vs 241,9s
+  \item Đơn nghiệm → chi phí thấp
+  \item Khả thi cho vận hành thực tế
+\end{itemize}
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ----------------------------------------------------------
+\begin{frame}{Phân tích đánh đổi Chất lượng -- Tốc độ}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+    width=9cm, height=4.5cm,
+    xlabel={Thời gian chạy (giây)},
+    ylabel={Fitness (cao hơn = tốt hơn)},
+    xmin=0, xmax=280,
+    ymin=-36000, ymax=-33000,
+    grid=major, grid style={dashed, gray!30},
+    legend style={at={(0.03,0.97)}, anchor=north west, font=\footnotesize},
+    label style={font=\footnotesize},
+    tick label style={font=\footnotesize},
+]
+\addplot[only marks, mark=*, mark size=4pt, phenikaa, line width=1pt]
+    coordinates {(52.6,-34824)};
+\addplot[only marks, mark=square*, mark size=4pt, accentred, line width=1pt]
+    coordinates {(241.9,-33992)};
+
+\legend{SA, GA}
+
+% Annotations
+\node[font=\footnotesize, anchor=south west, phenikaa] at (axis cs:58,-34824) {\textbf{SA}: 52,6s};
+\node[font=\footnotesize, anchor=south east, accentred] at (axis cs:237,-33992) {\textbf{GA}: 241,9s};
+
+% Arrow
+\draw[->, thick, gray!60] (axis cs:72,-34750) -- (axis cs:220,-34100);
+\node[font=\tiny, gray, rotate=17] at (axis cs:145,-34500) {Đánh đổi tốc độ -- chất lượng};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.1cm}
+\begin{block}{Kết luận so sánh}
+Cả hai đều đạt nghiệm \textbf{khả thi}. SA phù hợp cho vận hành thực tế (kết quả nhanh, chạy lại nhiều lần). GA phù hợp khi thời gian không giới hạn.
+\end{block}
+\end{frame}
+
+% ==========================================================
+\section{Kết luận và kiến nghị}
+% ==========================================================
+
+\begin{frame}{Kết luận}
+\begin{block}{Đóng góp của đề tài}
+\begin{enumerate}\setlength{\itemsep}{3pt}
+  \item Mô hình hóa UCTP (\textbf{3 ràng buộc cứng}, \textbf{5 mềm}), xây dựng hàm mục tiêu phản ánh chất lượng TKB
+  \item Thiết kế SA hoàn chỉnh: khởi tạo tham lam, move/swap, lịch làm nguội, reheat, hậu xử lý
+  \item Thực nghiệm dữ liệu thực (HK2, 2025--2026): \textbf{0 xung đột}, \textbf{274 buổi}, \textbf{52,6s}
+  \item So sánh SA--GA: SA nhanh \textbf{4,6 lần}, GA tốt hơn \textbf{2,4\%} fitness
+\end{enumerate}
+\end{block}
+
+\vspace{0.2cm}
+\begin{alertblock}{Ý nghĩa thực tiễn}
+SA đủ nhanh và chính xác để hỗ trợ \textbf{tự động hóa} lập TKB, giảm đáng kể thời gian xử lý thủ công.
+\end{alertblock}
+\end{frame}
+
+% ----------------------------------------------------------
+\begin{frame}{Kiến nghị và hướng phát triển}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{block}{Cải tiến thuật toán}
+\begin{enumerate}
+  \item Đánh giá tham số $T_0$, $\alpha$, $T_{\min}$ có hệ thống
+  \item Mô hình lai ghép \textbf{SA--GA}: khởi tạo bằng SA, cải thiện bằng GA
+  \item Bổ sung thêm ràng buộc mềm thực tế
+\end{enumerate}
+\end{block}
+
+\column{0.48\textwidth}
+\begin{block}{Mở rộng thực nghiệm}
+\begin{enumerate}
+  \item Chạy trên \textbf{nhiều học kỳ} để đánh giá độ ổn định
+  \item Đánh giá khả năng \textbf{mở rộng quy mô}
+  \item Triển khai thử nghiệm thực tế, thu thập phản hồi người dùng
+\end{enumerate}
+\end{block}
+\end{columns}
+\end{frame}
+
+% ==========================================================
+% SLIDE CẢM ƠN
+% ==========================================================
+\begin{frame}[plain]
+\begin{center}
+\vspace{2cm}
+{\Huge\color{phenikaa}\textbf{Cảm ơn quý thầy cô!}}
+
+\vspace{1cm}
+{\large Nhóm xin sẵn sàng tiếp nhận câu hỏi và góp ý.}
+
+\vspace{1.5cm}
+{\small
+Nguyễn Văn Dương $\cdot$ Vũ Viết Huy $\cdot$ Nguyễn Thị Ngọc Bích\\[4pt]
+GVHD: TS. Mai Thúy Nga\\[4pt]
+Trường Đại học Phenikaa --- Tháng 3, 2026
+}
+\end{center}
+\end{frame}
+
+\end{document}

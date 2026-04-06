@@ -18,6 +18,8 @@ public interface CurriculumRepository extends JpaRepository<Curriculum, Long> {
     // để giới hạn lớp biên chế theo đúng ngành có CTĐT chứa học phần đó.
     List<Curriculum> findByCohort(String cohort);
 
+    List<Curriculum> findByCohortIgnoreCase(String cohort);
+
     @EntityGraph(type = EntityGraph.EntityGraphType.LOAD, attributePaths = {
             "details",
             "details.course",

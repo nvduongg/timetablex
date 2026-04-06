@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { App, Table, Select, Tag, Space, Alert, Button, Modal, Tooltip, Flex, Typography, Progress, Collapse } from 'antd';
-import { CalendarOutlined, ThunderboltOutlined, CheckCircleOutlined, EditOutlined, DeleteOutlined, BulbOutlined, LoadingOutlined, FileExcelOutlined, TeamOutlined, WarningOutlined } from '@ant-design/icons';
+import { CalendarOutlined, ThunderboltOutlined, CheckCircleOutlined, EditOutlined, DeleteOutlined, BulbOutlined, LoadingOutlined, FileExcelOutlined, TeamOutlined, WarningOutlined, BookOutlined } from '@ant-design/icons';
 import * as SemesterService from '../services/semesterService';
 import * as TimetableService from '../services/timetableService';
 import * as RoomService from '../services/roomService';
 import * as TimeService from '../services/timeService';
-import * as ClassService from '../services/classService';
+import * as ClassSectionService from '../services/classSectionService';
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -64,7 +64,7 @@ function saveGaEvaluationToStorage(data) {
 /**
  * Module 4: Xếp Thời khóa biểu (Core Engine)
  * P.ĐT kích hoạt thuật toán xếp TKB tự động hoặc chỉnh sửa thủ công.
- * Hỗ trợ lọc TKB theo lớp biên chế và gán lớp biên chế cho lớp học phần.
+ * Lọc xem TKB theo lớp học phần (trong học kỳ). Chi tiết lớp biên chế vẫn hiển thị trên bảng / modal.
  */
 const TimetableManagement = () => {
     const { message: messageApi, modal } = App.useApp();
@@ -98,9 +98,9 @@ const TimetableManagement = () => {
     });
     const progressIntervalRef = useRef(null);
 
-    // Lọc theo lớp biên chế (chỉ dùng để xem TKB)
-    const [adminClasses, setAdminClasses] = useState([]);
-    const [selectedAdminClassId, setSelectedAdminClassId] = useState(null);
+    /** Danh sách lớp học phần theo học kỳ — dùng cho bộ lọc xem TKB */
+    const [classSections, setClassSections] = useState([]);
+    const [selectedSectionId, setSelectedSectionId] = useState(null);
 
     useEffect(() => {
         SemesterService.getSemesters().then(res => {
@@ -110,21 +110,30 @@ const TimetableManagement = () => {
         });
         RoomService.getRooms().then(res => setRooms(res.data || []));
         TimeService.getShifts().then(res => setShifts(res.data || [])).catch(() => {});
-        ClassService.getClasses().then(res => setAdminClasses(res.data || [])).catch(() => {});
     }, []);
+
+    useEffect(() => {
+        if (!currentSemesterId) {
+            setClassSections([]);
+            return;
+        }
+        ClassSectionService.getClassSectionsBySemester(currentSemesterId)
+            .then(res => setClassSections(Array.isArray(res.data) ? res.data : []))
+            .catch(() => setClassSections([]));
+    }, [currentSemesterId]);
 
     useEffect(() => {
         if (currentSemesterId) {
             fetchTimetable();
         }
-    }, [currentSemesterId, selectedAdminClassId]);
+    }, [currentSemesterId, selectedSectionId]);
 
     const fetchTimetable = async () => {
         if (!currentSemesterId) return;
         setLoading(true);
         try {
-            const res = selectedAdminClassId
-                ? await TimetableService.getTimetableByAdminClass(currentSemesterId, selectedAdminClassId)
+            const res = selectedSectionId
+                ? await TimetableService.getTimetable(currentSemesterId, selectedSectionId)
                 : await TimetableService.getTimetable(currentSemesterId);
             setTimetableEntries(res.data || []);
         } catch {
@@ -375,7 +384,7 @@ const TimetableManagement = () => {
 
     const hasDraftEntries = timetableEntries.some(e => e.status === 'DRAFT');
     const canExport = currentSemesterId && timetableEntries.length > 0;
-    const selectedAdminClass = adminClasses.find(a => a.id === selectedAdminClassId);
+    const selectedSection = classSections.find(s => s.id === selectedSectionId);
     const sortedEntries = [...timetableEntries].sort((a, b) => {
         if (a.dayOfWeek !== b.dayOfWeek) return a.dayOfWeek - b.dayOfWeek;
         const aP = a.startPeriod ?? a.shift?.startPeriod ?? a.timeSlot?.periodIndex ?? 0;
@@ -536,7 +545,7 @@ const TimetableManagement = () => {
                         variant="filled"
                         style={{ minWidth: 200 }}
                         value={currentSemesterId}
-                        onChange={v => { setCurrentSemesterId(v); setSelectedAdminClassId(null); }}
+                        onChange={v => { setCurrentSemesterId(v); setSelectedSectionId(null); }}
                         placeholder="Học kỳ"
                         optionLabelProp="label"
                     >
@@ -554,28 +563,37 @@ const TimetableManagement = () => {
                         ))}
                     </Select>
 
-                    {/* Lọc theo lớp biên chế */}
+                    {/* Lọc theo lớp học phần */}
                     <Select
                         variant="filled"
-                        style={{ minWidth: 200 }}
-                        value={selectedAdminClassId}
-                        onChange={setSelectedAdminClassId}
-                        placeholder="Lọc theo lớp biên chế..."
+                        style={{ minWidth: 280 }}
+                        value={selectedSectionId}
+                        onChange={setSelectedSectionId}
+                        placeholder="Lọc theo lớp học phần..."
                         allowClear
                         showSearch
                         optionFilterProp="label"
                         disabled={!currentSemesterId}
-                        suffixIcon={<TeamOutlined style={{ color: selectedAdminClassId ? '#1890ff' : undefined }} />}
+                        suffixIcon={<BookOutlined style={{ color: selectedSectionId ? '#1890ff' : undefined }} />}
                     >
-                        {adminClasses.map(ac => (
-                            <Option key={ac.id} value={ac.id} label={`${ac.code} - ${ac.name}`}>
-                                <Space size={6}>
-                                    <Tag color="cyan" style={{ border: 'none', fontSize: 11 }}>{ac.code}</Tag>
-                                    <span>{ac.name}</span>
-                                    {ac.cohort && <Text type="secondary" style={{ fontSize: 11 }}>{ac.cohort}</Text>}
-                                </Space>
-                            </Option>
-                        ))}
+                        {classSections.map(sec => {
+                            const c = sec.courseOffering?.course;
+                            const label = `${sec.code || ''} ${c?.code || ''} ${c?.name || ''}`.trim();
+                            return (
+                                <Option key={sec.id} value={sec.id} label={label}>
+                                    <Space size={6} wrap align="center">
+                                        <Tag color="geekblue" style={{ border: 'none', fontSize: 11, margin: 0 }}>{sec.code}</Tag>
+                                        {sec.sectionType && (
+                                            <Tag color={sec.sectionType === 'LT' ? 'blue' : 'purple'} style={{ border: 'none', fontSize: 10, margin: 0, padding: '0 4px' }}>
+                                                {sec.sectionType === 'LT' ? 'LT' : 'TH'}
+                                            </Tag>
+                                        )}
+                                        {c?.code && <Text type="secondary" style={{ fontSize: 11 }}>{c.code}</Text>}
+                                        <span style={{ fontSize: 12 }}>{c?.name || '—'}</span>
+                                    </Space>
+                                </Option>
+                            );
+                        })}
                     </Select>
                 </Space>
                 <Space size={8} wrap>
@@ -620,14 +638,24 @@ const TimetableManagement = () => {
                 </Space>
             </div>
 
-            {selectedAdminClass && (
+            {selectedSection && (
                 <Alert
-                    message={<span>Đang xem TKB của lớp biên chế: <strong>{selectedAdminClass.code} {selectedAdminClass.name}</strong></span>}
+                    message={(
+                        <span>
+                            Đang xem TKB của lớp học phần:{' '}
+                            <strong>{selectedSection.code}</strong>
+                            {' — '}
+                            {selectedSection.courseOffering?.course?.name || '—'}
+                            {selectedSection.courseOffering?.course?.code && (
+                                <Text type="secondary" style={{ marginLeft: 6 }}>({selectedSection.courseOffering.course.code})</Text>
+                            )}
+                        </span>
+                    )}
                     type="info"
                     showIcon
-                    icon={<TeamOutlined />}
+                    icon={<BookOutlined />}
                     closable
-                    onClose={() => setSelectedAdminClassId(null)}
+                    onClose={() => setSelectedSectionId(null)}
                     style={{ marginBottom: 12, border: 'none', background: '#e6f7ff' }}
                 />
             )}

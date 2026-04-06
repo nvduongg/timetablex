@@ -1,0 +1,551 @@
+﻿Mã HP	Tên Học Phần	Tổng TC	TC Lý thuyết	TC Thực hành	TC Tự học	Hình thức (OFFLINE/ONLINE_ELEARNING/ONLINE_COURSERA/HYBRID)	Loại phòng (LT / PM / TN / SB / XT / BV / DN / ONLINE / DA)	Mã Khoa	Mã Bộ môn (Tùy chọn)	Mã Khoa dùng chung (cách nhau dấu phẩy, VD: IT,CS,MATH)
+FP-1001	Dược lâm sàng	3	2	1	0	OFFLINE	LT	FP	FP-BM1	
+FP-1002	Dược lý ứng dụng	3	2	1	0	HYBRID	LT	FP	FP-BM1	
+FP-1003	Độc học — Dược thải và an toàn	2	0	2	0	OFFLINE	TN	FP	FP-BM1	
+FP-1004	Marketing và truyền thông sức khỏe	3	2	1	0	OFFLINE	LT	FP	FP-BM1	
+FP-1005	Sinh phẩm và vaccine	3	2	1	0	OFFLINE	TN	FP	FP-BM1	
+FP-1006	Dược phẩm lâm sàng các nhóm thuốc	3	2	1	0	OFFLINE	LT	FP	FP-BM1	
+FP-1007	Seminar chuyên đề Dược	3	1	0	2	ONLINE_ELEARNING	ONLINE	FP	FP-BM1	
+FP-1008	Quản lý chất lượng dược phẩm	2	0	2	0	ONLINE_COURSERA	ONLINE	FP	FP-BM1	
+FP-1009	Thông tin dược và kê đơn	3	2	1	0	ONLINE_ELEARNING	ONLINE	FP	FP-BM1	
+FP-1010	Điều dưỡng dược lâm sàng	2	2	0	0	ONLINE_ELEARNING	ONLINE	FP	FP-BM1	
+FP-1011	Bào chế và công nghệ dược	3	2	1	0	OFFLINE	TN	FP	FP-BM1	
+FP-1012	Dược liệu và thuốc cổ truyền	2	1	0	1	ONLINE_ELEARNING	ONLINE	FP	FP-BM1	
+FP-1013	Thực tập cơ sở sản xuất dược	2	0	2	0	OFFLINE	DN	FP	FP-BM1	
+FP-1014	Sinh dược	3	2	1	0	HYBRID	TN	FP	FP-BM1	
+FP-1015	Kiểm nghiệm dược phẩm	4	3	1	0	OFFLINE	TN	FP	FP-BM1	
+FP-1016	Dược lý	4	3	1	0	ONLINE_ELEARNING	ONLINE	FP	FP-BM1	
+FP-1017	Phân tích dược — UV–Vis và HPLC	3	2	1	0	ONLINE_COURSERA	ONLINE	FP	FP-BM1	
+FP-1018	Chọn thuốc và theo dõi điều trị	2	0	2	0	OFFLINE	PM	FP	FP-BM1	
+FP-1019	Hóa dược	3	1	0	2	HYBRID	LT	FP	FP-BM1	
+FN-1020	Y học cơ sở ứng dụng trong điều dưỡng	3	2	1	0	OFFLINE	LT	FN	FN-BM1	
+FN-1021	Kỹ năng giao tiếp và đạo đức nghề nghiệp	4	3	1	0	OFFLINE	LT	FN	FN-BM1	
+FN-1022	Dinh dưỡng và ăn bệnh lý	3	2	1	0	ONLINE_ELEARNING	ONLINE	FN	FN-BM1	
+FN-1023	Chăm sóc người bệnh ngoại khoa	4	3	1	0	OFFLINE	PM	FN	FN-BM1	
+FN-1024	Cấp cứu và hồi sinh cơ bản	2	1	0	1	ONLINE_ELEARNING	ONLINE	FN	FN-BM1	
+FN-1025	Hộ sinh cơ sở	3	2	1	0	ONLINE_COURSERA	ONLINE	FN	FN-BM1	
+FN-1026	Điều dưỡng tâm thần	3	2	1	0	OFFLINE	LT	FN	FN-BM1	
+FN-1027	An toàn người bệnh và kiểm soát nhiễm khuẩn	3	2	1	0	OFFLINE	LT	FN	FN-BM1	
+FN-1028	Chăm sóc người bệnh nhiễm	4	3	1	0	OFFLINE	PM	FN	FN-BM1	
+FN-1029	Điều dưỡng cộng đồng	3	1	0	2	ONLINE_ELEARNING	ONLINE	FN	FN-BM1	
+FN-1030	Chăm sóc giảm nhẹ và công tác xã hội trong y tế	3	1	0	2	ONLINE_ELEARNING	ONLINE	FN	FN-BM1	
+FN-1031	Điều dưỡng người cao tuổi	3	1	0	2	ONLINE_ELEARNING	ONLINE	FN	FN-BM1	
+FN-1032	Luật Y tế và chế độ hộ sinh	3	2	1	0	OFFLINE	LT	FN	FN-BM1	
+FN-1033	Hộ sinh trong chuyển dạ sinh	2	1	1	0	HYBRID	LT	FN	FN-BM1	
+FN-1034	Theo dõi thai — Sản khoa hộ sinh	3	2	1	0	OFFLINE	PM	FN	FN-BM1	
+FN-1035	Thực tập điều dưỡng lâm sàng	3	2	1	0	OFFLINE	BV	FN	FN-BM1	
+FN-1036	Thực tập hộ sinh	3	2	1	0	HYBRID	BV	FN	FN-BM1	
+FN-1037	Điều dưỡng trong COVID và bệnh hô hấp	3	2	1	0	OFFLINE	LT	FN	FN-BM1	
+FN-1038	Điều dưỡng trẻ em	4	3	1	0	OFFLINE	LT	FN	FN-BM1	
+BMS-1039	Dược lý cơ sở	3	2	1	0	HYBRID	TN	BMS	BMS-BM1	
+BMS-1040	Dịch tễ học cơ sở	3	2	1	0	ONLINE_ELEARNING	ONLINE	BMS	BMS-BM1	
+BMS-1041	Tâm lý học y khoa	2	1	1	0	HYBRID	LT	BMS	BMS-BM1	
+BMS-1042	Sinh tin học trong y sinh	3	1	0	2	HYBRID	LT	BMS	BMS-BM1	
+BMS-1043	Thực hành giải phẫu — Prosection	3	1	0	2	ONLINE_ELEARNING	ONLINE	BMS	BMS-BM1	
+BMS-1044	Sinh lý học	2	0	2	0	OFFLINE	TN	BMS	BMS-BM1	
+BMS-1045	Miễn dịch học	2	0	2	0	ONLINE_COURSERA	ONLINE	BMS	BMS-BM1	
+BMS-1046	Thực hành sinh lý và thí nghiệm động vật	2	0	2	0	ONLINE_COURSERA	ONLINE	BMS	BMS-BM1	
+BMS-1047	Pháp y cơ sở	3	2	1	0	ONLINE_COURSERA	ONLINE	BMS	BMS-BM1	
+BMS-1048	Y học cổ truyền cơ sở	3	2	1	0	OFFLINE	TN	BMS	BMS-BM1	
+BMS-1049	Hóa phân tích trong sinh học	2	0	2	0	ONLINE_COURSERA	ONLINE	BMS	BMS-BM1	
+BMS-1050	Cell biology nâng cao	3	2	1	0	OFFLINE	TN	BMS	BMS-BM1	
+BMS-1051	Mô học — Histology	2	1	1	0	HYBRID	TN	BMS	BMS-BM1	
+BMS-1052	Giải phẫu người	3	2	1	0	OFFLINE	TN	BMS	BMS-BM1	
+BMS-1053	Sinh hóa y học	2	1	1	0	ONLINE_COURSERA	ONLINE	BMS	BMS-BM1	
+BMS-1054	Di truyền y học	2	1	1	0	OFFLINE	LT	BMS	BMS-BM1	
+BMS-1055	Phôi thai học	2	2	0	0	OFFLINE	LT	BMS	BMS-BM1	
+BMS-1056	Laboratory biosafety	2	2	0	0	OFFLINE	LT	BMS	BMS-BM1	
+BMS-1057	Vi-sinh lâm sàng	3	2	1	0	HYBRID	TN	BMS	BMS-BM1	
+ME-1058	Seminar kỹ thuật y sinh	3	2	1	0	ONLINE_COURSERA	ONLINE	ME	ME-BM1	
+ME-1059	Bảo trì thiết bị y tế	3	2	1	0	HYBRID	XT	ME	ME-BM1	
+ME-1060	Thực tập xét nghiệm lâm sàng	3	1	0	2	OFFLINE	LT	ME	ME-BM1	
+ME-1061	Siêu âm chẩn đoán cơ bản	3	2	1	0	OFFLINE	TN	ME	ME-BM1	
+ME-1062	Vật lý trị liệu và nhiệt trị liệu	3	2	1	0	OFFLINE	BV	ME	ME-BM1	
+ME-1063	Tổng quan công nghệ sinh học trong lâm sàng	3	2	1	0	ONLINE_ELEARNING	ONLINE	ME	ME-BM1	
+ME-1064	Hóa sinh lâm sàng	3	2	1	0	ONLINE_ELEARNING	ONLINE	ME	ME-BM1	
+ME-1065	Kỹ thuật xét nghiệm huyết học	4	3	1	0	ONLINE_ELEARNING	ONLINE	ME	ME-BM1	
+ME-1066	Kỹ thuật điện tim — Holter	2	1	1	0	ONLINE_ELEARNING	ONLINE	ME	ME-BM1	
+ME-1067	Thực tập PHCN	2	1	1	0	HYBRID	PM	ME	ME-BM1	
+ME-1068	Miễn dịch và xét nghiệm huyết học dịch	3	2	1	0	OFFLINE	TN	ME	ME-BM1	
+ME-1069	Thực tập hình ảnh y học	2	1	1	0	ONLINE_COURSERA	ONLINE	ME	ME-BM1	
+ME-1070	Xét nghiệm nước tiểu và dịch cơ thể	3	1	0	2	HYBRID	LT	ME	ME-BM1	
+ME-1071	Kỹ thuật lấy mẫu và an toàn phòng xét nghiệm	2	1	1	0	OFFLINE	TN	ME	ME-BM1	
+ME-1072	Vi sinh — Ký sinh trùng lâm sàng	2	2	0	0	OFFLINE	TN	ME	ME-BM1	
+ME-1073	An toàn bức xạ và ALARA	3	2	1	0	OFFLINE	LT	ME	ME-BM1	
+ME-1074	Kỹ thuật hình ảnh y học — X-quang	3	2	1	0	OFFLINE	TN	ME	ME-BM1	
+ME-1075	Chất lượng và kiểm soát nội bộ XN	3	2	1	0	OFFLINE	TN	ME	ME-BM1	
+ME-1076	CT và MRI — Nguyên lý và tác dụng phụ	3	2	1	0	OFFLINE	PM	ME	ME-BM1	
+PUD-1077	Thực tập lâm sàng RHM III	3	2	1	0	OFFLINE	BV	PUD	PUD-BM1	
+PUD-1078	Ngoại nha tiểu phẫu	2	0	2	0	OFFLINE	TN	PUD	PUD-BM1	
+PUD-1079	Nha nhi	2	2	0	0	HYBRID	LT	PUD	PUD-BM1	
+PUD-1080	Nha chữa trị bệnh lý cứng	2	0	2	0	HYBRID	BV	PUD	PUD-BM1	
+PUD-1081	Thực tập lâm sàng RHM I	2	2	0	0	HYBRID	LT	PUD	PUD-BM1	
+PUD-1082	Phục hình cố định và tháo lắp	2	2	0	0	ONLINE_ELEARNING	ONLINE	PUD	PUD-BM1	
+PUD-1083	Quản lý phòng khám RHM	2	1	1	0	OFFLINE	TN	PUD	PUD-BM1	
+PUD-1084	Vi phẫu và phục hồi nướu	2	1	1	0	OFFLINE	TN	PUD	PUD-BM1	
+PUD-1085	Nghiên cứu RHM và bằng chứng lâm sàng	3	2	1	0	OFFLINE	LT	PUD	PUD-BM1	
+PUD-1086	Thực tập lâm sàng RHM II	3	2	1	0	HYBRID	PM	PUD	PUD-BM1	
+PUD-1087	Chẩn đoán hình ảnh trong RHM	3	2	1	0	OFFLINE	TN	PUD	PUD-BM1	
+PUD-1088	Seminar chẩn đoán RHM nâng cao	3	1	0	2	ONLINE_ELEARNING	ONLINE	PUD	PUD-BM1	
+PUD-1089	Cấy ghép Implant cơ sở	3	2	1	0	OFFLINE	TN	PUD	PUD-BM1	
+PUD-1090	Luật — Đạo đức nghề nghiệp RHM	2	2	0	0	OFFLINE	LT	PUD	PUD-BM1	
+PUD-1091	Tổng ôn kỳ thi quốc gia RHM	4	3	1	0	OFFLINE	TN	PUD	PUD-BM1	
+PUD-1092	Nội nha	3	2	1	0	ONLINE_ELEARNING	BV	PUD	PUD-BM1	
+PUD-1093	Chỉnh nha học cơ sở	3	2	1	0	ONLINE_COURSERA	ONLINE	PUD	PUD-BM1	
+PUD-1094	Cấp cứu trong RHM	3	2	1	0	ONLINE_COURSERA	ONLINE	PUD	PUD-BM1	
+PUD-1095	Giải phẫu — Sinh lý RHM	3	1	0	2	ONLINE_ELEARNING	ONLINE	PUD	PUD-BM1	
+MD-1096	Ngoại khoa cơ sở	3	2	1	0	OFFLINE	PM	MD	MD-BM1	
+MD-1097	Nhi khoa cơ sở	4	3	1	0	OFFLINE	LT	MD	MD-BM1	
+MD-1098	Dịch tễ và Y sinh thống kê	2	2	0	0	OFFLINE	LT	MD	MD-BM1	
+MD-1099	Y đức và giao tiếp bác sĩ — bệnh nhân	2	2	0	0	OFFLINE	LT	MD	MD-BM1	
+MD-1100	Ung bướu học lâm sàng	2	1	0	1	ONLINE_ELEARNING	ONLINE	MD	MD-BM1	
+MD-1101	Da liễu học cơ sở	2	0	2	0	HYBRID	LT	MD	MD-BM1	
+MD-1102	Sản khoa lâm sàng	3	2	1	0	HYBRID	BV	MD	MD-BM1	
+MD-1103	Mắt — Tai mũi họng cơ sở	3	1	0	2	OFFLINE	LT	MD	MD-BM1	
+MD-1104	Sản phụ khoa cơ sở	3	2	1	0	HYBRID	BV	MD	MD-BM1	
+MD-1105	Tâm thần học cơ sở	4	3	1	0	HYBRID	TN	MD	MD-BM1	
+MD-1106	Phẫu thuật tiêu hóa — Đại tràng	3	2	1	0	ONLINE_COURSERA	ONLINE	MD	MD-BM1	
+MD-1107	Tiêu hóa — Gan mật	3	2	1	0	HYBRID	BV	MD	MD-BM1	
+MD-1108	Truyền nhiễm lâm sàng	3	2	1	0	OFFLINE	BV	MD	MD-BM1	
+MD-1109	Ngoại khoa lâm sàng tiêu hóa	3	2	1	0	OFFLINE	BV	MD	MD-BM1	
+MD-1110	Pháp y và pháp luật y khoa	3	1	0	2	HYBRID	LT	MD	MD-BM1	
+MD-1111	Nội khoa cơ sở	3	2	1	0	ONLINE_COURSERA	BV	MD	MD-BM1	
+MD-1112	Nội tiết — Đái tháo đường	4	3	1	0	OFFLINE	PM	MD	MD-BM1	
+MD-1113	Thực tập lâm sàng đa chuyên khoa II	3	2	1	0	OFFLINE	BV	MD	MD-BM1	
+MD-1114	Da liễu lâm sàng	3	2	1	0	ONLINE_COURSERA	BV	MD	MD-BM1	
+FTME-1115	Thực tập chẩn trị YHCT I	3	2	1	0	OFFLINE	BV	FTME	FTME-BM1	
+FTME-1116	Luật Y học cổ truyền và an toàn thuốc	2	2	0	0	OFFLINE	LT	FTME	FTME-BM1	
+FTME-1117	YHCT trong Nhi	3	2	1	0	ONLINE_COURSERA	ONLINE	FTME	FTME-BM1	
+FTME-1118	Dược lý học cổ truyền	3	2	1	0	ONLINE_COURSERA	ONLINE	FTME	FTME-BM1	
+FTME-1119	Dinh dưỡng và dưỡng sinh trong YHCT	3	2	1	0	OFFLINE	TN	FTME	FTME-BM1	
+FTME-1120	Dinh dưỡng và thực dưỡng học trong YHCT	2	0	2	0	HYBRID	PM	FTME	FTME-BM1	
+FTME-1121	Chẩn đoán YHCT — Tứ chẩn	3	2	1	0	OFFLINE	BV	FTME	FTME-BM1	
+FTME-1122	Bài thuốc và phương pháp điều trị bệnh nội khoa	3	2	1	0	ONLINE_ELEARNING	ONLINE	FTME	FTME-BM1	
+FTME-1123	Bào chế thuốc YHCT	3	1	0	2	ONLINE_COURSERA	ONLINE	FTME	FTME-BM1	
+FTME-1124	Phương thuốc và phối ngũ	2	2	0	0	OFFLINE	LT	FTME	FTME-BM1	
+FTME-1125	Thực tập bệnh viện YHCT	2	2	0	0	ONLINE_ELEARNING	ONLINE	FTME	FTME-BM1	
+FTME-1126	Lý luận Y học cổ truyền	3	2	1	0	ONLINE_COURSERA	ONLINE	FTME	FTME-BM1	
+FTME-1127	Dược liệu — Nhận diện và bảo quản	2	0	2	0	OFFLINE	PM	FTME	FTME-BM1	
+FTME-1128	YHCT trong phụ khoa	3	2	1	0	OFFLINE	LT	FTME	FTME-BM1	
+FTME-1129	Seminar lâm sàng YHCT	4	3	1	0	OFFLINE	LT	FTME	FTME-BM1	
+FTME-1130	Thực tập chẩn trị YHCT II	3	2	1	0	OFFLINE	BV	FTME	FTME-BM1	
+FTME-1131	Nội kinh và tư tưởng Y đạo	3	2	1	0	ONLINE_COURSERA	ONLINE	FTME	FTME-BM1	
+FTME-1132	Châm cứu học	2	0	2	0	ONLINE_COURSERA	ONLINE	FTME	FTME-BM1	
+FTME-1133	Massage — Bấm huyệt trị liệu	2	2	0	0	ONLINE_COURSERA	ONLINE	FTME	FTME-BM1	
+FPH-1134	Sức khỏe môi trường	4	3	1	0	ONLINE_ELEARNING	ONLINE	FPH	FPH-BM1	
+FPH-1135	Thực tập cơ sở y tế dự phòng	2	2	0	0	OFFLINE	LT	FPH	FPH-BM1	
+FPH-1136	Nutrition cộng đồng	3	2	1	0	OFFLINE	TN	FPH	FPH-BM1	
+FPH-1137	Quản lý dịch bệnh và cảnh báo	2	1	1	0	OFFLINE	LT	FPH	FPH-BM1	
+FPH-1138	Phòng chống HIV AIDS và bệnh truyền nhiễm xã hội	2	2	0	0	OFFLINE	LT	FPH	FPH-BM1	
+FPH-1139	Hệ thống thông tin y tế công cộng	2	1	1	0	ONLINE_COURSERA	ONLINE	FPH	FPH-BM1	
+FPH-1140	Quản trị bệnh viện	3	2	1	0	HYBRID	PM	FPH	FPH-BM1	
+FPH-1141	Đồ án mô phỏng kế hoạch phòng dịch	3	2	1	0	OFFLINE	PM	FPH	FPH-BM1	
+FPH-1142	Ethics trong nghiên cứu sức khỏe cộng đồng	3	2	1	0	OFFLINE	PM	FPH	FPH-BM1	
+FPH-1143	Sức khỏe sinh sản — Gia đình	4	3	1	0	ONLINE_ELEARNING	ONLINE	FPH	FPH-BM1	
+FPH-1144	Thống kê y tế	3	2	1	0	OFFLINE	PM	FPH	FPH-BM1	
+FPH-1145	Kinh tế y tế và thanh toán BHYT	4	3	1	0	OFFLINE	TN	FPH	FPH-BM1	
+FPH-1146	Truyền thông sức khỏe	3	2	1	0	OFFLINE	LT	FPH	FPH-BM1	
+FPH-1147	Pháp luật y tế và quản trị y tế	2	2	0	0	OFFLINE	LT	FPH	FPH-BM1	
+FPH-1148	Đánh giá chương trình y tế	3	1	0	2	OFFLINE	LT	FPH	FPH-BM1	
+FPH-1149	Sức khỏe nghề nghiệp	3	2	1	0	OFFLINE	PM	FPH	FPH-BM1	
+FPH-1150	Chất lượng và an toàn người bệnh	2	1	1	0	OFFLINE	TN	FPH	FPH-BM1	
+FPH-1151	Dịch tễ học	2	2	0	0	ONLINE_COURSERA	ONLINE	FPH	FPH-BM1	
+FPH-1152	Seminar chính sách y tế	2	1	1	0	ONLINE_ELEARNING	ONLINE	FPH	FPH-BM1	
+FOS-1153	Phật học và thiền cổ sơ	4	3	1	0	OFFLINE	TN	FOS	FOS-BM1	
+FOS-1154	Đông phương và thế giới Arab	4	3	1	0	HYBRID	TN	FOS	FOS-BM1	
+FOS-1155	Thực địa văn hóa — Field trip	2	0	2	0	ONLINE_ELEARNING	ONLINE	FOS	FOS-BM1	
+FOS-1156	Lịch sử — Văn hóa Đông Á	3	2	1	0	HYBRID	TN	FOS	FOS-BM1	
+FOS-1157	Seminar luận văn Đông phương học	2	1	0	1	ONLINE_ELEARNING	ONLINE	FOS	FOS-BM1	
+FOS-1158	Ngôn ngữ Cổ — Sanscrit cơ bản	2	1	1	0	HYBRID	TN	FOS	FOS-BM1	
+FOS-1159	Hán Nôm đọc hiểu cơ bản	3	1	0	2	ONLINE_ELEARNING	ONLINE	FOS	FOS-BM1	
+FOS-1160	Triết học Đông phương — Khổng — Lão — Phật	3	2	1	0	HYBRID	PM	FOS	FOS-BM1	
+FOS-1161	Phương pháp nghiên cứu Đông phương học	3	2	1	0	ONLINE_ELEARNING	ONLINE	FOS	FOS-BM1	
+FOS-1162	Ngôn ngữ học đối chiếu	3	2	1	0	OFFLINE	TN	FOS	FOS-BM1	
+FOS-1163	Ấn Độ giáo và văn hóa Nam Á	3	2	1	0	HYBRID	LT	FOS	FOS-BM1	
+FOS-1164	Văn học Hàn Quốc đương đại	3	1	0	2	ONLINE_ELEARNING	ONLINE	FOS	FOS-BM1	
+FOS-1165	Quan hệ Việt Nam — ASEAN văn hóa	3	2	1	0	OFFLINE	TN	FOS	FOS-BM1	
+FOS-1166	Văn học cổ điển Trung Hoa	2	2	0	0	ONLINE_ELEARNING	ONLINE	FOS	FOS-BM1	
+FOS-1167	Văn học hiện đại Nhật Bản	3	1	0	2	ONLINE_ELEARNING	ONLINE	FOS	FOS-BM1	
+FOS-1168	Di sản văn hóa phi vật thể	3	2	1	0	ONLINE_COURSERA	ONLINE	FOS	FOS-BM1	
+FOS-1169	Tư tưởng Hồ Chí Minh và phát triển bền vững	3	1	0	2	HYBRID	LT	FOS	FOS-BM1	
+FOS-1170	So sánh văn minh sông Hằng và sông Ấn	3	2	1	0	OFFLINE	LT	FOS	FOS-BM1	
+FOS-1171	Giới tính — Văn hóa và xã hội Đông Á	3	2	1	0	ONLINE_COURSERA	ONLINE	FOS	FOS-BM1	
+FL-1172	Biên — Phiên dịch nền tảng	3	2	1	0	OFFLINE	LT	FL	FL-BM1	
+FL-1173	Đánh giá năng lực ngôn ngữ	2	1	1	0	OFFLINE	PM	FL	FL-BM1	
+FL-1174	Đồ án dịch thuật	3	2	1	0	OFFLINE	PM	FL	FL-BM1	
+FL-1175	Linguistics ứng dụng	3	2	1	0	OFFLINE	PM	FL	FL-BM1	
+FL-1176	Văn học Anh — Mỹ chọn lọc	2	0	2	0	OFFLINE	LT	FL	FL-BM1	
+FL-1177	Seminar văn học hậu thực dân	3	2	1	0	ONLINE_COURSERA	ONLINE	FL	FL-BM1	
+FL-1178	Ngữ âm — Âm vị học tiếng Anh	3	2	1	0	OFFLINE	PM	FL	FL-BM1	
+FL-1179	Dịch — Biên dịch cơ bản	2	2	0	0	ONLINE_ELEARNING	ONLINE	FL	FL-BM1	
+FL-1180	Critical thinking bằng tiếng Anh	2	2	0	0	OFFLINE	LT	FL	FL-BM1	
+FL-1181	Quản lý lớp học CLIL	2	1	1	0	ONLINE_COURSERA	ONLINE	FL	FL-BM1	
+FL-1182	Phương pháp giảng dạy tiếng Anh	2	1	0	1	ONLINE_ELEARNING	ONLINE	FL	FL-BM1	
+FL-1183	Kiểm định Cambridge — TKT	2	0	2	0	HYBRID	PM	FL	FL-BM1	
+FL-1184	Viết học thuật tiếng Anh	2	1	1	0	OFFLINE	LT	FL	FL-BM1	FL,FOS
+FL-1185	Tiếng Anh Y khoa cơ bản	2	0	2	0	OFFLINE	PM	FL	FL-BM1	
+FL-1186	Tiếng Anh thương mại	2	2	0	0	OFFLINE	LT	FL	FL-BM1	
+FL-1187	Dịch phụ đề và media	3	2	1	0	HYBRID	LT	FL	FL-BM1	
+FL-1188	Giao tiếp đa văn hóa	2	0	2	0	OFFLINE	LT	FL	FL-BM1	
+FL-1189	Genre và phân tích diễn ngôn	3	2	1	0	OFFLINE	TN	FL	FL-BM1	FL,FOS
+FL-1190	Ngữ pháp nâng cao	3	2	1	0	HYBRID	PM	FL	FL-BM1	
+FKL-1191	Phương pháp dạy tiếng Hàn	2	1	1	0	OFFLINE	PM	FKL	FKL-BM1	
+FKL-1192	TOPIK intensive	3	2	1	0	OFFLINE	LT	FKL	FKL-BM1	
+FKL-1193	Đọc hiểu báo chí Hàn	3	2	1	0	HYBRID	LT	FKL	FKL-BM1	
+FKL-1194	Từ vựng — Hán tự Hàn cơ bản	3	2	1	0	ONLINE_ELEARNING	ONLINE	FKL	FKL-BM1	
+FKL-1195	Tiếng Hàn du lịch và lễ tân	3	2	1	0	ONLINE_ELEARNING	ONLINE	FKL	FKL-BM1	
+FKL-1196	Tiếng Hàn tài chính và ngân hàng	3	2	1	0	ONLINE_COURSERA	ONLINE	FKL	FKL-BM1	
+FKL-1197	Seminar đương đại Hàn Quốc	3	2	1	0	OFFLINE	LT	FKL	FKL-BM1	
+FKL-1198	Văn hóa Hàn — K-pop và điện ảnh	4	3	1	0	OFFLINE	PM	FKL	FKL-BM1	
+FKL-1199	Thực hành biên phiên Hàn nền tảng	3	2	1	0	ONLINE_COURSERA	ONLINE	FKL	FKL-BM1	
+FKL-1200	So sánh cấu trúc ngữ pháp Hàn — Việt	3	2	1	0	ONLINE_ELEARNING	ONLINE	FKL	FKL-BM1	
+FKL-1201	Điện ảnh Hàn Quốc và ngôn ngữ hội thoại đương đại	4	3	1	0	ONLINE_COURSERA	ONLINE	FKL	FKL-BM1	
+FKL-1202	Phát âm và Ngữ âm tiếng Hàn	3	1	0	2	HYBRID	LT	FKL	FKL-BM1	
+FKL-1203	Dịch Hàn — Việt cơ bản	3	2	1	0	ONLINE_ELEARNING	ONLINE	FKL	FKL-BM1	
+FKL-1204	Ngữ pháp tiếng Hàn TOPIK I–II	3	2	1	0	OFFLINE	PM	FKL	FKL-BM1	
+FKL-1205	Biên — phiên hội chợ thương mại Hàn — Việt	2	1	1	0	OFFLINE	TN	FKL	FKL-BM1	
+FKL-1206	Kinh doanh tiếng Hàn	3	1	0	2	OFFLINE	LT	FKL	FKL-BM1	
+FKL-1207	Nghe nói tiếng Hàn thực tế	3	2	1	0	ONLINE_COURSERA	ONLINE	FKL	FKL-BM1	
+FKL-1208	Hàn Quốc học — Lịch sử xã hội	3	2	1	0	HYBRID	LT	FKL	FKL-BM1	
+FKL-1209	Hán ngữ so sánh Hàn — Trung	3	1	0	2	ONLINE_COURSERA	ONLINE	FKL	FKL-BM1	
+FJL-1210	Đọc hiểu tiếng Nhật tổng hợp	3	2	1	0	OFFLINE	LT	FJL	FJL-BM1	
+FJL-1211	Kinh tế Nhật Bản đương đại	3	2	1	0	OFFLINE	LT	FJL	FJL-BM1	
+FJL-1212	Phương pháp sư phạm tiếng Nhật	2	1	0	1	ONLINE_ELEARNING	ONLINE	FJL	FJL-BM1	FL,FOS
+FJL-1213	Tiếng Nhật kinh doanh	3	2	1	0	ONLINE_ELEARNING	ONLINE	FJL	FJL-BM1	
+FJL-1214	Nghe AV tài liệu Nhật	2	0	2	0	OFFLINE	PM	FJL	FJL-BM1	
+FJL-1215	Thực tập phiên dịch tốc ký	2	1	0	1	ONLINE_ELEARNING	ONLINE	FJL	FJL-BM1	FL,FOS
+FJL-1216	Dịch Nhật — Việt	3	2	1	0	ONLINE_ELEARNING	ONLINE	FJL	FJL-BM1	
+FJL-1217	Đề tài độc lập tiếng Nhật	3	2	1	0	ONLINE_ELEARNING	ONLINE	FJL	FJL-BM1	
+FJL-1218	Keigo và ngữ dụng trong giao tiếp Nhật	2	1	0	1	ONLINE_ELEARNING	ONLINE	FJL	FJL-BM1	
+FJL-1219	JLPT luyện tập	3	1	0	2	OFFLINE	LT	FJL	FJL-BM1	
+FJL-1220	Ngữ pháp cao cấp tiếng Nhật	3	2	1	0	OFFLINE	LT	FJL	FJL-BM1	
+FJL-1221	Văn hóa Nhật Bản hiện đại	2	0	2	0	OFFLINE	LT	FJL	FJL-BM1	
+FJL-1222	Điện ảnh và ngôn ngữ hình ảnh Nhật	4	3	1	0	ONLINE_COURSERA	ONLINE	FJL	FJL-BM1	
+FJL-1223	Giao tiếp tiếng Nhật thực tế	3	2	1	0	OFFLINE	PM	FJL	FJL-BM1	FL,FOS
+FJL-1224	Light novel và dịch văn học trẻ	2	1	1	0	OFFLINE	PM	FJL	FJL-BM1	FL,FOS
+FJL-1225	Thực tập biên — phiên dịch song song	3	2	1	0	OFFLINE	PM	FJL	FJL-BM1	
+FJL-1226	Ngữ pháp tiếng Nhật N4 — N3	2	0	2	0	OFFLINE	LT	FJL	FJL-BM1	
+FJL-1227	Hiragana — Katakana và Kanji sơ cấp	2	2	0	0	ONLINE_ELEARNING	ONLINE	FJL	FJL-BM1	
+FJL-1228	Văn học Nhật chọn lọc	3	1	0	2	OFFLINE	LT	FJL	FJL-BM1	
+FFL-1229	Biên tập song ngữ Pháp — Việt	4	3	1	0	OFFLINE	TN	FFL	FFL-BM1	FL,FOS
+FFL-1230	Văn học Pháp — Maghreb	2	1	0	1	ONLINE_ELEARNING	ONLINE	FFL	FFL-BM1	
+FFL-1231	Văn học Pháp cổ điển	3	2	1	0	HYBRID	PM	FFL	FFL-BM1	
+FFL-1232	Dịch Pháp — Việt	3	2	1	0	OFFLINE	LT	FFL	FFL-BM1	
+FFL-1233	Văn hóa — Xã hội Pháp và Francophonie	3	2	1	0	OFFLINE	LT	FFL	FFL-BM1	
+FFL-1234	Seminar điện ảnh Pháp	3	2	1	0	ONLINE_COURSERA	ONLINE	FFL	FFL-BM1	FL,FOS
+FFL-1235	Francais des affaires	2	1	0	1	ONLINE_ELEARNING	ONLINE	FFL	FFL-BM1	
+FFL-1236	Báo chí và media Pháp ngữ	4	3	1	0	OFFLINE	LT	FFL	FFL-BM1	
+FFL-1237	Từ vựng chủ đề — văn hóa Pháp	3	2	1	0	ONLINE_COURSERA	ONLINE	FFL	FFL-BM1	
+FFL-1238	Thực hành thuyết trình tiếng Pháp	3	2	1	0	OFFLINE	LT	FFL	FFL-BM1	FL,FOS
+FFL-1239	Đọc hiểu văn bản Pháp đương đại	4	1	0	3	ONLINE_ELEARNING	ONLINE	FFL	FFL-BM1	
+FFL-1240	Phát âm tiếng Pháp chuẩn quốc tế	3	2	1	0	OFFLINE	LT	FFL	FFL-BM1	
+FFL-1241	Tiếng Pháp chuyên ngành du lịch	3	1	0	2	ONLINE_COURSERA	ONLINE	FFL	FFL-BM1	
+FFL-1242	DELF luyện thi	3	2	1	0	HYBRID	LT	FFL	FFL-BM1	
+FFL-1243	Hành chính công và văn bản Pháp — Việt	3	1	0	2	OFFLINE	LT	FFL	FFL-BM1	FL,FOS
+FFL-1244	Phương pháp giảng dạy tiếng Pháp	4	3	1	0	OFFLINE	PM	FFL	FFL-BM1	FL,FOS
+FFL-1245	Tiếng Pháp kinh tế	2	1	1	0	OFFLINE	XT	FFL	FFL-BM1	FL,FOS
+FFL-1246	Ngữ pháp tiếng Pháp A1 — B2	2	1	1	0	HYBRID	PM	FFL	FFL-BM1	
+FFL-1247	Hợp tác Pháp — Việt trong giáo dục và văn hóa	2	2	0	0	ONLINE_COURSERA	ONLINE	FFL	FFL-BM1	FL,FOS
+FCL-1248	Viết chữ Hán và bài luận ngắn	3	2	1	0	ONLINE_ELEARNING	ONLINE	FCL	FCL-BM1	
+FCL-1249	Phát âm — Thanh điệu tiếng Trung	3	2	1	0	OFFLINE	LT	FCL	FCL-BM1	
+FCL-1250	Chữ Hán cơ bản và cấu tạo	3	2	1	0	OFFLINE	LT	FCL	FCL-BM1	FL,FOS
+FCL-1251	Luyện nghe báo CCTV và Phoenix TV	3	2	1	0	HYBRID	LT	FCL	FCL-BM1	
+FCL-1252	Ngữ pháp tiếng Hoa hiện đại	3	2	1	0	ONLINE_COURSERA	ONLINE	FCL	FCL-BM1	
+FCL-1253	Phong tục — xã hội Trung Hoa hiện đại	2	2	0	0	HYBRID	LT	FCL	FCL-BM1	
+FCL-1254	Tiếng Trung Hoa đàm phán thương mại	2	1	1	0	ONLINE_COURSERA	ONLINE	FCL	FCL-BM1	
+FCL-1255	Lịch sử tư tưởng Trung Hoa	3	2	1	0	HYBRID	LT	FCL	FCL-BM1	
+FCL-1256	Tiếng Trung cho y tế và du lịch y tế	2	2	0	0	OFFLINE	LT	FCL	FCL-BM1	
+FCL-1257	Tiếng Trung thương mại	3	2	1	0	OFFLINE	PM	FCL	FCL-BM1	
+FCL-1258	Văn hóa Trung Quốc đại lục và Hải ngoại	3	1	0	2	OFFLINE	LT	FCL	FCL-BM1	
+FCL-1259	Tiếng Trung du lịch	2	1	1	0	ONLINE_COURSERA	ONLINE	FCL	FCL-BM1	FL,FOS
+FCL-1260	Thực hành biên phiên	2	0	2	0	ONLINE_COURSERA	ONLINE	FCL	FCL-BM1	
+FCL-1261	Nghe — Nói tiếng Trung giao tiếp	3	2	1	0	OFFLINE	LT	FCL	FCL-BM1	FL,FOS
+FCL-1262	HSK intensive	3	2	1	0	OFFLINE	TN	FCL	FCL-BM1	
+FCL-1263	Dịch Trung — Việt thực hành	4	3	1	0	ONLINE_COURSERA	ONLINE	FCL	FCL-BM1	FL,FOS
+FCL-1264	Văn học Trung Hiện đại	3	1	0	2	OFFLINE	LT	FCL	FCL-BM1	
+FCL-1265	Đọc hiểu HSK 4 — 5	3	2	1	0	ONLINE_COURSERA	ONLINE	FCL	FCL-BM1	
+FCL-1266	Hán văn chọn đọc	2	2	0	0	OFFLINE	LT	FCL	FCL-BM1	FL,FOS
+MEM-1267	Vật liệu kỹ thuật	3	1	0	2	HYBRID	LT	MEM	MEM-BM1	
+MEM-1268	Bảo trì và tin cậy hệ thống	2	0	2	0	ONLINE_COURSERA	ONLINE	MEM	MEM-BM1	
+MEM-1269	Tính toán CAD — mô phỏng FEM cơ bản	2	2	0	0	OFFLINE	LT	MEM	MEM-BM1	
+MEM-1270	CNC và lập trình gia công	2	1	1	0	ONLINE_ELEARNING	ONLINE	MEM	MEM-BM1	
+MEM-1271	Thiết kế CAD — CAE	3	2	1	0	HYBRID	PM	MEM	MEM-BM1	
+MEM-1272	Nguyên lý chi tiết máy	3	1	0	2	ONLINE_COURSERA	ONLINE	MEM	MEM-BM1	
+MEM-1273	Công nghệ chế tạo máy	3	1	0	2	ONLINE_ELEARNING	ONLINE	MEM	MEM-BM1	
+MEM-1274	Hệ thống robot công nghiệp	3	1	0	2	OFFLINE	LT	MEM	MEM-BM1	
+MEM-1275	Đồ án mechatronics	2	2	0	0	OFFLINE	LT	MEM	MEM-BM1	
+MEM-1276	Truyền động thủy lực — Khí nén	4	3	1	0	OFFLINE	PM	MEM	MEM-BM1	
+MEM-1277	An toàn lao động — Phòng cháy xưởng	2	1	1	0	HYBRID	PM	MEM	MEM-BM1	
+MEM-1278	Thực tập xưởng cơ khí	4	3	1	0	OFFLINE	XT	MEM	MEM-BM1	
+MEM-1279	Cơ học kỹ thuật	3	2	1	0	OFFLINE	PM	MEM	MEM-BM1	
+MEM-1280	Seminar công nghệ 4.0 trong chế tạo	4	3	1	0	ONLINE_COURSERA	ONLINE	MEM	MEM-BM1	
+MEM-1281	Quản lý dự án cơ khí	3	2	1	0	OFFLINE	TN	MEM	MEM-BM1	
+MEM-1282	Ứng dụng IoT trong giám sát máy	3	2	1	0	ONLINE_COURSERA	ONLINE	MEM	MEM-BM1	
+MEM-1283	Đồ án thiết kế chi tiết máy	2	1	1	0	HYBRID	TN	MEM	MEM-BM1	
+MEM-1284	Kỹ thuật đo lường và điều khiển	3	2	1	0	HYBRID	TN	MEM	MEM-BM1	
+MEM-1285	Nhiệt kỹ thuật — Truyền nhiệt	4	3	1	0	OFFLINE	TN	MEM	MEM-BM1	
+BCEE-1286	Công nghệ enzyme	3	1	0	2	ONLINE_ELEARNING	ONLINE	BCEE	BCEE-BM1	
+BCEE-1287	Sinh học tế bào và mô nuôi cấy	3	1	0	2	ONLINE_ELEARNING	ONLINE	BCEE	BCEE-BM1	
+BCEE-1288	Xử lý nước và nước thải	3	1	0	2	ONLINE_COURSERA	ONLINE	BCEE	BCEE-BM1	
+BCEE-1289	Khí thải công nghiệp — Công nghệ xử lý	2	2	0	0	ONLINE_COURSERA	ONLINE	BCEE	BCEE-BM1	
+BCEE-1290	Quản lý và thiết kế hệ thống môi trường	3	1	0	2	ONLINE_ELEARNING	ONLINE	BCEE	BCEE-BM1	
+BCEE-1291	Hoá phân tích	2	2	0	0	OFFLINE	LT	BCEE	BCEE-BM1	
+BCEE-1292	Di truyền học phân tử	3	2	1	0	ONLINE_COURSERA	ONLINE	BCEE	BCEE-BM1	
+BCEE-1293	Công nghệ sinh học môi trường	3	2	1	0	ONLINE_ELEARNING	ONLINE	BCEE	BCEE-BM1	
+BCEE-1294	An toàn hóa chất — MSDS	3	2	1	0	HYBRID	LT	BCEE	BCEE-BM1	
+BCEE-1295	Hóa lý — Kinet-xúc tác	2	0	2	0	OFFLINE	TN	BCEE	BCEE-BM1	
+BCEE-1296	Hữu cơ đại cương	3	2	1	0	OFFLINE	TN	BCEE	BCEE-BM1	
+BCEE-1297	Thực hành hóa phân tích hiện đại	2	2	0	0	ONLINE_ELEARNING	ONLINE	BCEE	BCEE-BM1	
+BCEE-1298	Hóa đại cương	2	2	0	0	ONLINE_COURSERA	ONLINE	BCEE	BCEE-BM1	
+BCEE-1299	Đánh giá tác động môi trường	3	2	1	0	OFFLINE	LT	BCEE	BCEE-BM1	
+BCEE-1300	Thực tập nhà máy và lab doanh nghiệp	3	2	1	0	OFFLINE	TN	BCEE	BCEE-BM1	
+BCEE-1301	Thực hành vi sinh và PCR	4	3	1	0	OFFLINE	TN	BCEE	BCEE-BM1	
+BCEE-1302	Đồ án thiết kế phản ứng — Tách chiết	3	2	1	0	ONLINE_COURSERA	ONLINE	BCEE	BCEE-BM1	
+BCEE-1303	Kỹ thuật lên men	2	0	2	0	OFFLINE	TN	BCEE	BCEE-BM1	
+BCEE-1304	Vi sinh học đại cương	4	1	0	3	ONLINE_ELEARNING	ONLINE	BCEE	BCEE-BM1	
+EEE-1305	Vi mạch tương tự cơ bản	3	1	0	2	HYBRID	LT	EEE	EEE-BM1	
+EEE-1306	Trí tuệ nhân tạo trong điều khiển	2	2	0	0	OFFLINE	LT	EEE	EEE-BM1	
+EEE-1307	Hệ thống nhúng và RTOS	3	1	0	2	OFFLINE	LT	EEE	EEE-BM1	
+EEE-1308	Thiết kế vi mạch số — HDL	3	2	1	0	OFFLINE	PM	EEE	EEE-BM1	
+EEE-1309	Seminar chuyển đổi số trong kỹ thuật	2	1	0	1	ONLINE_ELEARNING	ONLINE	EEE	EEE-BM1	
+EEE-1310	Smart grid và năng lượng tái tạo	2	2	0	0	ONLINE_ELEARNING	ONLINE	EEE	EEE-BM1	
+EEE-1311	Thực hành PLC và SCADA	3	2	1	0	ONLINE_COURSERA	ONLINE	EEE	EEE-BM1	
+EEE-1312	Antenna và RF cơ bản	3	1	0	2	ONLINE_COURSERA	ONLINE	EEE	EEE-BM1	
+EEE-1313	Đồ án vi điều khiển	3	2	1	0	OFFLINE	PM	EEE	EEE-BM1	
+EEE-1314	Bảo mật hệ thống nhúng	2	0	2	0	OFFLINE	PM	EEE	EEE-BM1	
+EEE-1315	Lý thuyết điều khiển hiện đại	3	1	0	2	HYBRID	LT	EEE	EEE-BM1	
+EEE-1316	Robot công nghiệp — Động học	3	2	1	0	OFFLINE	TN	EEE	EEE-BM1	
+EEE-1317	Mạch điện tử	3	2	1	0	OFFLINE	PM	EEE	EEE-BM1	
+EEE-1318	Truyền thông số — Giao thức nền tảng	3	2	1	0	OFFLINE	TN	EEE	EEE-BM1	
+EEE-1319	Điện công nghiệp và biến tần	3	2	1	0	OFFLINE	TN	EEE	EEE-BM1	
+EEE-1320	Kỹ thuật số và vi xử lý	2	1	1	0	ONLINE_COURSERA	ONLINE	EEE	EEE-BM1	
+EEE-1321	Thực hành lab điện tử	4	3	1	0	OFFLINE	TN	EEE	EEE-BM1	
+EEE-1322	Xử lý tín hiệu số DSP	2	2	0	0	OFFLINE	LT	EEE	EEE-BM1	
+EEE-1323	Điều khiển tự động — Hệ thống con và ổn định	3	1	0	2	ONLINE_ELEARNING	ONLINE	EEE	EEE-BM1	
+MSE-1324	Vật liệu sinh học và cấy ghép	3	2	1	0	ONLINE_COURSERA	ONLINE	MSE	MSE-BM1	
+MSE-1325	Khoa học pin và vật liệu điện cực	3	2	1	0	ONLINE_COURSERA	ONLINE	MSE	MSE-BM1	
+MSE-1326	Cơ học vật liệu	2	0	2	0	OFFLINE	TN	MSE	MSE-BM1	
+MSE-1327	Gốm và thủy tinh kỹ thuật	2	1	1	0	ONLINE_COURSERA	ONLINE	MSE	MSE-BM1	
+MSE-1328	Vật liệu bán dẫn cơ sở	2	2	0	0	OFFLINE	LT	MSE	MSE-BM1	
+MSE-1329	Chế tạo và gia công vật liệu	3	1	0	2	ONLINE_COURSERA	ONLINE	MSE	MSE-BM1	
+MSE-1330	Độ bền và phá hủy vật liệu	2	1	1	0	OFFLINE	PM	MSE	MSE-BM1	
+MSE-1331	Tính chất và cấu trúc tinh thể	4	3	1	0	HYBRID	PM	MSE	MSE-BM1	
+MSE-1332	Thực hành phòng thí nghiệm vật liệu	3	2	1	0	ONLINE_ELEARNING	ONLINE	MSE	MSE-BM1	
+MSE-1333	Seminar công nghệ chất rắn	3	2	1	0	OFFLINE	LT	MSE	MSE-BM1	
+MSE-1334	Ứng dụng ML trong dự báo tính chất vật liệu	3	2	1	0	OFFLINE	PM	MSE	MSE-BM1	
+MSE-1335	Vật liệu nano và vật liệu thông minh	4	3	1	0	HYBRID	TN	MSE	MSE-BM1	
+MSE-1336	Công nghệ đóng gói vi mạch tổng quan	2	0	2	0	OFFLINE	TN	MSE	MSE-BM1	
+MSE-1337	Mô phỏng vật liệu — DFT giới thiệu	3	2	1	0	OFFLINE	PM	MSE	MSE-BM1	
+MSE-1338	Phân tích vi cấu trúc — SEM — TEM	3	2	1	0	ONLINE_COURSERA	ONLINE	MSE	MSE-BM1	
+MSE-1339	Corrosion và bảo vệ bề mặt	3	2	1	0	HYBRID	TN	MSE	MSE-BM1	
+MSE-1340	Polyme công nghệ cao	2	1	0	1	ONLINE_ELEARNING	ONLINE	MSE	MSE-BM1	
+MSE-1341	Đồ án vật liệu tiên tiến	2	2	0	0	OFFLINE	LT	MSE	MSE-BM1	
+MSE-1342	Khoa học vật liệu đại cương	4	3	1	0	OFFLINE	PM	MSE	MSE-BM1	
+VEE-1343	Thực tập garage — Kiểm định	3	2	1	0	HYBRID	XT	VEE	VEE-BM1	
+VEE-1344	Vật liệu composite trong ô tô	3	2	1	0	OFFLINE	XT	VEE	VEE-BM1	
+VEE-1345	Xe hybrid và EV — Kiến trúc pin	3	1	0	2	ONLINE_COURSERA	ONLINE	VEE	VEE-BM1	
+VEE-1346	Thực tập xử lý nước thải công nghiệp	3	2	1	0	OFFLINE	DN	VEE	VEE-BM1	
+VEE-1347	Động cơ đốt trong — Công thức tính năng lượng	2	0	2	0	HYBRID	LT	VEE	VEE-BM1	
+VEE-1348	Quan trắc môi trường và xử lý	3	2	1	0	ONLINE_COURSERA	ONLINE	VEE	VEE-BM1	
+VEE-1349	An toàn động học — Cân bằng xe	3	1	0	2	HYBRID	LT	VEE	VEE-BM1	
+VEE-1350	Đồ án thiết kế subsystem ô tô	2	1	0	1	ONLINE_ELEARNING	ONLINE	VEE	VEE-BM1	
+VEE-1351	Điện — Điện tử ô tô OBD	2	1	1	0	ONLINE_ELEARNING	ONLINE	VEE	VEE-BM1	
+VEE-1352	Kỹ thuật môi trường — Khí thải xe	3	2	1	0	ONLINE_ELEARNING	ONLINE	VEE	VEE-BM1	
+VEE-1353	Phần mềm điều khiển ECU — Autosar nền tảng	3	2	1	0	OFFLINE	PM	VEE	VEE-BM1	
+VEE-1354	Đánh giá vòng đời xe điện và pin second-life	3	2	1	0	HYBRID	TN	VEE	VEE-BM1	
+VEE-1355	Mô hình hóa ô nhiễm không khí	2	0	2	0	OFFLINE	LT	VEE	VEE-BM1	
+VEE-1356	Khí động học và CFD giới thiệu	2	2	0	0	HYBRID	LT	VEE	VEE-BM1	
+VEE-1357	GIS trong quy hoạch môi trường	2	0	2	0	OFFLINE	PM	VEE	VEE-BM1	
+VEE-1358	Quản lý chất thải rắn đô thị	2	2	0	0	OFFLINE	LT	VEE	VEE-BM1	
+VEE-1359	Sạc nhanh và quản lý nhiệt pin	2	2	0	0	OFFLINE	LT	VEE	VEE-BM1	
+VEE-1360	Hệ thống truyền động ô tô	2	0	2	0	OFFLINE	XT	VEE	VEE-BM1	
+VEE-1361	ADAS và sensor fusion giới thiệu	3	2	1	0	OFFLINE	PM	VEE	VEE-BM1	
+FTH-1362	Thương mại điện tử trong du lịch	4	3	1	0	OFFLINE	PM	FTH	FTH-BM1	
+FTH-1363	Marketing du lịch số	3	2	1	0	OFFLINE	PM	FTH	FTH-BM1	
+FTH-1364	Quản trị khách sạn vận hành buồng phòng	3	2	1	0	OFFLINE	PM	FTH	FTH-BM1	
+FTH-1365	Chất lượng dịch vụ và xử lý khiếu nại	3	2	1	0	OFFLINE	LT	FTH	FTH-BM1	
+FTH-1366	Thực tập công ty lữ hành	4	3	1	0	OFFLINE	DN	FTH	FTH-BM1	
+FTH-1367	Luật du lịch và hướng dẫn viên	3	1	0	2	ONLINE_ELEARNING	ONLINE	FTH	FTH-BM1	
+FTH-1368	Seminar trải nghiệm khách hàng	3	1	0	2	ONLINE_COURSERA	ONLINE	FTH	FTH-BM1	
+FTH-1369	Hướng dẫn du lịch — Kỹ năng storytelling	3	2	1	0	OFFLINE	PM	FTH	FTH-BM1	
+FTH-1370	Lịch sử văn hóa du lịch	2	2	0	0	ONLINE_ELEARNING	ONLINE	FTH	FTH-BM1	
+FTH-1371	Địa lý du lịch Việt Nam	3	2	1	0	HYBRID	LT	FTH	FTH-BM1	
+FTH-1372	Đồ án thiết kế tour	2	0	2	0	HYBRID	TN	FTH	FTH-BM1	
+FTH-1373	Phân tích xu hướng du lịch millennials	3	2	1	0	ONLINE_ELEARNING	ONLINE	FTH	FTH-BM1	
+FTH-1374	Front office và Revenue management	2	1	1	0	ONLINE_ELEARNING	ONLINE	FTH	FTH-BM1	
+FTH-1375	Thực tập khách sạn	3	2	1	0	ONLINE_COURSERA	DN	FTH	FTH-BM1	
+FTH-1376	An toàn — Sơ cứu trong du lịch	2	1	1	0	OFFLINE	LT	FTH	FTH-BM1	
+FTH-1377	F&B — Dịch vụ ẩm thực khách sạn	2	1	1	0	ONLINE_ELEARNING	ONLINE	FTH	FTH-BM1	
+FTH-1378	Sự kiện — MICE tổ chức	3	1	0	2	OFFLINE	LT	FTH	FTH-BM1	
+FTH-1379	Di sản và du lịch bền vững	3	1	0	2	OFFLINE	LT	FTH	FTH-BM1	
+FTH-1380	Quản trị lữ hành	4	3	1	0	ONLINE_COURSERA	ONLINE	FTH	FTH-BM1	
+EIB-1381	Đồ án mô phỏng xuất nhập khẩu	3	2	1	0	OFFLINE	TN	EIB	EIB-BM1	
+EIB-1382	Kinh tế vi mô — Ứng dụng	2	0	2	0	ONLINE_ELEARNING	ONLINE	EIB	EIB-BM1	
+EIB-1383	Đầu tư trực tiếp nước ngoài FDI	3	1	0	2	OFFLINE	LT	EIB	EIB-BM1	
+EIB-1384	Seminar chiến tranh thương mại và chuỗi cung ứng	2	0	2	0	OFFLINE	LT	EIB	EIB-BM1	FBA,FFA
+EIB-1385	Exim documentation và UCP 600 thực hành	3	1	0	2	ONLINE_COURSERA	ONLINE	EIB	EIB-BM1	
+EIB-1386	RCEP và cơ hội thị trường ASEAN — Trung Quốc	3	2	1	0	ONLINE_COURSERA	ONLINE	EIB	EIB-BM1	
+EIB-1387	Thương mại quốc tế và WTO	4	3	1	0	ONLINE_COURSERA	ONLINE	EIB	EIB-BM1	
+EIB-1388	Văn hóa kinh doanh xuyên biên giới	2	0	2	0	OFFLINE	TN	EIB	EIB-BM1	
+EIB-1389	ERP trong logistics	3	2	1	0	OFFLINE	PM	EIB	EIB-BM1	FBA,FFA
+EIB-1390	Kinh tế quốc tế	3	2	1	0	OFFLINE	LT	EIB	EIB-BM1	
+EIB-1391	Ngoại hối và phòng ngừa rủi ro	3	2	1	0	ONLINE_COURSERA	ONLINE	EIB	EIB-BM1	
+EIB-1392	Tài chính quốc tế cơ sở	3	2	1	0	OFFLINE	LT	EIB	EIB-BM1	
+EIB-1393	Quản trị chuỗi cung ứng toàn cầu	3	2	1	0	OFFLINE	TN	EIB	EIB-BM1	
+EIB-1394	Kinh tế vĩ mô — Mở	3	2	1	0	OFFLINE	LT	EIB	EIB-BM1	
+EIB-1395	Pháp luật thương mại quốc tế	3	2	1	0	OFFLINE	TN	EIB	EIB-BM1	
+EIB-1396	Logistics đa phương thức	2	1	0	1	ONLINE_ELEARNING	ONLINE	EIB	EIB-BM1	
+EIB-1397	Incoterms — Hợp đồng thương mại	2	1	1	0	HYBRID	TN	EIB	EIB-BM1	
+EIB-1398	Thực tập doanh nghiệp XNK	2	0	2	0	OFFLINE	DN	EIB	EIB-BM1	
+EIB-1399	Marketing quốc tế	3	1	0	2	HYBRID	LT	EIB	EIB-BM1	
+FBA-1400	Thực tập doanh nghiệp	3	2	1	0	ONLINE_COURSERA	ONLINE	FBA	FBA-BM1	
+FBA-1401	Hành vi tổ chức	3	2	1	0	OFFLINE	TN	FBA	FBA-BM1	
+FBA-1402	Đạo đức kinh doanh	2	0	2	0	HYBRID	TN	FBA	FBA-BM1	
+FBA-1403	Đàm phán trong kinh doanh	3	2	1	0	OFFLINE	LT	FBA	FBA-BM1	
+FBA-1404	Nguyên lý quản trị	3	2	1	0	HYBRID	LT	FBA	FBA-BM1	
+FBA-1405	Quản trị thay đổi	2	1	1	0	OFFLINE	LT	FBA	FBA-BM1	
+FBA-1406	Nghiên cứu marketing	3	2	1	0	OFFLINE	PM	FBA	FBA-BM1	
+FBA-1407	Quản trị nhân lực	2	0	2	0	HYBRID	PM	FBA	FBA-BM1	
+FBA-1408	Quản trị chiến lược	2	0	2	0	HYBRID	TN	FBA	FBA-BM1	
+FBA-1409	Quản lý chuỗi cung ứng — cơ bản	3	2	1	0	OFFLINE	LT	FBA	FBA-BM1	
+FBA-1410	Game theory trong cạnh tranh	3	2	1	0	ONLINE_COURSERA	ONLINE	FBA	FBA-BM1	
+FBA-1411	Seminar CEO talks	3	2	1	0	OFFLINE	LT	FBA	FBA-BM1	
+FBA-1412	Khởi nghiệp và business model canvas	4	3	1	0	OFFLINE	LT	FBA	FBA-BM1	
+FBA-1413	Quản trị vận hành	3	2	1	0	OFFLINE	LT	FBA	FBA-BM1	
+FBA-1414	Tuyển dụng và đánh giá 360	3	2	1	0	ONLINE_COURSERA	ONLINE	FBA	FBA-BM1	
+FBA-1415	Quản trị marketing	3	2	1	0	OFFLINE	LT	FBA	FBA-BM1	
+FBA-1416	Tài chính doanh nghiệp cho QT KD	3	2	1	0	ONLINE_ELEARNING	ONLINE	FBA	FBA-BM1	
+FBA-1417	Đồ án quản trị tổng hợp	2	1	0	1	ONLINE_ELEARNING	ONLINE	FBA	FBA-BM1	
+FBA-1418	Data-driven decision making	3	2	1	0	ONLINE_ELEARNING	ONLINE	FBA	FBA-BM1	
+FFA-1419	Kiểm toán — Chuẩn mực VAS	2	2	0	0	ONLINE_COURSERA	ONLINE	FFA	FFA-BM1	
+FFA-1420	Blockchain và tài sản số — tổng quan	2	0	2	0	ONLINE_COURSERA	ONLINE	FFA	FFA-BM1	
+FFA-1421	Kế toán tài chính	3	2	1	0	HYBRID	PM	FFA	FFA-BM1	
+FFA-1422	Mô hình định giá doanh nghiệp	2	0	2	0	ONLINE_COURSERA	ONLINE	FFA	FFA-BM1	
+FFA-1423	Tài chính tiền tệ	3	2	1	0	ONLINE_COURSERA	ONLINE	FFA	FFA-BM1	
+FFA-1424	Kiểm toán nội bộ	2	0	2	0	OFFLINE	LT	FFA	FFA-BM1	
+FFA-1425	Phái sinh và hedging giới thiệu	2	0	2	0	OFFLINE	TN	FFA	FFA-BM1	
+FFA-1426	Ngân hàng thương mại	2	2	0	0	ONLINE_COURSERA	ONLINE	FFA	FFA-BM1	
+FFA-1427	Nguyên lý kế toán	3	2	1	0	ONLINE_COURSERA	ONLINE	FFA	FFA-BM1	
+FFA-1428	Fintech và thanh toán số	2	2	0	0	OFFLINE	LT	FFA	FFA-BM1	
+FFA-1429	Đồ án kế toán trên phần mềm	3	2	1	0	ONLINE_COURSERA	ONLINE	FFA	FFA-BM1	
+FFA-1430	Pháp luật kinh doanh	2	0	2	0	OFFLINE	LT	FFA	FFA-BM1	
+FFA-1431	Tài chính doanh nghiệp	2	2	0	0	OFFLINE	LT	FFA	FFA-BM1	
+FFA-1432	Quản trị rủi ro tài chính	3	1	0	2	OFFLINE	LT	FFA	FFA-BM1	
+FFA-1433	Thuế — Luật thuế hiện hành	3	1	0	2	OFFLINE	LT	FFA	FFA-BM1	
+FFA-1434	Thị trường chứng khoán	2	1	1	0	OFFLINE	PM	FFA	FFA-BM1	
+FFA-1435	Thực tập ngân hàng — kiểm toán	3	2	1	0	OFFLINE	TN	FFA	FFA-BM1	
+FFA-1436	Quản trị tín dụng	2	1	1	0	ONLINE_ELEARNING	ONLINE	FFA	FFA-BM1	
+FFA-1437	Kế toán quản trị	3	1	0	2	OFFLINE	LT	FFA	FFA-BM1	
+FIS-1438	Lập trình ứng dụng doanh nghiệp	3	2	1	0	OFFLINE	PM	FIS	FIS-BM1	
+FIS-1439	Quản trị an toàn thông tin doanh nghiệp	3	1	0	2	HYBRID	LT	FIS	FIS-BM1	
+FIS-1440	Business intelligence và data warehouse	2	0	2	0	HYBRID	PM	FIS	FIS-BM1	
+FIS-1441	IoT và analytics trong vận hành	3	1	0	2	ONLINE_COURSERA	ONLINE	FIS	FIS-BM1	
+FIS-1442	RPA — tự động hóa quy trình văn phòng	2	1	1	0	OFFLINE	PM	FIS	FIS-BM1	FCS,FAD
+FIS-1443	Big data giới thiệu	3	2	1	0	HYBRID	PM	FIS	FIS-BM1	FCS,FAD
+FIS-1444	Seminar digital transformation	2	0	2	0	HYBRID	TN	FIS	FIS-BM1	FCS,FAD
+FIS-1445	ERP — Cấu hình và tùy biến	3	2	1	0	OFFLINE	PM	FIS	FIS-BM1	
+FIS-1446	Governance và ITIL cơ bản	2	2	0	0	OFFLINE	LT	FIS	FIS-BM1	
+FIS-1447	Đồ án phân tích nghiệp vụ — BA	3	2	1	0	OFFLINE	PM	FIS	FIS-BM1	
+FIS-1448	Low-code — No-code và citizen development	4	3	1	0	OFFLINE	TN	FIS	FIS-BM1	
+FIS-1449	CRM và SCM qua hệ thống	2	0	2	0	ONLINE_COURSERA	ONLINE	FIS	FIS-BM1	FCS,FAD
+FIS-1450	Data governance và master data management	2	0	2	0	ONLINE_ELEARNING	ONLINE	FIS	FIS-BM1	
+FIS-1451	Agile và DevOps trong doanh nghiệp	3	1	0	2	HYBRID	LT	FIS	FIS-BM1	
+FIS-1452	Thực tập IT helpdesk — triển khai	2	2	0	0	OFFLINE	LT	FIS	FIS-BM1	
+FIS-1453	Cơ sở dữ liệu và SQL nâng cao	2	1	0	1	ONLINE_ELEARNING	ONLINE	FIS	FIS-BM1	
+FIS-1454	Phân tích và thiết kế hệ thống thông tin	2	0	2	0	ONLINE_ELEARNING	ONLINE	FIS	FIS-BM1	
+FIS-1455	Kiến trúc hướng sự kiện Event-driven trong SI	2	0	2	0	ONLINE_COURSERA	ONLINE	FIS	FIS-BM1	
+FIS-1456	Quản lý dự án CNTT	3	1	0	2	OFFLINE	LT	FIS	FIS-BM1	FCS,FAD
+FCS-1457	Phần mềm mã nguồn mở	2	1	0	1	ONLINE_ELEARNING	ONLINE	FCS	FCS-BM1	FCS,FAD
+FCS-1458	Cơ sở dữ liệu	3	1	0	2	OFFLINE	LT	FCS	FCS-BM1	FCS,FAD
+FCS-1459	Lập trình hướng đối tượng	2	1	1	0	ONLINE_COURSERA	ONLINE	FCS	FCS-BM1	FCS,FAD
+FCS-1460	Hệ điều hành	3	2	1	0	OFFLINE	PM	FCS	FCS-BM1	
+FCS-1461	Deep learning và ứng dụng	3	1	0	2	ONLINE_ELEARNING	ONLINE	FCS	FCS-BM1	
+FCS-1462	Đồ án phần mềm nhóm	4	1	0	3	ONLINE_ELEARNING	ONLINE	FCS	FCS-BM1	
+FCS-1463	Nhập môn lập trình	2	2	0	0	OFFLINE	LT	FCS	FCS-BM1	
+FCS-1464	Thực tập phát triển phần mềm	3	2	1	0	OFFLINE	TN	FCS	FCS-BM1	
+FCS-1465	Kiến trúc máy tính	3	2	1	0	OFFLINE	PM	FCS	FCS-BM1	
+FCS-1466	Phát triển Web full-stack	2	1	1	0	ONLINE_ELEARNING	ONLINE	FCS	FCS-BM1	
+FCS-1467	Machine learning	3	2	1	0	OFFLINE	PM	FCS	FCS-BM1	
+FCS-1468	Container và Kubernetes cơ bản	2	0	2	0	ONLINE_COURSERA	ONLINE	FCS	FCS-BM1	FCS,FAD
+FCS-1469	Mạng máy tính	4	3	1	0	OFFLINE	PM	FCS	FCS-BM1	
+FCS-1470	Seminar xu hướng CNTT	4	3	1	0	OFFLINE	PM	FCS	FCS-BM1	
+FCS-1471	Cloud-native và microservices	2	1	1	0	ONLINE_ELEARNING	ONLINE	FCS	FCS-BM1	
+FCS-1472	Cấu trúc dữ liệu và giải thuật	3	2	1	0	OFFLINE	TN	FCS	FCS-BM1	
+FCS-1473	An toàn mạng máy tính	3	2	1	0	OFFLINE	PM	FCS	FCS-BM1	
+FCS-1474	Lập trình mobile đa nền tảng	3	1	0	2	OFFLINE	LT	FCS	FCS-BM1	
+FCS-1475	Trí tuệ nhân tạo đại cương	4	3	1	0	OFFLINE	PM	FCS	FCS-BM1	
+FAD-1476	Đạo đức AI và fairness	3	2	1	0	HYBRID	LT	FAD	FAD-BM1	
+FAD-1477	Kỹ thuật prompt và LLM ứng dụng	2	2	0	0	HYBRID	LT	FAD	FAD-BM1	
+FAD-1478	Giải thích mô hình AI	3	2	1	0	OFFLINE	PM	FAD	FAD-BM1	
+FAD-1479	Generative models	3	2	1	0	OFFLINE	PM	FAD	FAD-BM1	FCS,FAD
+FAD-1480	Seminar bài báo NeurIPS — CVPR chọn lọc	2	1	1	0	OFFLINE	PM	FAD	FAD-BM1	FCS,FAD
+FAD-1481	Học tăng cường cơ sở	2	2	0	0	ONLINE_COURSERA	ONLINE	FAD	FAD-BM1	
+FAD-1482	Tối ưu hóa trong học máy	3	1	0	2	OFFLINE	LT	FAD	FAD-BM1	
+FAD-1483	Học máy nâng cao	3	2	1	0	OFFLINE	PM	FAD	FAD-BM1	
+FAD-1484	Đồ án AI tổng hợp	3	2	1	0	ONLINE_ELEARNING	ONLINE	FAD	FAD-BM1	
+FAD-1485	Speech và audio AI	2	2	0	0	ONLINE_ELEARNING	ONLINE	FAD	FAD-BM1	
+FAD-1486	Xác suất thống kê cho AI	3	2	1	0	OFFLINE	TN	FAD	FAD-BM1	
+FAD-1487	Thị giác robot	3	2	1	0	OFFLINE	PM	FAD	FAD-BM1	
+FAD-1488	Knowledge graph và reasoning	3	2	1	0	OFFLINE	TN	FAD	FAD-BM1	FCS,FAD
+FAD-1489	Xử lý ngôn ngữ tự nhiên	3	2	1	0	ONLINE_COURSERA	ONLINE	FAD	FAD-BM1	
+FAD-1490	Thực lab GPU và framework hiện đại	2	1	0	1	ONLINE_ELEARNING	ONLINE	FAD	FAD-BM1	FCS,FAD
+FAD-1491	Multimodal learning	3	2	1	0	ONLINE_COURSERA	ONLINE	FAD	FAD-BM1	
+FAD-1492	MLOps và triển khai model	3	2	1	0	OFFLINE	PM	FAD	FAD-BM1	
+FAD-1493	Thị giác máy tính	3	1	0	2	OFFLINE	LT	FAD	FAD-BM1	
+FAD-1494	Dự báo chuỗi thời gian với deep learning	4	3	1	0	ONLINE_COURSERA	ONLINE	FAD	FAD-BM1	
+FFS-1495	Thực tập nhà máy thực phẩm	3	1	0	2	HYBRID	LT	FFS	FFS-BM1	
+FFS-1496	Logistics lạnh và cold chain	3	2	1	0	OFFLINE	LT	FFS	FFS-BM1	
+FFS-1497	Đồ án dây chuyền sản xuất	2	1	1	0	HYBRID	PM	FFS	FFS-BM1	
+FFS-1498	Công nghệ chế biến thực phẩm	4	3	1	0	OFFLINE	PM	FFS	FFS-BM1	
+FFS-1499	Hóa sinh thực phẩm	3	1	0	2	OFFLINE	LT	FFS	FFS-BM1	
+FFS-1500	Kiểm soát chất lượng và ISO 22000	3	2	1	0	OFFLINE	TN	FFS	FFS-BM1	
+FFS-1501	Dinh dưỡng học	2	2	0	0	OFFLINE	LT	FFS	FFS-BM1	
+FFS-1502	Bảo quản và đóng gói MAP — HPP	4	3	1	0	HYBRID	TN	FFS	FFS-BM1	
+FFS-1503	Công nghệ lên men thực phẩm	3	2	1	0	ONLINE_ELEARNING	ONLINE	FFS	FFS-BM1	
+FFS-1504	Phát triển sản phẩm mới R&D	2	0	2	0	OFFLINE	TN	FFS	FFS-BM1	
+FFS-1505	Thiết kế nhà máy thực phẩm — HACCP	2	1	1	0	OFFLINE	LT	FFS	FFS-BM1	
+FFS-1506	Bao bì thông minh	2	1	1	0	ONLINE_COURSERA	ONLINE	FFS	FFS-BM1	
+FFS-1507	Công nghệ 3D thực phẩm và in thực phẩm	2	2	0	0	OFFLINE	LT	FFS	FFS-BM1	
+FFS-1508	Công nghệ thực phẩm chức năng	3	2	1	0	ONLINE_COURSERA	ONLINE	FFS	FFS-BM1	
+FFS-1509	Vi sinh thực phẩm	3	2	1	0	OFFLINE	PM	FFS	FFS-BM1	
+FFS-1510	An toàn dị ứng thực phẩm và ghi nhãn pháp định	4	3	1	0	OFFLINE	PM	FFS	FFS-BM1	
+FFS-1511	Thực phẩm chức năng	3	2	1	0	OFFLINE	TN	FFS	FFS-BM1	
+FFS-1512	Cảm quan học thực phẩm	3	2	1	0	OFFLINE	TN	FFS	FFS-BM1	
+FFS-1513	Phân tích thực phẩm — HPLC thực phẩm	2	0	2	0	OFFLINE	PM	FFS	FFS-BM1	
+FOL-1514	Luật Lao động	2	2	0	0	ONLINE_COURSERA	ONLINE	FOL	FOL-BM1	
+FOL-1515	Thực tập văn phòng luật — toà án kinh tế	3	2	1	0	OFFLINE	TN	FOL	FOL-BM1	
+FOL-1516	Lịch sử Tư tưởng pháp luật	3	2	1	0	ONLINE_COURSERA	ONLINE	FOL	FOL-BM1	
+FOL-1517	Lý luận Nhà nước và Pháp luật	2	1	1	0	HYBRID	LT	FOL	FOL-BM1	
+FOL-1518	Luật Sở hữu trí tuệ	2	0	2	0	OFFLINE	LT	FOL	FOL-BM1	
+FOL-1519	Luật Doanh nghiệp	3	2	1	0	OFFLINE	LT	FOL	FOL-BM1	
+FOL-1520	Luật Thuế cơ bản	2	2	0	0	HYBRID	LT	FOL	FOL-BM1	
+FOL-1521	Seminar án lệ kinh doanh	2	1	1	0	OFFLINE	LT	FOL	FOL-BM1	
+FOL-1522	Luật Trách nhiệm hình sự kinh tế	3	2	1	0	HYBRID	LT	FOL	FOL-BM1	
+FOL-1523	Moot court — Phiên tòa giả định	2	1	1	0	OFFLINE	LT	FOL	FOL-BM1	
+FOL-1524	Pháp luật về Fintech	2	1	0	1	ONLINE_ELEARNING	ONLINE	FOL	FOL-BM1	
+FOL-1525	Pháp luật đại cương	4	3	1	0	OFFLINE	LT	FOL	FOL-BM1	
+FOL-1526	Đàm phán và soạn thảo hợp đồng	3	2	1	0	OFFLINE	LT	FOL	FOL-BM1	
+FOL-1527	Luật Chứng khoán giới thiệu	3	2	1	0	HYBRID	TN	FOL	FOL-BM1	
+FOL-1528	Trọng tài thương mại	2	1	1	0	OFFLINE	LT	FOL	FOL-BM1	
+FOL-1529	Luật Thương mại	2	0	2	0	OFFLINE	LT	FOL	FOL-BM1	
+FOL-1530	Luật Cạnh tranh	3	2	1	0	ONLINE_ELEARNING	ONLINE	FOL	FOL-BM1	
+FOL-1531	Luật Dân sự — Tổng quát	4	3	1	0	OFFLINE	LT	FOL	FOL-BM1	
+FOL-1532	Luật Đầu tư	2	2	0	0	ONLINE_COURSERA	ONLINE	FOL	FOL-BM1	
+FIDT-1533	Product management trong startup	3	2	1	0	OFFLINE	LT	FIDT	FIDT-BM1	
+FIDT-1534	An toàn thông tin cho SME số hóa	2	0	2	0	OFFLINE	PM	FIDT	FIDT-BM1	
+FIDT-1535	Financial modeling cho startup tech	2	2	0	0	HYBRID	LT	FIDT	FIDT-BM1	
+FIDT-1536	Thực tập agency digital	2	0	2	0	OFFLINE	TN	FIDT	FIDT-BM1	
+FIDT-1537	Truyền thông đa phương tiện và content strategy	3	2	1	0	HYBRID	LT	FIDT	FIDT-BM1	
+FIDT-1538	Đồ án gian hàng số — livestream commerce	3	1	0	2	HYBRID	LT	FIDT	FIDT-BM1	
+FIDT-1539	Kinh tế số và nền tảng dữ liệu	3	2	1	0	OFFLINE	PM	FIDT	FIDT-BM1	
+FIDT-1540	Thương mại điện tử đa kênh	3	1	0	2	ONLINE_ELEARNING	ONLINE	FIDT	FIDT-BM1	
+FIDT-1541	Blockchain cho chuỗi cung minh bạch	2	2	0	0	OFFLINE	LT	FIDT	FIDT-BM1	
+FIDT-1542	Chuỗi cung ứng thông minh	2	0	2	0	OFFLINE	LT	FIDT	FIDT-BM1	
+FIDT-1543	Chiến lược định giá số	3	2	1	0	OFFLINE	TN	FIDT	FIDT-BM1	
+FIDT-1544	Quyền riêng tư dữ liệu và GDPR — tổng quan	3	2	1	0	ONLINE_COURSERA	ONLINE	FIDT	FIDT-BM1	
+FIDT-1545	Seminar case study Shopee — TikTok Shop	3	2	1	0	OFFLINE	PM	FIDT	FIDT-BM1	
+FIDT-1546	Agile product discovery	3	2	1	0	ONLINE_COURSERA	ONLINE	FIDT	FIDT-BM1	
+FIDT-1547	Logistics số và last-mile delivery	2	0	2	0	OFFLINE	PM	FIDT	FIDT-BM1	
+FIDT-1548	Digital marketing và growth hacking	3	2	1	0	OFFLINE	TN	FIDT	FIDT-BM1	
+FIDT-1549	UX research cho sản phẩm số	3	2	1	0	ONLINE_COURSERA	ONLINE	FIDT	FIDT-BM1	
+FIDT-1550	Phân tích dữ liệu kinh doanh	2	1	1	0	OFFLINE	PM	FIDT	FIDT-BM1	

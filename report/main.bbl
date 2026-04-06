@@ -1,0 +1,54 @@
+\begin{thebibliography}{10}
+
+\bibitem{schaerf1999survey}
+A.~Schaerf, ``A survey of automated timetabling,'' {\em Artificial Intelligence
+  Review}, vol.~13, no.~2, pp.~87--127, 1999.
+
+\bibitem{burke1997automated}
+E.~K. Burke, K.~Jackson, J.~H. Kingston, and R.~Weare, ``Automated university
+  timetabling: The state of the art,'' {\em The Computer Journal}, vol.~40,
+  no.~9, pp.~565--571, 1997.
+
+\bibitem{qu2009survey}
+R.~Qu, E.~K. Burke, B.~McCollum, L.~T.~G. Merlot, and S.~Y. Lee, ``A survey of
+  search methodologies and automated system development for examination
+  timetabling,'' {\em Journal of Scheduling}, vol.~12, no.~1, pp.~55--89, 2009.
+
+\bibitem{lewis2008survey}
+R.~Lewis, ``A survey of metaheuristic-based techniques for university
+  timetabling problems,'' {\em OR Spectrum}, vol.~30, no.~1, pp.~167--190,
+  2008.
+
+\bibitem{kirkpatrick1983optimization}
+S.~Kirkpatrick, C.~D. Gelatt, and M.~P. Vecchi, ``Optimization by simulated
+  annealing,'' {\em Science}, vol.~220, no.~4598, pp.~671--680, 1983.
+
+\bibitem{vanlaarhoven1987simulated}
+P.~J.~M. van Laarhoven and E.~H.~L. Aarts, {\em Simulated Annealing: Theory and
+  Applications}.
+\newblock Springer, 1987.
+
+\bibitem{abramson1991constructing}
+D.~Abramson, ``Constructing school timetables using simulated annealing:
+  Sequential and parallel algorithms,'' in {\em Practice and Theory of
+  Automated Timetabling}, Springer, 1991.
+
+\bibitem{thompson1996general}
+J.~M. Thompson and K.~A. Dowsland, ``General cooling schedules for a simulated
+  annealing based timetabling system,'' in {\em Practice and Theory of
+  Automated Timetabling (Selected Papers)}, Springer, 1996.
+
+\bibitem{thompson1998robust}
+J.~M. Thompson and K.~A. Dowsland, ``A robust simulated annealing based
+  examination timetabling system,'' {\em Computers \& Operations Research},
+  vol.~25, no.~7-8, pp.~637--648, 1998.
+
+\bibitem{phenikaa2023quyche}
+{Trường Đại học Phenikaa}, ``Quy chế đào tạo trình độ đại
+  học.'' QĐ số 1062/QĐ-ĐHP-ĐT, ngày 20/07/2023, 2023.
+
+\bibitem{wren1995scheduling}
+A.~Wren, {\em Scheduling, Timetabling and Rostering---A Special Relationship?}
+\newblock Springer, 1995.
+
+\end{thebibliography}

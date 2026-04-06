@@ -1,0 +1,23 @@
+Mã HP	Tên Học Phần	Tổng TC	TC Lý thuyết	TC Thực hành	TC Tự học	Hình thức (OFFLINE/ONLINE_ELEARNING/ONLINE_COURSERA/HYBRID)	Loại phòng (LT / PM / TN / SB / XT / BV / DN / ONLINE)	Mã Khoa	Mã Bộ môn (Tùy chọn)	Mã Khoa dùng chung (cách nhau dấu phẩy, VD: IT,CS,MATH)
+FFS-1601	Giải tích A1	4	3	1	0	OFFLINE	LT	FFS	FFS-BM1	
+FFS-1602	Đại số tuyến tính	3	3	0	0	OFFLINE	LT	FFS	FFS-BM1	
+FFS-1603	Vật lý đại cương 1	3	2	1	0	OFFLINE	LT	FFS	FFS-BM1	
+FFS-1604	Vật lý đại cương 2	3	2	1	0	OFFLINE	LT	FFS	FFS-BM1	
+FFS-1605	Xác suất và thống kê đại cương	3	3	0	0	OFFLINE	LT	FFS	FFS-BM1	
+FFS-1606	Phương pháp nghiên cứu khoa học	2	2	0	0	HYBRID	LT	FFS	FFS-BM1	
+FFS-1607	Triết học Mác — Lênin	3	3	0	0	OFFLINE	LT	FFS	FFS-BM1	
+FFS-1608	Kinh tế chính trị Mác — Lênin	2	2	0	0	OFFLINE	LT	FFS	FFS-BM1	
+FFS-1609	Tư tưởng Hồ Chí Minh và phát triển bền vững (khối CTĐT)	2	1	0	1	ONLINE_ELEARNING	ONLINE	FFS	FFS-BM1	
+FFS-1610	Kỹ năng mềm và định hướng nghề nghiệp	2	1	1	0	OFFLINE	PM	FFS	FFS-BM1	
+MD-1601	Chẩn đoán lâm sàng cơ sở	3	2	1	0	OFFLINE	PM	MD	MD-BM1	
+MD-1602	Nội khoa lâm sàng I	3	2	1	0	OFFLINE	PM	MD	MD-BM1	
+MD-1603	Ngoại khoa lâm sàng I	3	2	1	0	OFFLINE	PM	MD	MD-BM1	
+MD-1604	Sản — Phụ khoa lâm sàng	3	2	1	0	OFFLINE	PM	MD	MD-BM1	
+MD-1605	Nhi khoa lâm sàng	3	2	1	0	OFFLINE	PM	MD	MD-BM1	
+MD-1606	Tâm thần và cơ xương khớp lâm sàng	3	2	1	0	OFFLINE	PM	MD	MD-BM1	
+MD-1607	Thực tập lâm sàng tổng hợp I	3	0	3	0	OFFLINE	BV	MD	MD-BM1	
+MD-1608	Thực tập lâm sàng tổng hợp II	3	0	3	0	OFFLINE	BV	MD	MD-BM1	
+MD-1609	Nội khoa lâm sàng nâng cao	4	3	1	0	OFFLINE	PM	MD	MD-BM1	
+MD-1610	Ngoại khoa lâm sàng nâng cao	4	3	1	0	OFFLINE	PM	MD	MD-BM1	
+MD-1611	Cấp cứu và hồi sức lâm sàng	3	2	1	0	OFFLINE	BV	MD	MD-BM1	
+MD-1612	Y học gia đình và y tế cơ sở	3	2	1	0	OFFLINE	SB	MD	MD-BM1	

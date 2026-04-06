@@ -28,7 +28,12 @@ public class GeneticTimetableScheduler {
     private final List<Room> rooms;
     private final List<Shift> shifts;
     private final List<TimeSlot> timeSlots;
+    private final Map<Integer, TimeSlot> periodToSlot;
+    private final TimetableRegulationConfig regConfig;
     private final int eveningShiftStartPeriodFrom;
+    /** Chuỗi con trong tên ca (vd. "Ca 5") để nhận diện ca tối bổ sung cho tiết. */
+    private final List<String> eveningShiftNameMarkers;
+    private final Map<Long, Room> roomById;
     private final long maxRuntimeMs;
     private final int maxGenerations;
 
@@ -63,7 +68,11 @@ public class GeneticTimetableScheduler {
     // ─────────────────────────────────────────────────────────────────────────
 
     private static final int CONFLICT_PENALTY = 1000;
-    private static final int EVENING_OFFLINE_PENALTY = 500;
+    private static final int EVENING_OFFLINE_PENALTY = 4000;
+    /** Ca tối mà phòng không phải ONLINE (học trực tiếp ở ca tối). */
+    private static final int EVENING_NON_ONLINE_ROOM_PENALTY = 5000;
+    /** Phòng không khớp loại yêu cầu (PM/LT/…). */
+    private static final int ROOM_TYPE_MISMATCH_PENALTY = 1500;
     private static final int SATURDAY_SOFT_PENALTY = 40; // nhẹ: chỉ tránh Thứ 7 khi có thể
     private static final int DAILY_CLUSTER_PENALTY = 100; // GV có >2 buổi/ngày
     private static final int OVERLOAD_PENALTY = 300;
@@ -92,17 +101,23 @@ public class GeneticTimetableScheduler {
             Set<String> blockedRoomShifts,
             Set<String> blockedLecturerShifts,
             int eveningShiftStartPeriodFrom,
+            List<String> eveningShiftNameMarkers,
             long maxRuntimeMs,
-            int maxGenerations) {
+            int maxGenerations,
+            TimetableRegulationConfig regConfig) {
 
         this.sections = sections;
         this.rooms = rooms;
         this.shifts = shifts;
         this.timeSlots = timeSlots;
+        this.regConfig = regConfig != null ? regConfig : TimetableRegulationConfig.defaults();
+        this.periodToSlot = TimetableRegulationHelper.toPeriodMap(timeSlots);
         this.blockedRoomShifts = blockedRoomShifts != null ? blockedRoomShifts : Collections.emptySet();
         this.blockedLecturerShifts = blockedLecturerShifts != null ? blockedLecturerShifts : Collections.emptySet();
         this.progressCallback = null;
         this.eveningShiftStartPeriodFrom = eveningShiftStartPeriodFrom;
+        this.eveningShiftNameMarkers = eveningShiftNameMarkers != null ? eveningShiftNameMarkers : List.of();
+        this.roomById = rooms.stream().collect(Collectors.toMap(Room::getId, r -> r));
         this.maxRuntimeMs = maxRuntimeMs > 0 ? maxRuntimeMs : 240_000L;
         this.maxGenerations = maxGenerations > 0 ? maxGenerations : 500;
 
@@ -323,9 +338,6 @@ public class GeneticTimetableScheduler {
         for (ClassSection section : sections) {
             Course course = section.getCourseOffering().getCourse();
             int sessionsPerWeek = determineSessionsPerWeek(section, course);
-            String requiredRoomType = determineRequiredRoomType(section, course);
-
-            List<Room> suitableRooms = getSuitableRooms(requiredRoomType);
             List<Shift> allowedShifts = getAllowedShifts(course);
 
             Set<String> usedDayShifts = new HashSet<>();
@@ -334,7 +346,6 @@ public class GeneticTimetableScheduler {
             for (int s = 0; s < sessionsPerWeek; s++) {
                 Collections.shuffle(days, rnd);
                 Collections.shuffle(allowedShifts, rnd);
-                Collections.shuffle(suitableRooms, rnd);
 
                 boolean assigned = false;
                 outer: for (Integer day : days) {
@@ -348,7 +359,10 @@ public class GeneticTimetableScheduler {
                                 lec.getId() + "-" + day + "-" + shift.getId()))
                             continue;
 
-                        for (Room room : suitableRooms) {
+                        List<Room> forShift = roomsForSectionAndShift(section, course, shift);
+                        List<Room> shuffledRooms = new ArrayList<>(forShift);
+                        Collections.shuffle(shuffledRooms, rnd);
+                        for (Room room : shuffledRooms) {
                             if (blockedRoomShifts.contains(room.getId() + "-" + day + "-" + shift.getId()))
                                 continue;
                             chromosome.genes.add(new Gene(section.getId(), room.getId(), shift.getId(), day));
@@ -360,7 +374,6 @@ public class GeneticTimetableScheduler {
                 }
 
                 if (!assigned) {
-                    // Fallback: thêm gene có thể conflict (để GA có gene để sửa)
                     for (int t = 0; t < 60; t++) {
                         int day = days.get(rnd.nextInt(days.size()));
                         Shift shift = allowedShifts.get(rnd.nextInt(allowedShifts.size()));
@@ -371,7 +384,10 @@ public class GeneticTimetableScheduler {
                         if (lec != null && blockedLecturerShifts.contains(
                                 lec.getId() + "-" + day + "-" + shift.getId()))
                             continue;
-                        Room room = suitableRooms.get(rnd.nextInt(suitableRooms.size()));
+                        List<Room> forShift = roomsForSectionAndShift(section, course, shift);
+                        if (forShift.isEmpty())
+                            continue;
+                        Room room = forShift.get(rnd.nextInt(forShift.size()));
                         chromosome.genes.add(new Gene(section.getId(), room.getId(), shift.getId(), day));
                         usedDayShifts.add(dsKey);
                         break;
@@ -401,7 +417,8 @@ public class GeneticTimetableScheduler {
         for (ClassSection s : sections) {
             if (s.getLecturer() == null)
                 continue;
-            lecturerRequired.merge(s.getLecturer().getId(), calcSessionsPerWeek(s), (a, b) -> a + b);
+            lecturerRequired.merge(s.getLecturer().getId(),
+                    determineSessionsPerWeek(s, s.getCourseOffering().getCourse()), (a, b) -> a + b);
         }
 
         // Sắp xếp sections theo độ khó xếp (TH → fill cao → LT)
@@ -431,49 +448,45 @@ public class GeneticTimetableScheduler {
             if (canAssign <= 0)
                 continue;
 
-            List<Room> suitableRooms = getSuitableRooms(determineRequiredRoomType(section, course));
             List<Shift> allowedShifts = getAllowedShifts(course);
             Set<String> usedDS = new HashSet<>();
 
             for (int s = 0; s < canAssign; s++) {
-                // Thử WEEKDAYS (T2–T6) trước, rồi mới fallback sang Thứ 7
                 List<Integer> shuffledPrimary = new ArrayList<>(WEEKDAYS);
                 Collections.shuffle(shuffledPrimary, rnd);
                 List<Shift> shuffledShifts = new ArrayList<>(allowedShifts);
                 Collections.shuffle(shuffledShifts, rnd);
-                List<Room> shuffledRooms = new ArrayList<>(suitableRooms);
-                Collections.shuffle(shuffledRooms, rnd);
 
-                // Thứ tự tìm: T2-T6 → T7
                 List<Integer> searchOrder = new ArrayList<>(shuffledPrimary);
                 searchOrder.add(7);
 
                 boolean ok = tryAssign(chromosome, section, lecturer,
-                        searchOrder, shuffledShifts, shuffledRooms,
+                        searchOrder, shuffledShifts, rnd,
                         usedRoomShifts, usedLecturerShifts, usedDS, lecturerAssigned, false);
 
-                // Fallback nhẹ: chấp nhận room conflict nhưng giữ lecturer OK
                 if (!ok) {
                     ok = tryAssign(chromosome, section, lecturer,
-                            searchOrder, shuffledShifts, shuffledRooms,
+                            searchOrder, shuffledShifts, rnd,
                             usedRoomShifts, usedLecturerShifts, usedDS, lecturerAssigned, true);
                 }
 
                 if (!ok) {
-                    // Cuối cùng: ép thêm gene (GA sẽ sửa sau)
                     int day = searchOrder.get(rnd.nextInt(searchOrder.size()));
                     Shift shift = shuffledShifts.get(rnd.nextInt(shuffledShifts.size()));
                     String dsKey = day + "-" + shift.getId();
                     if (!usedDS.contains(dsKey)) {
                         String lk = lecturer != null ? lecturer.getId() + "-" + day + "-" + shift.getId() : null;
                         if (lk == null || !usedLecturerShifts.contains(lk)) {
-                            Room room = shuffledRooms.get(rnd.nextInt(shuffledRooms.size()));
-                            chromosome.genes.add(new Gene(section.getId(), room.getId(), shift.getId(), day));
-                            usedDS.add(dsKey);
-                            if (lk != null)
-                                usedLecturerShifts.add(lk);
-                            if (lecturer != null)
-                                lecturerAssigned.merge(lecturer.getId(), 1, (a, b) -> a + b);
+                            List<Room> forShift = roomsForSectionAndShift(section, course, shift);
+                            if (!forShift.isEmpty()) {
+                                Room room = forShift.get(rnd.nextInt(forShift.size()));
+                                chromosome.genes.add(new Gene(section.getId(), room.getId(), shift.getId(), day));
+                                usedDS.add(dsKey);
+                                if (lk != null)
+                                    usedLecturerShifts.add(lk);
+                                if (lecturer != null)
+                                    lecturerAssigned.merge(lecturer.getId(), 1, (a, b) -> a + b);
+                            }
                         }
                     }
                 }
@@ -489,11 +502,12 @@ public class GeneticTimetableScheduler {
      */
     private boolean tryAssign(
             Chromosome chromosome, ClassSection section, Lecturer lecturer,
-            List<Integer> days, List<Shift> shiftList, List<Room> roomList,
+            List<Integer> days, List<Shift> shiftList, Random rnd,
             Set<String> usedRoomShifts, Set<String> usedLecturerShifts,
             Set<String> usedDS, Map<Long, Integer> lecturerAssigned,
             boolean allowRoomConflict) {
 
+        Course course = section.getCourseOffering().getCourse();
         for (Integer day : days) {
             for (Shift shift : shiftList) {
                 String dsKey = day + "-" + shift.getId();
@@ -504,6 +518,8 @@ public class GeneticTimetableScheduler {
                 if (lk != null && usedLecturerShifts.contains(lk))
                     continue;
 
+                List<Room> roomList = new ArrayList<>(roomsForSectionAndShift(section, course, shift));
+                Collections.shuffle(roomList, rnd);
                 for (Room room : roomList) {
                     String rk = room.getId() + "-" + day + "-" + shift.getId();
                     if (!allowRoomConflict && usedRoomShifts.contains(rk))
@@ -544,6 +560,8 @@ public class GeneticTimetableScheduler {
     private void evaluateFitness(Chromosome chromosome) {
         int conflictCount = 0;
         int eveningViolations = 0;
+        int eveningPhysicalRoomViolations = 0;
+        int roomTypeMismatch = 0;
         int saturdayCount = 0;
         int dailyClusterPenalty = 0;
         int overloadPenalty = 0;
@@ -590,10 +608,20 @@ public class GeneticTimetableScheduler {
                         .merge(gene.dayOfWeek, 1, (a, b) -> a + b);
             }
 
-            // ── Ca tối chỉ cho ONLINE/E-learning/Coursera ────────────────────
+            // ── Ca tối: không xếp học trực tiếp; ca tối chỉ phòng ONLINE ───────
             Shift shift = shiftMap.get(gene.shiftId);
+            Room room = roomById.get(gene.roomId);
             if (shift != null && isEveningShift(shift) && !isEveningAllowedForCourse(course)) {
                 eveningViolations++;
+            }
+            if (shift != null && room != null && isEveningShift(shift)
+                    && !"ONLINE".equalsIgnoreCase(room.getType())) {
+                eveningPhysicalRoomViolations++;
+            }
+            if (shift != null && room != null && !isEveningShift(shift)) {
+                String req = TimetableRegulationHelper.determineRequiredRoomType(section, course);
+                if (!req.equalsIgnoreCase(room.getType()))
+                    roomTypeMismatch++;
             }
 
             // ── Saturday soft penalty ────────────────────────────────────────
@@ -630,6 +658,12 @@ public class GeneticTimetableScheduler {
             }
         }
 
+        TimetableRegulationHelper.RegulationPenaltyBreakdown reg = TimetableRegulationHelper.computeRegulationPenalties(
+                chromosome.genes, sectionMap, shiftMap, periodToSlot, regConfig);
+        int regulationPenalty = reg.penaltyLecturerWeek() + reg.penaltyLecturerDay()
+                + reg.penaltyStudentWeek() + reg.penaltyStudentDay();
+        conflictCount += reg.outsideWindowViolations();
+
         // ── Distribution bonus ───────────────────────────────────────────────
         Map<Long, Set<Integer>> sectionDays = new HashMap<>();
         for (Gene g : chromosome.genes) {
@@ -658,11 +692,14 @@ public class GeneticTimetableScheduler {
         chromosome.fitness = (double) distributionScore * DISTRIBUTION_BONUS
                 - (double) conflictCount * CONFLICT_PENALTY
                 - (double) eveningViolations * EVENING_OFFLINE_PENALTY
+                - (double) eveningPhysicalRoomViolations * EVENING_NON_ONLINE_ROOM_PENALTY
+                - (double) roomTypeMismatch * ROOM_TYPE_MISMATCH_PENALTY
                 - (double) saturdayCount * SATURDAY_SOFT_PENALTY
                 - (double) dailyClusterPenalty
                 - (double) overloadPenalty
                 - (double) missingPenalty
-                - (double) roomImbalance * ROOM_IMBALANCE_PENALTY;
+                - (double) roomImbalance * ROOM_IMBALANCE_PENALTY
+                - (double) regulationPenalty;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -878,9 +915,8 @@ public class GeneticTimetableScheduler {
             Course course = section.getCourseOffering().getCourse();
             Lecturer lec = section.getLecturer();
 
-            List<Room> suitableRooms = getSuitableRooms(determineRequiredRoomType(section, course));
             List<Shift> allowedShifts = getAllowedShifts(course);
-            if (suitableRooms.isEmpty() || allowedShifts.isEmpty())
+            if (allowedShifts.isEmpty())
                 continue;
 
             // Xóa slot cũ khỏi tracking
@@ -894,8 +930,6 @@ public class GeneticTimetableScheduler {
             Collections.shuffle(shuffDays.subList(0, WEEKDAYS.size()), rnd); // shuffle chỉ T2-T6
             List<Shift> shuffShifts = new ArrayList<>(allowedShifts);
             Collections.shuffle(shuffShifts, rnd);
-            List<Room> shuffRooms = new ArrayList<>(suitableRooms);
-            Collections.shuffle(shuffRooms, rnd);
 
             boolean mutated = false;
             outer2: for (Integer day : shuffDays) {
@@ -914,6 +948,8 @@ public class GeneticTimetableScheduler {
                     if (!sectionDsOk)
                         continue;
 
+                    List<Room> shuffRooms = new ArrayList<>(roomsForSectionAndShift(section, course, shift));
+                    Collections.shuffle(shuffRooms, rnd);
                     for (Room room : shuffRooms) {
                         String newRk = room.getId() + "-" + day + "-" + shift.getId();
                         if (blockedRoomShifts.contains(newRk) || currRoomSlots.contains(newRk))
@@ -931,12 +967,14 @@ public class GeneticTimetableScheduler {
                 }
             }
 
-            // Fallback: chọn ngẫu nhiên trong ALL_DAYS, tránh blocked
             if (!mutated) {
                 for (int attempt = 0; attempt < 40; attempt++) {
                     int day = shuffDays.get(rnd.nextInt(shuffDays.size()));
                     Shift shift = shuffShifts.get(rnd.nextInt(shuffShifts.size()));
-                    Room room = shuffRooms.get(rnd.nextInt(shuffRooms.size()));
+                    List<Room> forShift = roomsForSectionAndShift(section, course, shift);
+                    if (forShift.isEmpty())
+                        continue;
+                    Room room = forShift.get(rnd.nextInt(forShift.size()));
                     String rk = room.getId() + "-" + day + "-" + shift.getId();
                     String lk2 = lec != null ? lec.getId() + "-" + day + "-" + shift.getId() : null;
                     if (blockedRoomShifts.contains(rk))
@@ -998,12 +1036,10 @@ public class GeneticTimetableScheduler {
             if (section == null) continue;
             Course course = section.getCourseOffering().getCourse();
             Lecturer lec = section.getLecturer();
-            List<Room> rooms = getSuitableRooms(determineRequiredRoomType(section, course));
             List<Shift> shifts = getAllowedShifts(course);
-            if (rooms.isEmpty() || shifts.isEmpty()) continue;
+            if (shifts.isEmpty()) continue;
             Collections.shuffle(days, rnd);
             Collections.shuffle(shifts, rnd);
-            Collections.shuffle(rooms, rnd);
             boolean fixed = false;
             outer: for (Integer d : days) {
                 for (Shift sh : shifts) {
@@ -1014,6 +1050,8 @@ public class GeneticTimetableScheduler {
                     String lk = lec != null ? lec.getId() + "-" + d + "-" + sh.getId() : null;
                     if (lk != null && (blockedLecturerShifts.contains(lk) || currLec.contains(lk)))
                         continue;
+                    List<Room> rooms = new ArrayList<>(roomsForSectionAndShift(section, course, sh));
+                    Collections.shuffle(rooms, rnd);
                     for (Room room : rooms) {
                         String rk = room.getId() + "-" + d + "-" + sh.getId();
                         if (blockedRoomShifts.contains(rk) || currRoom.contains(rk)) continue;
@@ -1055,9 +1093,8 @@ public class GeneticTimetableScheduler {
 
             Course course = section.getCourseOffering().getCourse();
             Lecturer lec = section.getLecturer();
-            List<Room> rooms = getSuitableRooms(determineRequiredRoomType(section, course));
             List<Shift> shifts = getAllowedShifts(course);
-            if (rooms.isEmpty() || shifts.isEmpty())
+            if (shifts.isEmpty())
                 continue;
 
             // Build current usage excluding this gene
@@ -1077,8 +1114,6 @@ public class GeneticTimetableScheduler {
             Collections.shuffle(days, rnd);
             List<Shift> shufShifts = new ArrayList<>(shifts);
             Collections.shuffle(shufShifts, rnd);
-            List<Room> shufRooms = new ArrayList<>(rooms);
-            Collections.shuffle(shufRooms, rnd);
 
             long oldRoom = gene.roomId;
             int oldDay = gene.dayOfWeek;
@@ -1093,6 +1128,8 @@ public class GeneticTimetableScheduler {
                     String lk = lec != null ? lec.getId() + "-" + d + "-" + sh.getId() : null;
                     if (lk != null && (blockedLecturerShifts.contains(lk) || usedLec.contains(lk))) continue;
 
+                    List<Room> shufRooms = new ArrayList<>(roomsForSectionAndShift(section, course, sh));
+                    Collections.shuffle(shufRooms, rnd);
                     for (Room room : shufRooms) {
                         String rk = room.getId() + "-" + d + "-" + sh.getId();
                         if (blockedRoomShifts.contains(rk) || usedRoom.contains(rk)) continue;
@@ -1252,34 +1289,50 @@ public class GeneticTimetableScheduler {
      * OFFLINE/HYBRID chỉ ca ngày.
      */
     private List<Shift> getAllowedShifts(Course course) {
-        if (isEveningAllowedForCourse(course))
+        if (TimetableRegulationHelper.isEveningAllowedForCourse(course))
             return new ArrayList<>(shifts);
         return shifts.stream()
                 .filter(s -> !isEveningShift(s))
                 .collect(Collectors.toList());
     }
 
-    /** Học phần ONLINE / E-learning / Coursera mới được xếp ca tối */
     private boolean isEveningAllowedForCourse(Course course) {
-        return course.getLearningMethod() == Course.LearningMethod.ONLINE_ELEARNING
-                || course.getLearningMethod() == Course.LearningMethod.ONLINE_COURSERA;
-    }
-
-    /**
-     * Phòng phù hợp: CHỈ đúng loại yêu cầu. PM≠TN (TN=thí nghiệm Hóa/Lý, không dùng cho lập trình).
-     */
-    private List<Room> getSuitableRooms(String requiredType) {
-        if (VALID_TH_ROOM_TYPES.contains(requiredType)) {
-            return new ArrayList<>(rooms.stream().filter(r -> requiredType.equals(r.getType())).toList());
-        }
-        List<Room> filtered = rooms.stream()
-                .filter(r -> requiredType.equals(r.getType()))
-                .collect(Collectors.toList());
-        return filtered.isEmpty() ? new ArrayList<>(rooms) : filtered;
+        return TimetableRegulationHelper.isEveningAllowedForCourse(course);
     }
 
     private boolean isEveningShift(Shift shift) {
-        return shift.getStartPeriod() != null && shift.getStartPeriod() >= eveningShiftStartPeriodFrom;
+        return TimetableRegulationHelper.isEveningShift(shift, eveningShiftStartPeriodFrom, eveningShiftNameMarkers);
+    }
+
+    /**
+     * Phòng theo loại yêu cầu — không fallback sang “mọi phòng” (tránh LT/TH rơi vào ONLINE/PM lẫn lộn).
+     */
+    private List<Room> getSuitableRooms(String requiredType) {
+        if (requiredType == null)
+            return new ArrayList<>();
+        String t = requiredType.trim();
+        return rooms.stream()
+                .filter(r -> t.equalsIgnoreCase(r.getType()))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    /**
+     * Phòng khả dụng cho (section, ca): ca tối + môn được phép ca tối → chỉ phòng ONLINE;
+     * ngược lại → đúng {@link TimetableRegulationHelper#determineRequiredRoomType}.
+     */
+    private List<Room> roomsForSectionAndShift(ClassSection section, Course course, Shift shift) {
+        if (shift != null && isEveningShift(shift) && isEveningAllowedForCourse(course)) {
+            List<Room> onl = rooms.stream()
+                    .filter(r -> "ONLINE".equalsIgnoreCase(r.getType()))
+                    .collect(Collectors.toCollection(ArrayList::new));
+            if (!onl.isEmpty())
+                return onl;
+        }
+        return getSuitableRooms(TimetableRegulationHelper.determineRequiredRoomType(section, course));
+    }
+
+    private String determineRequiredRoomType(ClassSection section, Course course) {
+        return TimetableRegulationHelper.determineRequiredRoomType(section, course);
     }
 
     private boolean isOfflineCourse(Course course) {
@@ -1301,48 +1354,15 @@ public class GeneticTimetableScheduler {
     // ─────────────────────────────────────────────────────────────────────────
 
     private int determineSessionsPerWeek(ClassSection section, Course course) {
-        return calcSessionsPerWeek(section, course);
+        return TimetableRegulationHelper.calcSessionsPerWeek(section, course, regConfig.semesterWeeks(), timeSlots,
+                shifts);
     }
 
-    /** Public static: TimetableService dùng cho pre-flight check */
-    public static int calcSessionsPerWeek(ClassSection section) {
-        return calcSessionsPerWeek(section, section.getCourseOffering().getCourse());
-    }
-
-    private static int calcSessionsPerWeek(ClassSection section, Course course) {
-        if (section.getSectionType() == ClassSection.SectionType.TH) {
-            return (course.getPracticeCredits() != null && course.getPracticeCredits() >= 3.0) ? 2 : 1;
-        } else {
-            return (course.getTheoryCredits() != null && course.getTheoryCredits() >= 4.0) ? 2 : 1;
-        }
-    }
-
-    /**
-     * Các loại phòng/địa điểm dành cho phần thực hành (TH).
-     * Không bao gồm LT và ONLINE vì những loại đó dùng cho lý thuyết/trực tuyến.
-     */
-    private static final Set<String> VALID_TH_ROOM_TYPES = Set.of("PM", "TN", "SB", "XT", "BV", "DN", "ONLINE");
-
-    /**
-     * Xác định loại phòng/địa điểm cần thiết cho section.
-     *
-     * TH: lấy requiredRoomType từ course nếu hợp lệ, fallback về PM.
-     * LT + ONLINE_ELEARNING: nếu course yêu cầu ONLINE thì dùng phòng ảo (100%
-     * online).
-     * LT + OFFLINE/HYBRID/ONLINE_COURSERA: luôn dùng LT (Coursera = hybrid cần
-     * phòng offline).
-     */
-    private String determineRequiredRoomType(ClassSection section, Course course) {
-        String rt = course.getRequiredRoomType();
-        if (section.getSectionType() == ClassSection.SectionType.TH) {
-            return (rt != null && VALID_TH_ROOM_TYPES.contains(rt)) ? rt : "PM";
-        }
-        // Phần lý thuyết: chỉ E-learning 100% online mới dùng phòng ảo
-        boolean isOnlineOnly = course.getLearningMethod() == Course.LearningMethod.ONLINE_ELEARNING;
-        if (isOnlineOnly && "ONLINE".equals(rt)) {
-            return "ONLINE";
-        }
-        return "LT";
+    /** Pre-flight: số buổi/tuần theo Quy chế (tín chỉ → giờ học kỳ → giờ/tuần / độ dài ca). */
+    public static int calcSessionsPerWeek(ClassSection section, int semesterWeeks, List<TimeSlot> timeSlots,
+            List<Shift> shifts) {
+        return TimetableRegulationHelper.calcSessionsPerWeek(section, section.getCourseOffering().getCourse(),
+                semesterWeeks, timeSlots, shifts);
     }
 
     private int getTotalRequiredSessions() {

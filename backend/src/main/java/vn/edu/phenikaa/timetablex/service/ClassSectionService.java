@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.phenikaa.timetablex.algorithm.GeneticTimetableScheduler;
+import vn.edu.phenikaa.timetablex.algorithm.TimetableRegulationHelper;
 import vn.edu.phenikaa.timetablex.entity.AdministrativeClass;
 import vn.edu.phenikaa.timetablex.entity.ClassSection;
 import vn.edu.phenikaa.timetablex.entity.Course;
@@ -21,8 +22,11 @@ import vn.edu.phenikaa.timetablex.repository.FacultyRepository;
 import vn.edu.phenikaa.timetablex.repository.LecturerRepository;
 import vn.edu.phenikaa.timetablex.repository.SemesterRepository;
 import vn.edu.phenikaa.timetablex.dto.TeachingLoadDto;
-import vn.edu.phenikaa.timetablex.entity.Course;
-import vn.edu.phenikaa.timetablex.entity.Faculty;
+import vn.edu.phenikaa.timetablex.entity.Semester;
+import vn.edu.phenikaa.timetablex.entity.Shift;
+import vn.edu.phenikaa.timetablex.entity.TimeSlot;
+import vn.edu.phenikaa.timetablex.repository.ShiftRepository;
+import vn.edu.phenikaa.timetablex.repository.TimeSlotRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,6 +52,10 @@ public class ClassSectionService {
     private TimetableEntryRepository timetableEntryRepo;
     @Autowired
     private CurriculumRepository curriculumRepo;
+    @Autowired
+    private ShiftRepository shiftRepo;
+    @Autowired
+    private TimeSlotRepository timeSlotRepo;
 
     public List<ClassSection> getBySemester(Long semesterId) {
         return sectionRepo.findByCourseOffering_Semester_Id(semesterId);
@@ -74,6 +82,147 @@ public class ClassSectionService {
 
     /** Sĩ số tối thiểu mỗi lớp LT — tương tự, tránh lớp quá nhỏ */
     private static final int MIN_LT_STUDENTS = 40;
+
+    /**
+     * Lớp biên chế hợp lệ cho offering.
+     * <ul>
+     *   <li>Nếu offering có <b>khóa</b> và có {@link Course}: lấy mọi BC thuộc các <b>ngành</b>
+     *       có CTĐT (cùng khóa, so khớp không phân biệt hoa thường) <b>chứa học phần</b>,
+     *       rồi lọc BC đúng khóa — không giới hạn theo khoa chủ quản môn (môn liên khoa).</li>
+     *   <li>Nếu không có khóa trên offering: giữ cách cũ — BC thuộc khoa phụ trách + khoa dùng chung môn.</li>
+     * </ul>
+     */
+    private List<AdministrativeClass> resolveEligibleAdminClasses(
+            CourseOffering o,
+            Course course,
+            Map<Long, List<AdministrativeClass>> adminClassesByFacultyCache) {
+        String cohortCode = null;
+        if (o.getCohortRef() != null && o.getCohortRef().getCode() != null) {
+            cohortCode = o.getCohortRef().getCode();
+        } else if (o.getCohort() != null && !o.getCohort().isBlank()) {
+            cohortCode = o.getCohort().trim();
+        }
+
+        if (course != null && cohortCode != null && !cohortCode.isBlank()) {
+            Set<Long> allowedMajorIds = new HashSet<>();
+            for (Curriculum c : curriculumRepo.findByCohortIgnoreCase(cohortCode)) {
+                if (c.getDetails() == null || c.getMajor() == null || c.getMajor().getId() == null)
+                    continue;
+                boolean containsCourse = c.getDetails().stream()
+                        .map(CurriculumDetail::getCourse)
+                        .filter(Objects::nonNull)
+                        .anyMatch(dc -> dc.getId().equals(course.getId()));
+                if (containsCourse)
+                    allowedMajorIds.add(c.getMajor().getId());
+            }
+            if (allowedMajorIds.isEmpty())
+                return List.of();
+
+            List<AdministrativeClass> byMajors = adminClassRepo.findByMajor_IdIn(allowedMajorIds);
+            String fc = cohortCode;
+            return byMajors.stream()
+                    .filter(ac -> {
+                        String acCode = ac.getCohortRef() != null && ac.getCohortRef().getCode() != null
+                                ? ac.getCohortRef().getCode()
+                                : (ac.getCohort() != null ? ac.getCohort().trim() : null);
+                        return acCode != null && fc.equalsIgnoreCase(acCode);
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        Set<Long> facultyIds = new HashSet<>();
+        if (o.getFaculty() != null)
+            facultyIds.add(o.getFaculty().getId());
+        if (course != null && course.getSharedFaculties() != null) {
+            course.getSharedFaculties().stream()
+                    .map(Faculty::getId)
+                    .forEach(facultyIds::add);
+        }
+
+        List<AdministrativeClass> facultyAdminClasses = new ArrayList<>();
+        for (Long fid : facultyIds) {
+            List<AdministrativeClass> acs = adminClassesByFacultyCache.computeIfAbsent(fid,
+                    id -> adminClassRepo.findByMajor_Faculty_Id(id));
+            for (AdministrativeClass ac : acs) {
+                if (!facultyAdminClasses.contains(ac))
+                    facultyAdminClasses.add(ac);
+            }
+        }
+        return facultyAdminClasses;
+    }
+
+    private static void sortSlicesByDescendingCount(List<SliceWithCount> slices) {
+        slices.sort(Comparator.comparingInt(SliceWithCount::expectedCount).reversed());
+    }
+
+    /**
+     * Gộp các slice cho đến khi còn đúng targetCount phần tử.
+     * Ưu tiên cặp có tổng ≤ maxPerBin và đầy nhất; nếu không được thì chọn cặp vượt ít nhất.
+     */
+    private List<SliceWithCount> mergeSlicesUntilCount(
+            List<SliceWithCount> slices, int targetCount, int maxPerBin) {
+        if (slices == null || slices.isEmpty())
+            return slices;
+        List<SliceWithCount> result = new ArrayList<>(slices);
+        while (result.size() > targetCount) {
+            int bestI = -1;
+            int bestJ = -1;
+            int bestPenalty = Integer.MAX_VALUE;
+            for (int i = 0; i < result.size(); i++) {
+                for (int j = i + 1; j < result.size(); j++) {
+                    int sum = result.get(i).expectedCount() + result.get(j).expectedCount();
+                    int penalty = sum <= maxPerBin ? (maxPerBin - sum) : (sum - maxPerBin) + 100_000;
+                    if (penalty < bestPenalty) {
+                        bestPenalty = penalty;
+                        bestI = i;
+                        bestJ = j;
+                    }
+                }
+            }
+            if (bestI < 0)
+                break;
+            SliceWithCount a = result.get(bestI);
+            SliceWithCount b = result.get(bestJ);
+            Set<AdministrativeClass> merged = new HashSet<>(a.adminClasses());
+            merged.addAll(b.adminClasses());
+            int mergedCount = a.expectedCount() + b.expectedCount();
+            int hi = Math.max(bestI, bestJ);
+            int lo = Math.min(bestI, bestJ);
+            result.remove(hi);
+            result.remove(lo);
+            result.add(new SliceWithCount(merged, mergedCount));
+        }
+        return result;
+    }
+
+    /**
+     * Đưa danh sách slice về đúng {@code targetCount}, trong khoảng
+     * [{@code minPerBin},{@code maxPerBin}] khi có thể (sau gộp nhỏ / gộp dư).
+     */
+    private List<SliceWithCount> fitSliceCountAndBounds(
+            List<SliceWithCount> slices, int targetCount, int minPerBin, int maxPerBin) {
+        if (targetCount <= 0)
+            return List.of();
+        List<SliceWithCount> s = slices == null ? new ArrayList<>() : new ArrayList<>(slices);
+        if (s.isEmpty()) {
+            List<SliceWithCount> pad = new ArrayList<>();
+            for (int i = 0; i < targetCount; i++)
+                pad.add(new SliceWithCount(new HashSet<>(), 0));
+            return pad;
+        }
+        for (int guard = 0; guard < 50; guard++) {
+            s = mergeSmallSlices(s, minPerBin, maxPerBin);
+            if (s.size() <= targetCount)
+                break;
+            s = mergeSlicesUntilCount(s, targetCount, maxPerBin);
+        }
+        while (s.size() > targetCount)
+            s = mergeSlicesUntilCount(s, targetCount, maxPerBin);
+        s = mergeSmallSlices(s, minPerBin, maxPerBin);
+        while (s.size() < targetCount)
+            s.add(new SliceWithCount(new HashSet<>(), 0));
+        return s;
+    }
 
     /**
      * Sinh tự động các Lớp học phần từ danh sách CourseOffering đã APPROVED.
@@ -119,94 +268,20 @@ public class ClassSectionService {
                     ? course.getCode()
                     : "HP" + o.getId();
 
-            // Lấy lớp biên chế: khoa phụ trách + các khoa dùng chung môn (nếu có)
-            Set<Long> facultyIds = new HashSet<>();
-            if (o.getFaculty() != null) facultyIds.add(o.getFaculty().getId());
-            if (o.getCourse() != null && o.getCourse().getSharedFaculties() != null) {
-                o.getCourse().getSharedFaculties().stream()
-                        .map(Faculty::getId)
-                        .forEach(facultyIds::add);
-            }
-            List<AdministrativeClass> facultyAdminClasses = new ArrayList<>();
-            for (Long fid : facultyIds) {
-                List<AdministrativeClass> acs = adminClassesByFaculty.computeIfAbsent(fid,
-                        id -> adminClassRepo.findByMajor_Faculty_Id(id));
-                for (AdministrativeClass ac : acs) {
-                    if (!facultyAdminClasses.contains(ac))
-                        facultyAdminClasses.add(ac);
-                }
-            }
-
-            // Giới hạn lớp biên chế theo CTĐT: chỉ những ngành có CTĐT (theo Khóa) chứa học phần này
-            Set<Long> allowedMajorIds = new HashSet<>();
-            if (course != null) {
-                String cohortCodeForCurr = null;
-                if (o.getCohortRef() != null && o.getCohortRef().getCode() != null) {
-                    cohortCodeForCurr = o.getCohortRef().getCode();
-                } else if (o.getCohort() != null && !o.getCohort().isBlank()) {
-                    cohortCodeForCurr = o.getCohort().trim();
-                }
-                if (cohortCodeForCurr != null && !cohortCodeForCurr.isBlank()) {
-                    List<Curriculum> curriculums = curriculumRepo.findByCohort(cohortCodeForCurr);
-                    for (Curriculum c : curriculums) {
-                        if (c.getDetails() == null || c.getMajor() == null || c.getMajor().getId() == null) continue;
-                        boolean containsCourse = c.getDetails().stream()
-                                .map(CurriculumDetail::getCourse)
-                                .filter(Objects::nonNull)
-                                .anyMatch(dc -> dc.getId().equals(course.getId()));
-                        if (containsCourse) {
-                            allowedMajorIds.add(c.getMajor().getId());
-                        }
-                    }
-                }
-            }
-            if (!allowedMajorIds.isEmpty()) {
-                facultyAdminClasses = facultyAdminClasses.stream()
-                        .filter(ac -> ac.getMajor() != null && allowedMajorIds.contains(ac.getMajor().getId()))
-                        .toList();
-            }
-
-            // Lọc lớp biên chế theo Khóa của CourseOffering (nếu có) để sinh lớp theo từng khóa riêng
-            String cohortCode = null;
-            if (o.getCohortRef() != null && o.getCohortRef().getCode() != null) {
-                cohortCode = o.getCohortRef().getCode();
-            } else if (o.getCohort() != null && !o.getCohort().isBlank()) {
-                cohortCode = o.getCohort().trim();
-            }
-            if (cohortCode != null && !cohortCode.isBlank()) {
-                String finalCohortCode = cohortCode;
-                facultyAdminClasses = facultyAdminClasses.stream()
-                        .filter(ac -> {
-                            String acCode = null;
-                            if (ac.getCohortRef() != null && ac.getCohortRef().getCode() != null) {
-                                acCode = ac.getCohortRef().getCode();
-                            } else if (ac.getCohort() != null && !ac.getCohort().isBlank()) {
-                                acCode = ac.getCohort().trim();
-                            }
-                            return finalCohortCode.equalsIgnoreCase(acCode);
-                        })
-                        .toList();
-            }
+            List<AdministrativeClass> facultyAdminClasses = resolveEligibleAdminClasses(o, course,
+                    adminClassesByFaculty);
 
             int lt = o.getTheoryClassCount() != null ? o.getTheoryClassCount() : 0;
             int th = o.getPracticeClassCount() != null ? o.getPracticeClassCount() : 0;
 
             boolean hasAdminClasses = !facultyAdminClasses.isEmpty();
 
-            // ── LT: chia BC theo MAX_LT_STUDENTS ──────────────────────────────────────
-            // BC đơn lẻ vượt 80 SV → splitAdminClassesWithMax sẽ tách ảo thành 2 bin
+            // ── LT: chia BC theo MAX_LT_STUDENTS, không vượt quá số lớp LT P.ĐT đặt ────
             List<SliceWithCount> ltSlices;
             if (lt > 0 && hasAdminClasses) {
                 ltSlices = splitAdminClassesWithMax(facultyAdminClasses, MAX_LT_STUDENTS);
-                ltSlices = mergeSmallSlices(ltSlices, MIN_LT_STUDENTS, MAX_LT_STUDENTS);
-                // Nếu P.ĐT đặt nhiều hơn số slice tính ra, thêm lớp rỗng để đủ
-                if (lt > ltSlices.size()) {
-                    List<SliceWithCount> extended = new ArrayList<>(ltSlices);
-                    while (extended.size() < lt)
-                        extended.add(new SliceWithCount(new HashSet<>(), 0));
-                    ltSlices = extended;
-                }
-                // ltCount = số slice thực (không tạo dư nếu BC đã đủ nhiều hơn yêu cầu P.ĐT)
+                ltSlices = fitSliceCountAndBounds(ltSlices, lt, MIN_LT_STUDENTS, MAX_LT_STUDENTS);
+                sortSlicesByDescendingCount(ltSlices);
             } else if (lt > 0) {
                 // Không có BC → chỉ tạo đúng số lớp trống P.ĐT yêu cầu
                 ltSlices = new ArrayList<>();
@@ -233,14 +308,8 @@ public class ClassSectionService {
                     } else {
                         thSlices = splitAdminClassesWithMax(facultyAdminClasses, MAX_TH_STUDENTS);
                     }
-                    thSlices = mergeSmallSlices(thSlices, MIN_TH_STUDENTS, MAX_TH_STUDENTS);
-                    // Nếu P.ĐT yêu cầu nhiều hơn, thêm lớp rỗng để đủ
-                    if (th > thSlices.size()) {
-                        List<SliceWithCount> extended = new ArrayList<>(thSlices);
-                        while (extended.size() < th)
-                            extended.add(new SliceWithCount(new HashSet<>(), 0));
-                        thSlices = extended;
-                    }
+                    thSlices = fitSliceCountAndBounds(thSlices, th, MIN_TH_STUDENTS, MAX_TH_STUDENTS);
+                    sortSlicesByDescendingCount(thSlices);
                 } else {
                     // Không có BC → chỉ tạo đúng số lớp trống
                     for (int i = 0; i < th; i++)
@@ -364,6 +433,15 @@ public class ClassSectionService {
         // Seed để kết quả ổn định theo cùng (semesterId, facultyId).
         Random rnd = new Random(Objects.hash(semesterId, facultyId));
 
+        Semester semester = semesterRepo.findById(semesterId).orElse(null);
+        int semesterWeeks = TimetableRegulationHelper.semesterWeeksFromDates(
+                semester != null ? semester.getStartDate() : null,
+                semester != null ? semester.getEndDate() : null);
+        List<TimeSlot> timeSlots = timeSlotRepo.findAll().stream()
+                .sorted(Comparator.comparing(TimeSlot::getPeriodIndex))
+                .toList();
+        List<Shift> shifts = shiftRepo.findAll();
+
         // Sắp xếp theo độ khó: TH trước -> số buổi/tuần lớn trước -> ít GV phù hợp trước
         // (để giảm trường hợp greedy gặp “nút thắt” rồi mới xử lý).
         record Candidate(ClassSection section,
@@ -400,7 +478,8 @@ public class ClassSectionService {
                     .min()
                     .orElse(0L);
 
-            int sessionsPerWeek = GeneticTimetableScheduler.calcSessionsPerWeek(section);
+            int sessionsPerWeek = GeneticTimetableScheduler.calcSessionsPerWeek(section, semesterWeeks, timeSlots,
+                    shifts);
             candidates.add(new Candidate(section, qualified, qualified.size(), sessionsPerWeek, minLoad));
         }
 
@@ -537,15 +616,13 @@ public class ClassSectionService {
 
     /**
      * Bổ sung/sửa lớp biên chế cho các lớp HP còn thiếu hoặc vượt ngưỡng sĩ số.
-     * Điều kiện "cần fix":
-     *   1. Lớp HP chưa có BC nào (administrativeClasses rỗng), HOẶC
-     *   2. Tổng sĩ số BC đang gán vượt ngưỡng max (LT > 80, TH > 45).
+     * Điều kiện kích hoạt (ít nhất một lớp HP của offering):
+     *   1. Chưa có BC, hoặc
+     *   2. Tổng sĩ số vượt max (LT > 80, TH > 45).
      *
-     * Logic giống generateFromApprovedOfferings: lọc BC theo khoa, CTĐT, khóa,
-     * rồi chạy Best-fit Decreasing để phân bổ lại BC cho từng lớp HP.
-     *
-     * Lưu ý: Không tạo thêm lớp HP mới — chỉ cập nhật BC + expectedStudentCount
-     * cho những lớp hiện có thuộc điều kiện cần fix.
+     * Khi kích hoạt, phân bổ lại <b>toàn bộ</b> lớp LT rồi <b>toàn bộ</b> lớp TH của
+     * cùng offering (theo sectionIndex), cùng quy tắc CTĐT + khóa như {@link #generateFromApprovedOfferings}:
+     * TH được chia tiếp theo từng nhóm BC của LT, không gán lại TH trùng toàn bộ danh sách BC như LT.
      *
      * @return số lớp HP đã được cập nhật BC
      */
@@ -584,90 +661,53 @@ public class ClassSectionService {
 
             if (needFix.isEmpty()) continue;
 
-            // ── Lấy danh sách BC hợp lệ (giống logic generate) ───────────────────
-            Set<Long> facultyIds = new HashSet<>();
-            if (o.getFaculty() != null) facultyIds.add(o.getFaculty().getId());
-            if (course != null && course.getSharedFaculties() != null)
-                course.getSharedFaculties().stream().map(Faculty::getId).forEach(facultyIds::add);
+            List<AdministrativeClass> eligible = resolveEligibleAdminClasses(o, course, adminClassesByFaculty);
+            if (eligible.isEmpty()) continue;
 
-            List<AdministrativeClass> facultyAdminClasses = new ArrayList<>();
-            for (Long fid : facultyIds) {
-                List<AdministrativeClass> acs = adminClassesByFaculty.computeIfAbsent(fid,
-                        id -> adminClassRepo.findByMajor_Faculty_Id(id));
-                for (AdministrativeClass ac : acs)
-                    if (!facultyAdminClasses.contains(ac)) facultyAdminClasses.add(ac);
-            }
-
-            // Lọc theo CTĐT (ngành có khung chương trình chứa học phần này)
-            if (course != null) {
-                String cohortCodeForCurr = null;
-                if (o.getCohortRef() != null && o.getCohortRef().getCode() != null)
-                    cohortCodeForCurr = o.getCohortRef().getCode();
-                else if (o.getCohort() != null && !o.getCohort().isBlank())
-                    cohortCodeForCurr = o.getCohort().trim();
-
-                if (cohortCodeForCurr != null && !cohortCodeForCurr.isBlank()) {
-                    Set<Long> allowedMajorIds = new HashSet<>();
-                    for (Curriculum c : curriculumRepo.findByCohort(cohortCodeForCurr)) {
-                        if (c.getDetails() == null || c.getMajor() == null) continue;
-                        boolean has = c.getDetails().stream()
-                                .map(CurriculumDetail::getCourse).filter(Objects::nonNull)
-                                .anyMatch(dc -> dc.getId().equals(course.getId()));
-                        if (has) allowedMajorIds.add(c.getMajor().getId());
-                    }
-                    if (!allowedMajorIds.isEmpty()) {
-                        facultyAdminClasses = facultyAdminClasses.stream()
-                                .filter(ac -> ac.getMajor() != null && allowedMajorIds.contains(ac.getMajor().getId()))
-                                .collect(Collectors.toList());
-                    }
-                }
-            }
-
-            // Lọc theo Khóa của CourseOffering
-            String cohortCode = null;
-            if (o.getCohortRef() != null && o.getCohortRef().getCode() != null)
-                cohortCode = o.getCohortRef().getCode();
-            else if (o.getCohort() != null && !o.getCohort().isBlank())
-                cohortCode = o.getCohort().trim();
-            if (cohortCode != null && !cohortCode.isBlank()) {
-                String fc = cohortCode;
-                facultyAdminClasses = facultyAdminClasses.stream().filter(ac -> {
-                    String acCode = ac.getCohortRef() != null && ac.getCohortRef().getCode() != null
-                            ? ac.getCohortRef().getCode()
-                            : (ac.getCohort() != null ? ac.getCohort().trim() : null);
-                    return fc.equalsIgnoreCase(acCode);
-                }).collect(Collectors.toList());
-            }
-
-            if (facultyAdminClasses.isEmpty()) continue; // không có BC hợp lệ → bỏ qua
-
-            // ── Phân bổ lại BC cho từng lớp cần fix theo loại (LT / TH) ─────────
-            List<ClassSection> ltNeedFix = needFix.stream()
+            List<ClassSection> allLt = offeringSections.stream()
                     .filter(s -> s.getSectionType() == ClassSection.SectionType.LT)
-                    .collect(Collectors.toList());
-            List<ClassSection> thNeedFix = needFix.stream()
+                    .sorted(Comparator.comparing(ClassSection::getSectionIndex,
+                            Comparator.nullsLast(Integer::compareTo)))
+                    .toList();
+            List<ClassSection> allTh = offeringSections.stream()
                     .filter(s -> s.getSectionType() == ClassSection.SectionType.TH)
-                    .collect(Collectors.toList());
+                    .sorted(Comparator.comparing(ClassSection::getSectionIndex,
+                            Comparator.nullsLast(Integer::compareTo)))
+                    .toList();
 
-            if (!ltNeedFix.isEmpty()) {
-                List<SliceWithCount> ltSlices = splitAdminClassesWithMax(facultyAdminClasses, maxLT);
-                ltSlices = mergeSmallSlices(ltSlices, MIN_LT_STUDENTS, maxLT);
-                for (int i = 0; i < ltNeedFix.size() && i < ltSlices.size(); i++) {
-                    ClassSection s = ltNeedFix.get(i);
+            List<SliceWithCount> ltSlices = List.of();
+            if (!allLt.isEmpty()) {
+                ltSlices = splitAdminClassesWithMax(eligible, maxLT);
+                ltSlices = fitSliceCountAndBounds(ltSlices, allLt.size(), MIN_LT_STUDENTS, maxLT);
+                sortSlicesByDescendingCount(ltSlices);
+                for (int i = 0; i < allLt.size(); i++) {
+                    ClassSection s = allLt.get(i);
                     SliceWithCount swc = ltSlices.get(i);
-                    s.setAdministrativeClasses(swc.adminClasses());
+                    s.setAdministrativeClasses(new HashSet<>(swc.adminClasses()));
                     s.setExpectedStudentCount(swc.expectedCount() > 0 ? swc.expectedCount() : null);
                     toSave.add(s);
                 }
             }
 
-            if (!thNeedFix.isEmpty()) {
-                List<SliceWithCount> thSlices = splitAdminClassesWithMax(facultyAdminClasses, maxTH);
-                thSlices = mergeSmallSlices(thSlices, MIN_TH_STUDENTS, maxTH);
-                for (int i = 0; i < thNeedFix.size() && i < thSlices.size(); i++) {
-                    ClassSection s = thNeedFix.get(i);
+            if (!allTh.isEmpty()) {
+                List<SliceWithCount> thSlices = new ArrayList<>();
+                if (!ltSlices.isEmpty()) {
+                    for (SliceWithCount ltSwc : ltSlices) {
+                        List<AdministrativeClass> ltList = ltSwc.adminClasses().stream()
+                                .filter(ac -> ac.getStudentCount() != null && ac.getStudentCount() > 0)
+                                .collect(Collectors.toCollection(ArrayList::new));
+                        if (!ltList.isEmpty())
+                            thSlices.addAll(splitAdminClassesWithMax(ltList, maxTH));
+                    }
+                }
+                if (thSlices.isEmpty() && !eligible.isEmpty())
+                    thSlices = splitAdminClassesWithMax(eligible, maxTH);
+                thSlices = fitSliceCountAndBounds(thSlices, allTh.size(), MIN_TH_STUDENTS, maxTH);
+                sortSlicesByDescendingCount(thSlices);
+                for (int i = 0; i < allTh.size(); i++) {
+                    ClassSection s = allTh.get(i);
                     SliceWithCount swc = thSlices.get(i);
-                    s.setAdministrativeClasses(swc.adminClasses());
+                    s.setAdministrativeClasses(new HashSet<>(swc.adminClasses()));
                     s.setExpectedStudentCount(swc.expectedCount() > 0 ? swc.expectedCount() : null);
                     toSave.add(s);
                 }
