@@ -1,0 +1,369 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{mathptmx}
+\usepackage{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{mdframed}
+\usepackage{tcolorbox}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{hyperref}
+
+% --- Căn lề ---
+\geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm}
+
+% --- Màu sắc ---
+\definecolor{NavyBlue}{HTML}{0A3B88}
+\definecolor{VibrantBlue}{HTML}{1976D2}
+\definecolor{AccentOrange}{HTML}{E65100}
+\definecolor{LightGray}{HTML}{F5F7FA}
+\definecolor{DarkText}{HTML}{2B2B2B}
+\definecolor{MidGray}{HTML}{666666}
+
+% --- Tcolorbox styles ---
+\tcbuselibrary{skins, breakable}
+
+\newtcolorbox{scriptbox}[2][]{
+  enhanced, breakable,
+  colback=LightGray,
+  colframe=VibrantBlue,
+  fonttitle=\bfseries\color{white},
+  coltitle=white,
+  colbacktitle=VibrantBlue,
+  title={#2},
+  boxrule=0.8pt,
+  arc=4pt,
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+  #1
+}
+
+\newtcolorbox{notebox}[1][]{
+  enhanced, breakable,
+  colback=AccentOrange!8!white,
+  colframe=AccentOrange,
+  boxrule=0.7pt,
+  arc=4pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  #1
+}
+
+\newtcolorbox{questionbox}[2][]{
+  enhanced, breakable,
+  colback=NavyBlue!5!white,
+  colframe=NavyBlue,
+  fonttitle=\bfseries\color{white},
+  coltitle=white,
+  colbacktitle=NavyBlue,
+  title={#2},
+  boxrule=0.7pt,
+  arc=4pt,
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+  #1
+}
+
+% --- Tiêu đề phần ---
+\titleformat{\section}{\large\bfseries\color{NavyBlue}}{}{0em}{}[\color{VibrantBlue}\rule{\linewidth}{1pt}]
+\titleformat{\subsection}{\normalsize\bfseries\color{VibrantBlue}}{}{0em}{}
+\setcounter{secnumdepth}{0}
+
+% --- Header/Footer ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{MidGray}\textit{Kịch bản bảo vệ NCKH}}
+\fancyhead[R]{\small\color{MidGray}\textit{Xếp Thời Khóa Biểu — Đại học Phenikaa}}
+\fancyfoot[C]{\small\color{MidGray}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% --- Hyperref ---
+\hypersetup{colorlinks=true, linkcolor=NavyBlue, urlcolor=VibrantBlue}
+
+% ================================================================
+\begin{document}
+
+% ----------------------------------------------------------------
+% TRANG BÌA
+% ----------------------------------------------------------------
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+
+  {\color{NavyBlue}\rule{\linewidth}{2pt}}
+  \vspace{0.5cm}
+
+  {\Huge\bfseries\color{NavyBlue} KỊCH BẢN BẢO VỆ\\[0.4em] NGHIÊN CỨU KHOA HỌC}
+
+  \vspace{0.5cm}
+  {\color{NavyBlue}\rule{\linewidth}{2pt}}
+
+  \vspace{1.5cm}
+
+  {\LARGE\bfseries Phát triển Phần mềm Xếp Thời Khóa Biểu\\[0.3em] trong Đào tạo Tín chỉ}
+
+  \vspace{2cm}
+
+  \begin{tabular}{ll}
+    \textbf{Sinh viên thực hiện:} & Nguyễn Văn Dương \\[0.3em]
+                                  & Vũ Viết Huy \\[0.3em]
+                                  & Nguyễn Thị Ngọc Bích \\[0.8em]
+    \textbf{Giảng viên hướng dẫn:} & TS. Mai Thúy Nga \\[0.8em]
+    \textbf{Đơn vị:} & Khoa Hệ thống Thông tin \\[0.3em]
+                     & Trường Công nghệ Thông tin, Đại học Phenikaa \\
+  \end{tabular}
+
+  \vspace{2.5cm}
+
+  \begin{notebox}
+    \centering
+    \textbf{Hướng dẫn sử dụng:} Chữ \textit{in nghiêng trong ngoặc} là gợi ý cử chỉ/thao tác. \textbf{In đậm} là từ khóa cần nhấn mạnh khi trình bày. Thời gian ước tính ghi ở đầu mỗi phần.
+  \end{notebox}
+
+  \vfill
+  {\large\color{MidGray} Tổng thời gian trình bày: \textbf{\textasciitilde{}10--12 phút}}
+
+\end{titlepage}
+
+% ----------------------------------------------------------------
+\tableofcontents
+\newpage
+
+% ================================================================
+\section{Mở đầu — Giới thiệu nhóm \hfill{\normalfont\color{MidGray}[\textasciitilde{}1 phút]}}
+
+\textit{(Người trình bày: Nguyễn Văn Dương — trưởng nhóm)}
+
+\begin{scriptbox}{Lời mở đầu}
+Kính thưa Hội đồng nghiên cứu khoa học, kính thưa quý thầy cô!
+
+\medskip
+Chúng em là nhóm sinh viên đến từ Khoa Hệ thống Thông tin, Trường Công nghệ Thông tin --- Đại học Phenikaa. Hôm nay, nhóm chúng em xin được trình bày nghiên cứu khoa học với đề tài:
+
+\medskip
+\begin{center}
+  \textbf{``Phát triển Phần mềm Xếp Thời Khóa Biểu trong Đào tạo Tín chỉ''}
+\end{center}
+
+\medskip
+Nhóm gồm ba thành viên:
+\begin{itemize}[leftmargin=1.5cm]
+  \item \textbf{Nguyễn Văn Dương} --- phụ trách phần phương pháp và kết quả thực nghiệm
+  \item \textbf{Vũ Viết Huy} --- phụ trách phần kiến trúc hệ thống và giao diện phần mềm
+  \item \textbf{Nguyễn Thị Ngọc Bích} --- phụ trách phần mô hình hóa bài toán
+\end{itemize}
+
+\medskip
+Chúng em xin trân trọng cảm ơn sự hướng dẫn tận tình của cô \textbf{TS.~Mai Thúy Nga} trong suốt quá trình nghiên cứu.
+\end{scriptbox}
+
+% ================================================================
+\section{Phần 1 — Đặt vấn đề \hfill{\normalfont\color{MidGray}[\textasciitilde{}1,5 phút]}}
+
+\textit{(Chỉ vào phần ``1. Tóm tắt \& Đặt vấn đề'' trên poster)}
+
+\begin{scriptbox}{Lời trình bày}
+Thưa Hội đồng, bài toán chúng em nghiên cứu là \textbf{bài toán xếp thời khóa biểu đại học} --- trong tiếng Anh gọi là \textbf{UCTP, University Course Timetabling Problem}. Đây là một bài toán thuộc lớp \textbf{NP-khó} trong tối ưu hóa tổ hợp.
+
+\medskip
+Tại Trường Đại học Phenikaa, khi quy mô đào tạo ngày càng mở rộng, việc lập lịch thủ công đang bộc lộ \textbf{ba nhóm hạn chế cấu trúc} rõ ràng:
+
+\begin{itemize}[leftmargin=1.5cm, itemsep=4pt]
+  \item \textbf{Thứ nhất,} hiện tượng \textbf{phân mảnh thời khóa biểu} --- hay còn gọi là lịch ``răng lược'' --- khiến lịch học bị rời rạc, gây lãng phí thời gian trống cho cả sinh viên lẫn giảng viên.
+  \item \textbf{Thứ hai,} \textbf{mất cân đối phân bổ giờ giảng}: giảng viên có thể bị xếp nhiều ca liên tiếp, gây ảnh hưởng đến chất lượng chuyên môn và sức khỏe.
+  \item \textbf{Thứ ba,} \textbf{hiện tượng thắt cổ chai tài nguyên}: phòng thực hành đặc thù bị phân chia chưa tối ưu, dẫn đến ùn tắc cục bộ.
+\end{itemize}
+
+\medskip
+Chính những vấn đề này đặt ra yêu cầu cấp thiết phải có một \textbf{giải pháp tự động hóa}, thông minh và đáng tin cậy.
+\end{scriptbox}
+
+% ================================================================
+\section{Phần 2 — Mô hình hóa bài toán UCTP \hfill{\normalfont\color{MidGray}[\textasciitilde{}1,5 phút]}}
+
+\textit{(Chỉ vào phần ``2. Mô hình hóa bài toán UCTP'' trên poster)}
+
+\begin{scriptbox}{Lời trình bày}
+Để giải quyết bài toán, nhóm chúng em đã \textbf{hình thức hóa UCTP} dưới dạng bài toán tối ưu hóa với biến quyết định nhị phân $x_{c,r,s}$ --- nhận giá trị 1 nếu buổi học của khối $c$ được gán vào phòng $r$ tại ca $s$, và bằng 0 trong trường hợp ngược lại.
+
+\medskip
+Hệ thống ràng buộc được phân thành hai tầng:
+
+\begin{itemize}[leftmargin=1.5cm, itemsep=4pt]
+  \item \textbf{Ràng buộc cứng} --- bắt buộc phải thỏa mãn tuyệt đối --- gồm: không xung đột phòng học, không xung đột giảng viên, và không xếp vào các khung giờ bị khóa. Vi phạm ràng buộc cứng khiến nghiệm \textbf{hoàn toàn không chấp nhận được}.
+
+  \item \textbf{Ràng buộc mềm} --- hướng tới tối ưu chất lượng --- bao gồm hạn chế ca học tối muộn và cân bằng phân bổ lịch trong tuần.
+\end{itemize}
+
+\medskip
+Hàm mục tiêu của nhóm có dạng:
+\[
+  f = B - \left( w_h \cdot H + \sum_{j} w_j \cdot S_j \right)
+\]
+
+Trong đó $H$ là số vi phạm cứng với trọng số $w_h$ rất lớn để ưu tiên loại bỏ hoàn toàn, và $S_j$ là các vi phạm ràng buộc mềm. Mục tiêu là \textbf{tối đa hóa} giá trị $f$, tức đưa $f$ tiệm cận mức $B$ --- nghĩa là \textbf{không còn vi phạm nào}.
+\end{scriptbox}
+
+% ================================================================
+\section{Phần 3 — Phương pháp: Thuật toán Di truyền \hfill{\normalfont\color{MidGray}[\textasciitilde{}2,5 phút]}}
+
+\textit{(Chỉ vào phần ``3. Phương pháp: GA'' trên poster)}
+
+\begin{scriptbox}{Lời trình bày}
+Để tối ưu hóa hàm mục tiêu trên, nhóm chúng em lựa chọn \textbf{Thuật toán Di truyền (Genetic Algorithm --- GA)}. GA là thuật toán meta-heuristic lấy cảm hứng từ quá trình tiến hóa sinh học, có khả năng khám phá không gian tìm kiếm rộng lớn một cách \textbf{song song}.
+
+\medskip
+Thuật toán GA của nhóm được thiết kế theo \textbf{pipeline 4 pha đặc thù}:
+
+\medskip
+\textbf{Pha 1 --- Khởi tạo (Initialization):}\\
+Quần thể ban đầu gồm \textbf{220 cá thể}, được khởi tạo kết hợp: \textbf{60\% theo chiến lược tham lam} --- ưu tiên xếp trước các lớp khó nhất --- và \textbf{40\% ngẫu nhiên} để đảm bảo sự đa dạng cho việc khai phá không gian nghiệm.
+
+\medskip
+\textbf{Pha 2 --- Phối lai (Crossover):}\\
+Nhóm áp dụng phép lai \textbf{nhận biết xung đột} (\textit{Conflict-aware Crossover}) --- kế thừa có chọn lọc các đoạn cấu trúc tốt từ cá thể cha mẹ, đồng thời kiểm soát để \textbf{không làm tăng số vi phạm cứng} sau mỗi phép lai.
+
+\medskip
+\textbf{Pha 3 --- Đột biến (Mutation):}\\
+Đây là điểm \textbf{sáng tạo nổi bật} của nhóm: cơ chế đột biến \textbf{tự thích ứng}. Tốc độ đột biến tự động tăng từ \textbf{15\% lên tới 55\%} mỗi khi quần thể rơi vào trạng thái \textbf{trì trệ (Stagnation)} --- tức là nhiều thế hệ liên tiếp không cải thiện được nghiệm tốt nhất. Điều này đảm bảo tính đa dạng liên tục cho quần thể.
+
+\medskip
+\textbf{Pha 4 --- Hậu xử lý (Repair \& Local Search):}\\
+Sau khi GA hội tụ, nhóm áp dụng cơ chế \textbf{sửa lỗi trực tiếp} kết hợp với tìm kiếm \textbf{leo đồi cục bộ (Hill Climbing)} để loại bỏ triệt để các vi phạm ràng buộc mềm còn sót lại.
+
+\medskip
+\textit{(Chỉ vào mã giả trong innerblock)} \quad Mã giả trên poster thể hiện rõ vòng lặp chính của GA: khởi tạo, lặp đến khi hết thời gian hoặc tìm được nghiệm khả thi hoàn toàn, cuối cùng áp dụng Local Search để hoàn thiện.
+\end{scriptbox}
+
+% ================================================================
+\section{Phần 4 — Dữ liệu Thử nghiệm \hfill{\normalfont\color{MidGray}[\textasciitilde{}1 phút]}}
+
+\textit{(Chỉ vào phần ``4. Dữ liệu bộ Thử nghiệm'' trên poster)}
+
+\begin{scriptbox}{Lời trình bày}
+Để đánh giá hiệu quả thực tiễn, nhóm tiến hành thực nghiệm trên \textbf{dữ liệu vận hành thực tế} của học kỳ 2, năm học 2025--2026.
+
+\medskip
+Bộ dữ liệu gồm \textbf{296 ca học} đa dạng --- bao gồm cả lớp lý thuyết truyền thống lẫn các nhóm tách thực hành. Lịch được phân bổ trong khung \textbf{5 ca/ngày, từ Thứ 2 đến Thứ 7}, và có tích hợp các ràng buộc bất khả dụng dựa trên lịch cá nhân của từng giảng viên.
+
+\medskip
+Để đánh giá khách quan, nhóm đặt \textbf{Simulated Annealing (SA)} làm chuẩn đối sánh --- đây là một thuật toán meta-heuristic \textbf{đơn nghiệm} được sử dụng rộng rãi trong các bài toán tối ưu hóa tương tự.
+\end{scriptbox}
+
+% ================================================================
+\section{Phần 5 — Kết quả Đối sánh \hfill{\normalfont\color{MidGray}[\textasciitilde{}2 phút]}}
+
+\textit{(Chỉ vào Bảng 1 và ảnh giao diện trong phần ``5. Kết quả'' trên poster)}
+
+\begin{scriptbox}{Lời trình bày}
+Kết quả thực nghiệm được trình bày trong \textbf{Bảng 1} trên poster. Cả hai thuật toán đều xếp được đầy đủ \textbf{296/296 ca học} mà không để xảy ra bất kỳ vi phạm ràng buộc cứng nào. Tuy nhiên, sự khác biệt rõ ràng nằm ở \textbf{chất lượng nghiệm và tốc độ}:
+
+\medskip
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{0.92\textwidth}{X c c}
+  \toprule
+  \textbf{Chỉ tiêu đo lường} & \textbf{GA} & \textbf{SA} \\
+  \midrule
+  Số ca xếp lịch thành công & \textbf{296/296} & 296/296 \\
+  Vi phạm ràng buộc cứng   & \textbf{0} & 0 \\
+  Giá trị hàm mục tiêu      & \textbf{-488.246} & -554.508 \\
+  Thời gian thực thi         & \textbf{59,2 s} & 411,1 s \\
+  \bottomrule
+\end{tabularx}
+\end{center}
+
+\medskip
+\begin{itemize}[leftmargin=1.5cm, itemsep=4pt]
+  \item Về \textbf{thời gian thực thi}: GA hoàn thành trong \textbf{59,2 giây}, trong khi SA cần tới \textbf{411,1 giây} --- GA \textbf{nhanh gấp 6,9 lần}.
+  \item Về \textbf{chất lượng nghiệm}: Hàm mục tiêu của GA đạt \textbf{-488,246}, tốt hơn đáng kể so với \textbf{-554,508} của SA. Giá trị càng tiệm cận 0 càng ít vi phạm mềm hơn. GA tối ưu triệt để hơn các tiêu chí như: tránh ca học tối muộn, hạn chế lịch cuối tuần, và cân bằng giờ giảng của giảng viên.
+\end{itemize}
+
+\medskip
+Lý giải cho sự ưu việt này: GA duy trì và tiến hóa \textbf{một quần thể đa dạng 220 cá thể song song}, trong khi SA chỉ duy trì \textbf{một nghiệm đơn} và dễ bị kẹt tại cực tiểu cục bộ.
+
+\medskip
+\textit{(Chỉ vào ảnh giao diện)} \quad Đây là \textbf{giao diện phần mềm thực tế} của hệ thống --- một ứng dụng web cho phép nhập liệu, cấu hình và tự động sinh thời khóa biểu bằng thuật toán GA.
+\end{scriptbox}
+
+% ================================================================
+\section{Phần 6 — Thảo luận \& Kết luận \hfill{\normalfont\color{MidGray}[\textasciitilde{}1,5 phút]}}
+
+\textit{(Chỉ vào phần ``6. Thảo luận'' và ``7. Kết luận'' trên poster)}
+
+\begin{scriptbox}{Lời trình bày}
+Qua phân tích chuyên sâu, nhóm rút ra hai nhận định quan trọng:
+
+\medskip
+\textbf{Nhận định 1 --- Khả năng phá vỡ tối ưu cục bộ:}\\
+Nhờ duy trì quần thể đa dạng 220 cá thể với cơ chế đột biến tự thích ứng, GA có thể dễ dàng thoát khỏi các cực tiểu cục bộ --- điều mà SA đơn nghiệm thường gặp khó khăn.
+
+\medskip
+\textbf{Nhận định 2 --- Tối ưu hóa chất lượng thực tế:}\\
+GA có độ nhạy tuyệt đối với các hàm mục tiêu phụ, chủ động điều chỉnh để tránh xếp ca học vào buổi tối muộn và hạn chế lịch học dàn trải sang ngày cuối tuần.
+
+\bigskip
+\textbf{Kết luận,} nghiên cứu đã chứng minh được tính \textbf{đúng đắn và hiệu quả} của Thuật toán Di truyền trong giải quyết bài toán UCTP tại Đại học Phenikaa. Hệ thống phần mềm được xây dựng có khả năng:
+\begin{itemize}[leftmargin=1.5cm, itemsep=3pt]
+  \item \textbf{Tự động hóa} hoàn toàn quá trình xếp lịch
+  \item \textbf{Triệt tiêu lỗi chủ quan} do thao tác thủ công
+  \item \textbf{Tương thích} với hạ tầng điện toán hiện có của nhà trường
+\end{itemize}
+
+\bigskip
+\begin{center}
+  \textbf{\large Chúng em trân trọng kính mời Hội đồng đặt câu hỏi.\\[0.2em] Nhóm sẵn sàng trả lời!}
+\end{center}
+\end{scriptbox}
+
+% ================================================================
+\newpage
+\section{Phần Phụ lục — Gợi ý Câu hỏi Phản biện \& Cách Trả lời}
+
+\begin{notebox}
+  \textbf{Lưu ý:} Đây là những câu hỏi thường gặp trong các buổi bảo vệ liên quan đến thuật toán tối ưu hóa. Đọc kỹ và chuẩn bị trả lời linh hoạt.
+\end{notebox}
+
+\bigskip
+
+% --- Câu hỏi 1 ---
+\begin{questionbox}{Câu hỏi 1: Tại sao chọn GA mà không dùng PSO, ACO hay các thuật toán khác?}
+\textbf{Trả lời gợi ý:}
+
+GA phù hợp với UCTP vì bài toán có không gian nghiệm rất lớn và nhiều ràng buộc phức tạp. GA hoạt động trên \textbf{quần thể song song}, giúp khai phá đồng thời nhiều vùng không gian nghiệm --- điều mà SA hay Hill Climbing đơn nghiệm không làm được. Ngoài ra, GA có tính linh hoạt cao trong thiết kế toán tử đặc thù, như phép lai conflict-aware của nhóm. PSO và ACO cũng là lựa chọn tiềm năng và sẽ được xem xét trong các nghiên cứu tiếp theo.
+\end{questionbox}
+
+\bigskip
+
+% --- Câu hỏi 2 ---
+\begin{questionbox}{Câu hỏi 2: Kết quả fitness $-488$ nghĩa là vẫn còn vi phạm ràng buộc mềm?}
+\textbf{Trả lời gợi ý:}
+
+Đúng vậy. Giá trị âm phản ánh rằng \textbf{vẫn còn một số vi phạm ràng buộc mềm} --- tức là lịch chưa hoàn toàn lý tưởng theo tiêu chí chất lượng. Tuy nhiên, điểm then chốt là \textbf{số vi phạm cứng bằng 0} --- toàn bộ 296 ca học đều được xếp hợp lệ. Các vi phạm mềm còn lại là \textbf{chấp nhận được trong thực tế vận hành}, và GA vẫn tối ưu tốt hơn SA với cùng điều kiện dữ liệu.
+\end{questionbox}
+
+\bigskip
+
+% --- Câu hỏi 3 ---
+\begin{questionbox}{Câu hỏi 3: Hệ số $w_h$ trong hàm mục tiêu được xác định như thế nào?}
+\textbf{Trả lời gợi ý:}
+
+Hệ số $w_h$ được xác định theo nguyên tắc \textbf{phân cấp ràng buộc}: giá trị của $w_h$ được đặt đủ lớn để đảm bảo rằng bất kỳ nghiệm nào có vi phạm cứng đều luôn có điểm fitness \textbf{thấp hơn} nghiệm thỏa mãn cứng nhưng có vi phạm mềm. Cụ thể, nhóm dùng ngưỡng $w_h \gg \max_j(w_j \cdot |S_j|_{\max})$, được tinh chỉnh qua thực nghiệm.
+\end{questionbox}
+
+\bigskip
+
+% --- Câu hỏi 4 ---
+\begin{questionbox}{Câu hỏi 4: Hệ thống có thể mở rộng lên quy mô toàn trường được không?}
+\textbf{Trả lời gợi ý:}
+
+Về mặt kiến trúc, hệ thống được thiết kế theo mô hình \textbf{client-server} với backend độc lập và API rõ ràng, nên hoàn toàn có thể mở rộng. Tuy nhiên, với dữ liệu lớn hơn nhiều lần, thời gian thực thi sẽ tăng --- đây là hướng nghiên cứu tiếp theo: \textbf{song song hóa GA} hoặc kết hợp GA với các thuật toán tìm kiếm cục bộ khác để tăng tốc độ.
+\end{questionbox}
+
+\end{document}

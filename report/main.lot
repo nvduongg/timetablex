@@ -1,9 +1,13 @@
 \babel@toc {vietnamese}{}\relax 
-\contentsline {table}{\numberline {1}{\ignorespaces Đặc trưng bộ dữ liệu thực nghiệm (Học kỳ 2, 2025--2026)}}{16}{table.caption.2}%
-\contentsline {table}{\numberline {2}{\ignorespaces Tham số thuật toán SA trong thực nghiệm}}{17}{table.caption.3}%
-\contentsline {table}{\numberline {3}{\ignorespaces Kết quả thực nghiệm thuật toán SA (Đơn vị: buổi, xung đột, giây)}}{19}{table.caption.5}%
-\contentsline {table}{\numberline {4}{\ignorespaces So sánh SA và GA trên bộ dữ liệu học kỳ 2, năm học 2025--2026}}{21}{table.caption.9}%
-\contentsline {table}{\numberline {5}{\ignorespaces Bảng ký hiệu sử dụng trong báo cáo}}{25}{table.caption.10}%
-\contentsline {table}{\numberline {6}{\ignorespaces Tham số thuật toán SA sử dụng trong thực nghiệm}}{25}{table.caption.11}%
-\contentsline {table}{\numberline {7}{\ignorespaces Phân loại ràng buộc trong bài toán UCTP}}{26}{table.caption.12}%
-\contentsline {table}{\numberline {8}{\ignorespaces Kết quả theo lần chạy}}{27}{table.caption.13}%
+\contentsline {table}{\numberline {1}{\ignorespaces Đặc trưng bộ dữ liệu thực nghiệm (Học kỳ 2, 2025--2026)}}{14}{table.caption.2}%
+\contentsline {table}{\numberline {2}{\ignorespaces Tham số thuật toán GA trong thực nghiệm (theo triển khai hệ thống)}}{15}{table.caption.3}%
+\contentsline {table}{\numberline {3}{\ignorespaces Tham số thuật toán SA (đối sánh) trong thực nghiệm}}{16}{table.caption.4}%
+\contentsline {table}{\numberline {4}{\ignorespaces Kết quả thực nghiệm thuật toán GA (đơn vị: buổi, xung đột, giây)}}{18}{table.caption.6}%
+\contentsline {table}{\numberline {5}{\ignorespaces So sánh GA và SA trên bộ dữ liệu học kỳ 2, năm học 2025--2026}}{20}{table.caption.10}%
+\contentsline {table}{\numberline {6}{\ignorespaces Các bảng cơ sở dữ liệu cốt lõi của hệ thống}}{22}{table.caption.11}%
+\contentsline {table}{\numberline {7}{\ignorespaces Bảng ký hiệu chính (mô hình bài toán và GA)}}{27}{table.caption.17}%
+\contentsline {table}{\numberline {8}{\ignorespaces Ký hiệu bổ sung cho thử nghiệm đối sánh SA}}{28}{table.caption.18}%
+\contentsline {table}{\numberline {9}{\ignorespaces Tham số thuật toán GA sử dụng trong thực nghiệm (tóm tắt)}}{28}{table.caption.19}%
+\contentsline {table}{\numberline {10}{\ignorespaces Tham số thuật toán SA (đối sánh) sử dụng trong thực nghiệm}}{28}{table.caption.20}%
+\contentsline {table}{\numberline {11}{\ignorespaces Phân loại ràng buộc trong bài toán UCTP}}{29}{table.caption.21}%
+\contentsline {table}{\numberline {12}{\ignorespaces Kết quả thực nghiệm chi tiết theo thuật toán (4 lần chạy GA + 1 lần SA)}}{30}{table.caption.22}%

@@ -1,6 +1,11 @@
 \babel@toc {vietnamese}{}\relax 
-\contentsline {figure}{\numberline {1}{\ignorespaces Quy trình thực nghiệm thuật toán SA}}{18}{figure.caption.4}%
-\contentsline {figure}{\numberline {2}{\ignorespaces Số buổi đã xếp và số xung đột khi lưu}}{19}{figure.caption.6}%
-\contentsline {figure}{\numberline {3}{\ignorespaces Thời gian chạy thuật toán SA}}{20}{figure.caption.7}%
-\contentsline {figure}{\numberline {4}{\ignorespaces Diễn biến fitness theo thời gian chạy}}{20}{figure.caption.8}%
-\contentsline {figure}{\numberline {5}{\ignorespaces Phân bố số buổi học theo ngày trong tuần}}{28}{figure.caption.14}%
+\contentsline {figure}{\numberline {1}{\ignorespaces Quy trình thực nghiệm thuật toán GA}}{17}{figure.caption.5}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Mức bao phủ buổi học của nghiệm GA (xung đột khi lưu: 0)}}{18}{figure.caption.7}%
+\contentsline {figure}{\numberline {3}{\ignorespaces So sánh thời gian chạy: GA nhanh hơn rõ rệt trên cùng bộ dữ liệu}}{19}{figure.caption.8}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Diễn biến fitness theo thời gian chạy (SA --- đường cơ sở đối sánh)}}{19}{figure.caption.9}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Màn hình chính phân hệ Xếp TKB (danh sách 296 buổi học đã được gán lịch)}}{24}{figure.caption.12}%
+\contentsline {figure}{\numberline {6}{\ignorespaces Tiến trình tối ưu của Genetic Algorithm (đang áp dụng hàm chấp nhận, 93\%)}}{24}{figure.caption.13}%
+\contentsline {figure}{\numberline {7}{\ignorespaces Tiến trình tối ưu của Simulated Annealing (đang làm nguội, 95\%)}}{25}{figure.caption.14}%
+\contentsline {figure}{\numberline {8}{\ignorespaces Hộp thoại so sánh GA và SA trực tiếp trên giao diện hệ thống}}{25}{figure.caption.15}%
+\contentsline {figure}{\numberline {9}{\ignorespaces Danh sách thời khóa biểu đầu ra (tổng 296 buổi, phân trang)}}{26}{figure.caption.16}%
+\contentsline {figure}{\numberline {10}{\ignorespaces Phân bố số buổi học theo ngày trong tuần}}{30}{figure.caption.23}%

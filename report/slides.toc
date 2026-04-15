@@ -1,6 +1,0 @@
-\babel@toc {vietnamese}{}\relax 
-\beamer@sectionintoc {1}{Giới thiệu bài toán}{3}{0}{1}
-\beamer@sectionintoc {2}{Cơ sở lý thuyết}{5}{0}{2}
-\beamer@sectionintoc {3}{Mô hình và thuật toán}{7}{0}{3}
-\beamer@sectionintoc {4}{Thực nghiệm và kết quả}{10}{0}{4}
-\beamer@sectionintoc {5}{Kết luận và kiến nghị}{14}{0}{5}
